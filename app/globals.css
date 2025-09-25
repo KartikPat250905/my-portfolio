@@ -13,6 +13,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
+.sketch-border {
+  border: 2px solid #f92ceb7c;
+  border-radius: 0.5rem;
+  box-shadow: 1px 1px 0px #983f6c, -1px -1px 0px #f92ceb7c;
+}
+
+
 .underline-center::after {
   content: '';
   position: absolute;

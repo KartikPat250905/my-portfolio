@@ -4,7 +4,7 @@ import { cookie } from '../app/font';
 export default function NavBar() {
     return (
         <div className="w-full h-[8vh] flex flex-row justify-between items-center font-sans p-10">
-            <h1 className={`${cookie.className} p-8 text-black text-xl sm:text-2xl md:text-3xl lg:text-4xl`}>Kartik Patel</h1>
+            <h1 className={`${cookie.className} p-8 text-black text-xl sm:text-2xl md:text-3xl lg:text-4xl`}></h1>
             <div className={`${cookie.className} text-xl sm:text-2xl md:text-3xl lg:text-4xl flex gap-8 p-8 text-blue-500`}>
                 <a
                 className={`${cookie.className} text-blue-500 hover:text-pink-500 underline-center relative`}
