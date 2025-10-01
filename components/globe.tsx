@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { runApp, loadTexture } from "./core-utils";
 
-// Textures as URLs from public folder
+// TODO: Make pins look nice and add names near the pins
 const Albedo = "/textures/Albedo.jpg";
 const Bump = "/textures/Bump.jpg";
 const Clouds = "/textures/Clouds.png";
@@ -16,8 +16,8 @@ function latLonToVector3(lat: number, lon: number, radius: number) {
   const theta = (lon + 180) * (Math.PI / 180); // longitude → azimuthal angle
 
   const x = -radius * Math.sin(phi) * Math.cos(theta);
-  const z =  radius * Math.sin(phi) * Math.sin(theta);
-  const y =  radius * Math.cos(phi);
+  const z = radius * Math.sin(phi) * Math.sin(theta);
+  const y = radius * Math.cos(phi);
 
   return new THREE.Vector3(x, y, z);
 }
@@ -41,7 +41,7 @@ export default function Globe() {
 
     const params = {
       sunIntensity: 1.8,
-      speedFactor: 2.0,
+      speedFactor: 0.85,
       metalness: 0.1,
       atmOpacity: { value: 0.7 },
       atmPowFactor: { value: 4.1 },
@@ -88,6 +88,8 @@ export default function Globe() {
           const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
           scene.add(earthMesh);
 
+          renderer.setClearColor(0x000000, 0);
+
           // Optional: clouds
           const cloudGeometry = new THREE.SphereGeometry(1.01, 64, 64);
           const cloudMaterial = new THREE.MeshStandardMaterial({
@@ -127,5 +129,5 @@ export default function Globe() {
     runApp(container, app, params);
   }, []);
 
-  return <div ref={containerRef} className="w-full h-[600px]"></div>;
+  return <div ref={containerRef} className="w-[60%] m-8 h-[500px]"></div>;
 }

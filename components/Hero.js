@@ -16,7 +16,6 @@ export default function Hero() {
     } else {
         greeting = "Good night!";
     }
-    //TODO: add a rolling list for what i am currently doing
     //TODO: add a avatar wavying hands besides it
     return (
         <div className="h-[87vh] w-full flex flex-row text-gray-500" id="home">

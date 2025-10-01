@@ -1,6 +1,5 @@
 import { cookie } from '../app/font';
 
-//TODO: Maybe remove name
 export default function NavBar() {
     return (
         <div className="w-full h-[8vh] flex flex-row justify-between items-center font-sans p-10">
