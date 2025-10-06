@@ -8,7 +8,7 @@ export function History()
     const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
 
     return (
-        <div className="flex flex-row">
+        <div className="flex items-start">
         <Globe selectedLocation={selectedLocation} setSelectedLocation={setSelectedLocation}/>
         <GlobeSideBar
             selectedLocation={selectedLocation}
