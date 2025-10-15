@@ -15,7 +15,7 @@ export function GlobeSideBar({
     Anand:
       "I grew up in Anand, India, where I completed my schooling through 12th grade with 86%. Along the way, I earned a 1440 on the SAT and a 6.5 on the IELTS. I was also an Abacus Grand Master, winning both national and state-level awards.",
     Helsinki:
-      "Later, I moved to Finland to study at Metropolia University of Applied Sciences, where I got in through my SAT results. I also joined Hive Helsinki, a coding program by Supercell and part of School 42 Paris. I finished my first year with a 5/5 GPA and two hackathon wins.",
+      "Later, I moved to Finland to study at Metropolia University of Applied Sciences, where I got in through my SAT results. I also joined Hive Helsinki, a tuition-free coding program by Supercell and part of School 42 Paris. I finished my first year with a 5/5 GPA and two hackathon wins.",
     Toronto:
       "I’m now continuing my studies at Toronto Metropolitan University, focusing on technology, creativity, and innovation.",
   };
@@ -29,8 +29,8 @@ export function GlobeSideBar({
             key={city}
             onClick={() => setSelectedLocation(city)}
             className={`px-3 py-1 rounded transition-all ${selectedLocation === city
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-800 hover:bg-gray-300"
               }`}
           >
             {city}
