@@ -1,6 +1,6 @@
 "use client";
 
-import { patrick } from "@/app/font";
+import { patrick } from "/app/font";
 import { Typewriter } from 'react-simple-typewriter';
 import Image from "next/image";
 

@@ -1,4 +1,4 @@
-import { indieflower, lato, patrick } from "@/app/font";
+import { indieflower, lato, patrick } from "/app/font";
 
 export default function ProjectCard({ title, desc, github }) {
     return (
