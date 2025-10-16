@@ -9,7 +9,6 @@ import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recha
 export default function GithubStats() {
     const [userData, setUserData] = useState<any>(null);
     const [languages, setLanguages] = useState<{ name: string; value: number }[]>([]);
-    const [totalLines, setTotalLines] = useState<number>(0);
     const [totalCommits, setTotalCommits] = useState<number>(0);
     const [totalPRs, setTotalPRs] = useState<number>(0);
     const [loading, setLoading] = useState(true);
@@ -73,11 +72,7 @@ export default function GithubStats() {
                     .map(([name, value]) => ({ name, value }))
                     .sort((a, b) => b.value - a.value);
 
-                const totalBytes = Object.values(langTotals).reduce((a, b) => a + b, 0);
-                const estimatedLines = Math.round(totalBytes / BYTES_PER_LINE);
-
                 setLanguages(formatted);
-                setTotalLines(estimatedLines);
             } catch (err: any) {
                 console.error("Lang fetch failed:", err);
                 setError(`Language fetch failed: ${err.message}`);
@@ -276,11 +271,10 @@ export default function GithubStats() {
                                 </Pie>
                                 <Tooltip
                                     formatter={(value: number) => {
-                                        const lines = Math.round(value / BYTES_PER_LINE);
-                                        return [`${lines.toLocaleString()} lines`, "Estimated"];
+                                        return [`${value.toLocaleString()} bytes`, "Code Size"];
                                     }}
                                     contentStyle={{
-                                        backgroundColor: "#FFFFFF",
+                                        backgroundColor: "#111827",
                                         border: "none",
                                         color: "#fff",
                                         borderRadius: 8,
@@ -320,10 +314,6 @@ export default function GithubStats() {
                         {statsLoading ? "..." : totalPRs.toLocaleString()}
                     </h4>
                     <p className="text-gray-400 text-sm">Total Pull Requests</p>
-                </div>
-                <div>
-                    <h4 className="text-xl font-semibold">{totalLines.toLocaleString()}</h4>
-                    <p className="text-gray-400 text-sm">Total Lines of Code</p>
                 </div>
             </motion.div>
         </div>
