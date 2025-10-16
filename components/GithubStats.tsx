@@ -90,47 +90,77 @@ export default function GithubStats() {
             try {
                 console.log("Starting to fetch activity stats...");
                 
-                const reposResponse = await octokit.request("GET /users/{username}/repos", {
-                    username: "KartikPat250905",
-                    per_page: 100,
-                });
-
-                console.log(`Found ${reposResponse.data.length} repositories`);
-
-                let totalCommitCount = 0;
-                
-                for (const repo of reposResponse.data) {
-                    if (repo.fork) continue;
+                // Use search API to get total commit count
+                try {
+                    const commitsSearch = await octokit.request("GET /search/commits", {
+                        q: `author:KartikPat250905`,
+                        per_page: 1,
+                    });
                     
-                    try {
-                        const commitsResponse = await octokit.request("GET /repos/{owner}/{repo}/commits", {
-                            owner: repo.owner.login,
-                            repo: repo.name,
-                            per_page: 1,
+                    const totalCommitCount = commitsSearch.data.total_count;
+                    console.log(`Total commits from search API: ${totalCommitCount}`);
+                    setTotalCommits(totalCommitCount);
+                } catch (searchError: any) {
+                    console.log("Search API failed, falling back to repo iteration method");
+                    
+                    // Fallback: Fetch ALL repositories with pagination
+                    let allRepos: any[] = [];
+                    let page = 1;
+                    let hasMore = true;
+                    
+                    while (hasMore) {
+                        const reposResponse = await octokit.request("GET /users/{username}/repos", {
+                            username: "KartikPat250905",
+                            per_page: 100,
+                            page: page,
                         });
                         
-                        const linkHeader = commitsResponse.headers.link;
+                        allRepos = [...allRepos, ...reposResponse.data];
                         
-                        if (linkHeader) {
-                            const matches = linkHeader.match(/page=(\d+)>; rel="last"/);
-                            if (matches && matches[1]) {
-                                const count = parseInt(matches[1], 10);
-                                totalCommitCount += count;
-                                console.log(`Repo ${repo.name}: ${count} commits`);
-                            }
-                        } else if (commitsResponse.data.length > 0) {
-                            totalCommitCount += commitsResponse.data.length;
-                            console.log(`Repo ${repo.name}: ${commitsResponse.data.length} commits (no pagination)`);
+                        if (reposResponse.data.length < 100) {
+                            hasMore = false;
+                        } else {
+                            page++;
                         }
-                    } catch (error) {
-                        console.log(`Failed to fetch commits for ${repo.name}`);
-                        continue;
                     }
+
+                    console.log(`Found ${allRepos.length} repositories`);
+
+                    let totalCommitCount = 0;
+                    
+                    for (const repo of allRepos) {
+                        try {
+                            const commitsResponse = await octokit.request("GET /repos/{owner}/{repo}/commits", {
+                                owner: repo.owner.login,
+                                repo: repo.name,
+                                author: "KartikPat250905",
+                                per_page: 1,
+                            });
+                            
+                            const linkHeader = commitsResponse.headers.link;
+                            
+                            if (linkHeader) {
+                                const matches = linkHeader.match(/page=(\d+)>; rel="last"/);
+                                if (matches && matches[1]) {
+                                    const count = parseInt(matches[1], 10);
+                                    totalCommitCount += count;
+                                    console.log(`Repo ${repo.name}: ${count} commits ${repo.fork ? '(forked)' : ''}`);
+                                }
+                            } else if (commitsResponse.data.length > 0) {
+                                totalCommitCount += commitsResponse.data.length;
+                                console.log(`Repo ${repo.name}: ${commitsResponse.data.length} commits (no pagination) ${repo.fork ? '(forked)' : ''}`);
+                            }
+                        } catch (error) {
+                            console.log(`Failed to fetch commits for ${repo.name}`);
+                            continue;
+                        }
+                    }
+
+                    console.log(`Total commits from repos: ${totalCommitCount}`);
+                    setTotalCommits(totalCommitCount);
                 }
 
-                console.log(`Total commits: ${totalCommitCount}`);
-                setTotalCommits(totalCommitCount);
-
+                // Fetch PRs
                 try {
                     const prsResponse = await octokit.request("GET /search/issues", {
                         q: `author:KartikPat250905 type:pr`,
@@ -160,7 +190,7 @@ export default function GithubStats() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center gap-4 p-8 bg-[#0d1117] text-white rounded-2xl shadow-xl m-20">
+            <div className="flex flex-col items-center gap-4 p-8 bg-[#0d1117] text-white rounded-2xl shadow-xl m-10">
                 <div className="text-red-400 text-center">
                     <h3 className="text-xl font-semibold mb-2">Error Loading GitHub Stats</h3>
                     <p className="text-sm">{error}</p>
