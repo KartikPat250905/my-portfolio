@@ -1,7 +1,8 @@
 import Hero from "../components/Hero";
-import NavBar from "@/components/NavBar";
-import ProjectsSection from "@/components/ProjectSection";
+import NavBar from "/components/NavBar";
+import ProjectsSection from "/components/ProjectSection";
 import { History } from "/components/History";
+import Stats from "/components/Stats"
 
 export default function Home() {
   return (
@@ -10,7 +11,8 @@ export default function Home() {
         <NavBar />
         <Hero />
         <ProjectsSection />
-        <History></History>
+        <History />
+        <Stats/>
       </div>
     </>
   );
