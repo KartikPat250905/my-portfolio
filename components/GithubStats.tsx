@@ -6,9 +6,6 @@ import { Octokit } from "octokit";
 import GitHubCalendar from "react-github-calendar";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 
-// ADD YOUR GITHUB TOKEN HERE
-const GITHUB_TOKEN = "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"; // Paste your token here
-
 export default function GithubStats() {
     const [userData, setUserData] = useState<any>(null);
     const [languages, setLanguages] = useState<{ name: string; value: number }[]>([]);
@@ -21,10 +18,11 @@ export default function GithubStats() {
     const [error, setError] = useState<string>("");
 
     const BYTES_PER_LINE = 50;
+    const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
 
     useEffect(() => {
         if (!GITHUB_TOKEN) {
-            setError("Please add your GitHub token at the top of the file");
+            setError("GitHub token not found. Please add NEXT_PUBLIC_GITHUB_TOKEN to your .env.local file");
             setLoading(false);
             setLangLoading(false);
             setStatsLoading(false);
@@ -125,7 +123,7 @@ export default function GithubStats() {
                             console.log(`Repo ${repo.name}: ${commitsResponse.data.length} commits (no pagination)`);
                         }
                     } catch (error) {
-                        console.log(`Failed to fetch commits for ${repo.name}:`, error);
+                        console.log(`Failed to fetch commits for ${repo.name}`);
                         continue;
                     }
                 }
@@ -141,7 +139,6 @@ export default function GithubStats() {
                     setTotalPRs(prsResponse.data.total_count);
                 } catch (error: any) {
                     console.error("Failed to fetch PRs:", error);
-                    setError(`PR fetch failed: ${error.message}`);
                 }
             } catch (err: any) {
                 console.error("Activity fetch failed:", err);
@@ -154,7 +151,7 @@ export default function GithubStats() {
         fetchUser();
         fetchLanguages();
         fetchActivityStats();
-    }, []);
+    }, [GITHUB_TOKEN]);
 
     const COLORS = [
         "#f87171", "#facc15", "#34d399", "#60a5fa", "#a78bfa",
@@ -163,14 +160,19 @@ export default function GithubStats() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center gap-4 p-8 bg-[#0d1117] text-white rounded-2xl shadow-xl m-10">
+            <div className="flex flex-col items-center gap-4 p-8 bg-[#0d1117] text-white rounded-2xl shadow-xl m-20">
                 <div className="text-red-400 text-center">
                     <h3 className="text-xl font-semibold mb-2">Error Loading GitHub Stats</h3>
                     <p className="text-sm">{error}</p>
                     {!GITHUB_TOKEN && (
-                        <p className="mt-4 text-gray-300">
-                            Please add your GitHub Personal Access Token to the component.
-                        </p>
+                        <div className="mt-4 text-gray-300 text-left max-w-md">
+                            <p className="font-semibold mb-2">Setup Instructions:</p>
+                            <ol className="list-decimal list-inside space-y-1 text-sm">
+                                <li>Create a <code className="bg-gray-800 px-1 rounded">.env.local</code> file in your project root</li>
+                                <li>Add: <code className="bg-gray-800 px-1 rounded">NEXT_PUBLIC_GITHUB_TOKEN=your_token_here</code></li>
+                                <li>Restart your development server</li>
+                            </ol>
+                        </div>
                     )}
                 </div>
             </div>
@@ -192,6 +194,17 @@ export default function GithubStats() {
                         <p className="mt-2 text-sm text-gray-300">
                             {userData.public_repos} Repositories • {userData.followers} Followers
                         </p>
+                        <a
+                            href={`https://github.com/${userData.login}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-4 px-6 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2 text-sm font-medium"
+                        >
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                            </svg>
+                            View on GitHub
+                        </a>
                     </>
                 )}
             </div>
@@ -237,7 +250,7 @@ export default function GithubStats() {
                                         return [`${lines.toLocaleString()} lines`, "Estimated"];
                                     }}
                                     contentStyle={{
-                                        backgroundColor: "#111827",
+                                        backgroundColor: "#FFFFFF",
                                         border: "none",
                                         color: "#fff",
                                         borderRadius: 8,
