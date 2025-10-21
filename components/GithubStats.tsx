@@ -16,7 +16,6 @@ export default function GithubStats() {
     const [statsLoading, setStatsLoading] = useState(true);
     const [error, setError] = useState<string>("");
 
-    const BYTES_PER_LINE = 50;
     const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
 
     useEffect(() => {
@@ -83,7 +82,6 @@ export default function GithubStats() {
 
         async function fetchActivityStats() {
             try {
-                console.log("Starting to fetch activity stats...");
                 
                 // Use search API to get total commit count
                 try {
@@ -93,12 +91,8 @@ export default function GithubStats() {
                     });
                     
                     const totalCommitCount = commitsSearch.data.total_count;
-                    console.log(`Total commits from search API: ${totalCommitCount}`);
                     setTotalCommits(totalCommitCount);
                 } catch (searchError: any) {
-                    console.log("Search API failed, falling back to repo iteration method");
-                    
-                    // Fallback: Fetch ALL repositories with pagination
                     let allRepos: any[] = [];
                     let page = 1;
                     let hasMore = true;
@@ -119,8 +113,6 @@ export default function GithubStats() {
                         }
                     }
 
-                    console.log(`Found ${allRepos.length} repositories`);
-
                     let totalCommitCount = 0;
                     
                     for (const repo of allRepos) {
@@ -139,19 +131,16 @@ export default function GithubStats() {
                                 if (matches && matches[1]) {
                                     const count = parseInt(matches[1], 10);
                                     totalCommitCount += count;
-                                    console.log(`Repo ${repo.name}: ${count} commits ${repo.fork ? '(forked)' : ''}`);
                                 }
                             } else if (commitsResponse.data.length > 0) {
                                 totalCommitCount += commitsResponse.data.length;
-                                console.log(`Repo ${repo.name}: ${commitsResponse.data.length} commits (no pagination) ${repo.fork ? '(forked)' : ''}`);
+                                
                             }
                         } catch (error) {
-                            console.log(`Failed to fetch commits for ${repo.name}`);
                             continue;
                         }
                     }
 
-                    console.log(`Total commits from repos: ${totalCommitCount}`);
                     setTotalCommits(totalCommitCount);
                 }
 
@@ -160,7 +149,6 @@ export default function GithubStats() {
                     const prsResponse = await octokit.request("GET /search/issues", {
                         q: `author:KartikPat250905 type:pr`,
                     });
-                    console.log(`Total PRs: ${prsResponse.data.total_count}`);
                     setTotalPRs(prsResponse.data.total_count);
                 } catch (error: any) {
                     console.error("Failed to fetch PRs:", error);
@@ -269,18 +257,6 @@ export default function GithubStats() {
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip
-                                    formatter={(value: number) => {
-                                        return [`${value.toLocaleString()} bytes`, "Code Size"];
-                                    }}
-                                    contentStyle={{
-                                        backgroundColor: "#111827",
-                                        border: "none",
-                                        color: "#fff",
-                                        borderRadius: 8,
-                                        padding: "8px 12px",
-                                    }}
-                                />
                                 <Legend
                                     layout="vertical"
                                     align="right"
@@ -315,7 +291,7 @@ export default function GithubStats() {
                     </h4>
                     <p className="text-gray-400 text-sm">Total Pull Requests</p>
                 </div>
-            </motion.div>
+            </motion.div> 
         </div>
     );
 }
