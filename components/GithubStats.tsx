@@ -204,9 +204,6 @@ export default function GithubStats() {
                     <>
                         <h2 className="mt-4 text-xl font-semibold">{userData.name}</h2>
                         <p className="text-gray-400">@{userData.login}</p>
-                        <p className="mt-2 text-sm text-gray-300">
-                            {userData.public_repos} Repositories • {userData.followers} Followers
-                        </p>
                         <a
                             href={`https://github.com/${userData.login}`}
                             target="_blank"
