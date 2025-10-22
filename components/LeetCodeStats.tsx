@@ -24,74 +24,24 @@ export default function LeetCodeStats() {
   useEffect(() => {
     async function fetchLeetCodeStats() {
       try {
-        // GraphQL query to fetch user stats
-        const query = `
-          query userProfile($username: String!) {
-            matchedUser(username: $username) {
-              username
-              submitStats {
-                acSubmissionNum {
-                  difficulty
-                  count
-                  submissions
-                }
-              }
-              profile {
-                ranking
-                reputation
-              }
-            }
-            allQuestionsCount {
-              difficulty
-              count
-            }
-          }
-        `;
+        // Use a proxy API to avoid CORS issues
+        const response = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`);
 
-        const response = await fetch("https://leetcode.com/graphql", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Referer": "https://leetcode.com",
-          },
-          body: JSON.stringify({
-            query,
-            variables: { username },
-          }),
-        });
+        if (!response.ok) {
+          throw new Error("User not found or API error");
+        }
 
         const data = await response.json();
 
-        if (data.errors) {
-          throw new Error(data.errors[0].message);
-        }
-
-        const userData = data.data.matchedUser;
-        const allQuestions = data.data.allQuestionsCount;
-
-        // Parse the submission stats
-        const acStats = userData.submitStats.acSubmissionNum;
-        const easySolved = acStats.find((item: any) => item.difficulty === "Easy")?.count || 0;
-        const mediumSolved = acStats.find((item: any) => item.difficulty === "Medium")?.count || 0;
-        const hardSolved = acStats.find((item: any) => item.difficulty === "Hard")?.count || 0;
-        const totalSolved = acStats.find((item: any) => item.difficulty === "All")?.count || 0;
-
-        // Get total questions
-        const totalQuestions = allQuestions.find((item: any) => item.difficulty === "All")?.count || 0;
-
-        // Calculate acceptance rate
-        const totalSubmissions = acStats.find((item: any) => item.difficulty === "All")?.submissions || 1;
-        const acceptanceRate = ((totalSolved / totalSubmissions) * 100).toFixed(1);
-
         setStats({
-          totalSolved,
-          totalQuestions,
-          easySolved,
-          mediumSolved,
-          hardSolved,
-          ranking: userData.profile.ranking || 0,
-          acceptanceRate: parseFloat(acceptanceRate),
-          contributionPoints: userData.profile.reputation || 0,
+          totalSolved: data.totalSolved,
+          totalQuestions: data.totalQuestions,
+          easySolved: data.easySolved,
+          mediumSolved: data.mediumSolved,
+          hardSolved: data.hardSolved,
+          ranking: data.ranking || 0,
+          acceptanceRate: parseFloat(data.acceptanceRate) || 0,
+          contributionPoints: data.contributionPoints || 0,
         });
       } catch (err: any) {
         console.error("Failed to fetch LeetCode stats:", err);
@@ -112,7 +62,7 @@ export default function LeetCodeStats() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center gap-4 p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-10">
+      <div className="flex flex-col items-center gap-4 p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-10 w-full">
         <div className="text-gray-400">Loading LeetCode stats...</div>
       </div>
     );
@@ -120,7 +70,7 @@ export default function LeetCodeStats() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center gap-4 p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-10">
+      <div className="flex flex-col items-center gap-4 p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-10 w-full">
         <div className="text-red-400 text-center">
           <h3 className="text-xl font-semibold mb-2">Error Loading LeetCode Stats</h3>
           <p className="text-sm">{error}</p>
@@ -143,7 +93,7 @@ export default function LeetCodeStats() {
   const progressPercentage = ((stats.totalSolved / stats.totalQuestions) * 100).toFixed(1);
 
   return (
-    <div className="flex flex-col items-center gap-10 p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-10 max-w-4xl">
+    <div className="flex flex-col items-center gap-10 p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-10 w-[67%]">
       {/* Header */}
       <div className="flex flex-col items-center text-center">
         <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
@@ -163,28 +113,30 @@ export default function LeetCodeStats() {
         </a>
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar - Full Width Section */}
       <motion.div
-        className="w-full"
+        className="flex justify-center w-full"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.8 }}
       >
-        <div className="flex justify-between text-sm mb-2">
-          <span className="text-gray-300">Problems Solved</span>
-          <span className="text-gray-300">
-            {stats.totalSolved} / {stats.totalQuestions}
-          </span>
+        <div className="w-full">
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-gray-300">Problems Solved</span>
+            <span className="text-gray-300">
+              {stats.totalSolved} / {stats.totalQuestions}
+            </span>
+          </div>
+          <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-green-500 to-blue-500"
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercentage}%` }}
+              transition={{ duration: 1, delay: 0.2 }}
+            />
+          </div>
+          <p className="text-center text-gray-400 text-xs mt-2">{progressPercentage}% Complete</p>
         </div>
-        <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-green-500 to-blue-500"
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercentage}%` }}
-            transition={{ duration: 1, delay: 0.2 }}
-          />
-        </div>
-        <p className="text-center text-gray-400 text-xs mt-2">{progressPercentage}% Complete</p>
       </motion.div>
 
       {/* Difficulty Breakdown */}
@@ -266,12 +218,6 @@ export default function LeetCodeStats() {
         <div>
           <h4 className="text-2xl font-semibold text-green-400">{stats.acceptanceRate}%</h4>
           <p className="text-gray-400 text-sm mt-1">Acceptance Rate</p>
-        </div>
-        <div>
-          <h4 className="text-2xl font-semibold text-purple-400">
-            {stats.contributionPoints.toLocaleString()}
-          </h4>
-          <p className="text-gray-400 text-sm mt-1">Reputation Points</p>
         </div>
       </motion.div>
     </div>
