@@ -135,7 +135,6 @@ export default function LeetCodeStats() {
               transition={{ duration: 1, delay: 0.2 }}
             />
           </div>
-          <p className="text-center text-gray-400 text-xs mt-2">{progressPercentage}% Complete</p>
         </div>
       </motion.div>
 
