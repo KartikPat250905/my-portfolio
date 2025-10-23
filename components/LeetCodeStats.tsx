@@ -154,8 +154,8 @@ export default function LeetCodeStats() {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
+                labelLine={false}
                 outerRadius={100}
-                label={({ name, value }) => `${name}: ${value}`}
               >
                 {pieData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
