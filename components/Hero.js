@@ -21,7 +21,7 @@ export default function Hero() {
         <div className="h-[87vh] w-full flex flex-row text-gray-500" id="home">
             <div className="w-1/2 h-full flex justify-center items-center pl-35">
             <Image
-                src="/assets/images/memoji.webp"
+                src="./assets/images/memoji.webp"
                 alt="My App Screenshot"
                 width={450}
                 height={450}

@@ -4,9 +4,9 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { CSS2DRenderer, CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer";
 
-const Albedo = "/assets/globe/Albedo.jpg";
-const Bump = "/assets/globe/Bump.jpg";
-const Clouds = "/assets/globe/Clouds.png";
+const Albedo = "./assets/globe/Albedo.jpg";
+const Bump = "./assets/globe/Bump.jpg";
+const Clouds = "./assets/globe/Clouds.png";
 
 function latLonToVector3(lat: number, lon: number, radius: number) {
   const phi = (90 - lat) * (Math.PI / 180);
