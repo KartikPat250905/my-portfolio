@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "jest",
-    "dev": " next dev -p 8000",
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "export": "next export",
+    "deploy": "next build && next export"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.6",

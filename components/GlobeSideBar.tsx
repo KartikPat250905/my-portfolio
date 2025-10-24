@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { indieflower, lato } from "/app/font";
+import { indieflower, lato } from "../app/font";
 
 const locations = ["Anand", "Helsinki", "Toronto"];
 

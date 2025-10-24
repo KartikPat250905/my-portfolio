@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Octokit } from "octokit";
 import GitHubCalendar from "react-github-calendar";
@@ -195,9 +196,11 @@ export default function GithubStats() {
     return (
         <div className="flex flex-col items-center gap-10 p-8 bg-[#0d1117] text-white rounded-2xl shadow-xl m-10">
             <div className="flex flex-col items-center text-center">
-                <img
+                <Image
                     src="https://avatars.githubusercontent.com/u/166979981?v=4"
                     alt="GitHub Avatar"
+                    width={160}
+                    height={160}
                     className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-gray-700 shadow-md hover:scale-105 transition-transform"
                 />
                 {!loading && userData && (
@@ -248,7 +251,7 @@ export default function GithubStats() {
                                     cy="50%"
                                     outerRadius={100}
                                     labelLine={false}
-                                    label={({ name, percent }) => (percent > 0.08 ? `${name} ${(percent * 100).toFixed(1)}%` : "")}
+                                    label={({ name, percent }) => (percent as number) > 0.08 ? `${name} ${((percent as number) * 100).toFixed(1)}%` : ""}
                                 >
                                     {languages.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

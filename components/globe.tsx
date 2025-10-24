@@ -370,6 +370,13 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
 
   // Aggressive cleanup on unmount
   useEffect(() => {
+    // Capture ref values at start of effect
+    const resources = resourcesRef.current;
+    const scene = sceneRef.current;
+    const renderer = rendererRef.current;
+    const labelRenderer = labelRendererRef.current;
+    const container = containerRef.current;
+
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -377,34 +384,34 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
       }
 
       // Dispose all tracked resources
-      resourcesRef.current.geometries.forEach((geo) => geo.dispose());
-      resourcesRef.current.materials.forEach((mat) => mat.dispose());
-      resourcesRef.current.textures.forEach((tex) => tex.dispose());
+      resources.geometries.forEach((geo) => geo.dispose());
+      resources.materials.forEach((mat) => mat.dispose());
+      resources.textures.forEach((tex) => tex.dispose());
       
       // Clear arrays
-      resourcesRef.current.geometries = [];
-      resourcesRef.current.materials = [];
-      resourcesRef.current.textures = [];
+      resources.geometries = [];
+      resources.materials = [];
+      resources.textures = [];
 
-      if (sceneRef.current) {
-        sceneRef.current.clear();
+      if (scene) {
+        scene.clear();
         sceneRef.current = null;
       }
 
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-        rendererRef.current.forceContextLoss();
-        rendererRef.current.domElement.remove();
+      if (renderer) {
+        renderer.dispose();
+        renderer.forceContextLoss();
+        renderer.domElement.remove();
         rendererRef.current = null;
       }
 
-      if (labelRendererRef.current) {
-        labelRendererRef.current.domElement.remove();
+      if (labelRenderer) {
+        labelRenderer.domElement.remove();
         labelRendererRef.current = null;
       }
 
-      if (containerRef.current) {
-        containerRef.current.innerHTML = "";
+      if (container) {
+        container.innerHTML = "";
       }
 
       initializedRef.current = false;

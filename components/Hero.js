@@ -32,7 +32,7 @@ export default function Hero() {
             <div className="flex flex-col w-1/2 h-full justify-center items-start text-left p-8 m-0">
                 <h1 className={`text-6xl ${patrick.className} p-4 tracking-wide`}>Hello, {greeting} 👋</h1>
                 <h1 className={`text-5xl ${patrick.className} p-4 tracking-wide`}>
-                    I'm Kartik, currently{' '}
+                    I&apos;m Kartik, currently{' '}
                     <span className="text-indigo-500">
                     <Typewriter
                         words={["exploring", "building", "learning"]}
