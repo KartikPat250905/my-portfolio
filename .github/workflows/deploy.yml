@@ -17,6 +17,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_GITHUB_TOKEN: ${{ secrets.NEXT_PUBLIC_GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,8 +31,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      - name: Build
+      - name: Build with Next.js
         run: npm run build
+        
+      - name: List out directory (debug)
+        run: ls -la out || echo "out directory not found"
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
