@@ -19,20 +19,20 @@ export default function Hero() {
     }
     //TODO: add a avatar wavying hands besides it
     return (
-        <div className="h-[87vh] w-full flex flex-row text-gray-500" id="home">
-            <div className="w-1/2 h-full flex justify-center items-center pl-35">
+        <div className="min-h-[70vh] sm:h-[87vh] w-full flex flex-col lg:flex-row text-gray-500" id="home">
+            <div className="w-full lg:w-1/2 h-auto lg:h-full flex justify-center items-center p-4 sm:p-8 lg:pl-35">
             <Image
                 src={getAssetPath("/assets/images/memoji.webp")}
                 alt="My App Screenshot"
                 width={450}
                 height={450}
-                className="rounded-lg"
+                className="rounded-lg w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 xl:w-[450px] xl:h-[450px] object-cover"
                 priority
             />
             </div>
-            <div className="flex flex-col w-1/2 h-full justify-center items-start text-left p-8 m-0">
-                <h1 className={`text-6xl ${patrick.className} p-4 tracking-wide`}>Hello, {greeting} 👋</h1>
-                <h1 className={`text-5xl ${patrick.className} p-4 tracking-wide`}>
+            <div className="flex flex-col w-full lg:w-1/2 h-auto lg:h-full justify-center items-center lg:items-start text-center lg:text-left p-4 sm:p-6 lg:p-8 m-0">
+                <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl ${patrick.className} p-3 sm:p-4 lg:p-4 tracking-wide`}>Hello, {greeting} 👋</h1>
+                <h1 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl ${patrick.className} p-3 sm:p-4 lg:p-4 tracking-wide`}>
                     I&apos;m Kartik, currently{' '}
                     <span className="text-indigo-500">
                     <Typewriter

@@ -21,14 +21,14 @@ export function GlobeSideBar({
   };
 
   return (
-    <div className="flex flex-col h-full w-[300px] bg-white rounded-xl shadow-md p-4 mt-20">
+    <div className="flex flex-col h-auto lg:h-full w-full lg:w-[300px] bg-white rounded-xl shadow-md p-4 mt-4 lg:mt-20 min-h-[200px] lg:min-h-[400px]">
       {/* Top menu */}
-      <div className="flex justify-around mb-4">
+      <div className="flex flex-wrap justify-center lg:justify-around gap-2 mb-4">
         {locations.map((city) => (
           <button
             key={city}
             onClick={() => setSelectedLocation(city)}
-            className={`px-3 py-1 rounded transition-all ${selectedLocation === city
+            className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded transition-all ${selectedLocation === city
               ? "bg-blue-500 text-white"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300"
               }`}
@@ -42,13 +42,13 @@ export function GlobeSideBar({
       <div className="flex-1 overflow-y-auto">
         {selectedLocation ? (
           <div className={`${lato.className}`}>
-            <h2 className="text-lg font-semibold mb-2">
+            <h2 className="text-base sm:text-lg font-semibold mb-2">
               {selectedLocation}
             </h2>
-            <p className="text-sm leading-relaxe text-gray-600">{info[selectedLocation]}</p>
+            <p className="text-xs sm:text-sm leading-relaxed text-gray-600">{info[selectedLocation]}</p>
           </div>
         ) : (
-          <p className="text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-gray-600 text-center lg:text-left">
             Select a location from the menu or click a label on the globe to
             learn more.
           </p>

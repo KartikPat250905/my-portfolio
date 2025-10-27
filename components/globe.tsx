@@ -419,5 +419,5 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
     };
   }, []);
 
-  return <div ref={containerRef} className="relative w-[50%] m-8 h-[500px] ml-35"></div>;
+  return <div ref={containerRef} className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] m-2 sm:m-4 lg:m-8"></div>;
 }
