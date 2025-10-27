@@ -62,7 +62,7 @@ export default function LeetCodeStats() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center gap-4 p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-10 w-full">
+      <div className="flex flex-col items-center gap-4 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl">
         <div className="text-gray-400">Loading LeetCode stats...</div>
       </div>
     );
@@ -70,7 +70,7 @@ export default function LeetCodeStats() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center gap-4 p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-10 w-full">
+      <div className="flex flex-col items-center gap-4 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl">
         <div className="text-red-400 text-center">
           <h3 className="text-xl font-semibold mb-2">Error Loading LeetCode Stats</h3>
           <p className="text-sm">{error}</p>
@@ -92,8 +92,8 @@ export default function LeetCodeStats() {
 
   const progressPercentage = ((stats.totalSolved / stats.totalQuestions) * 100).toFixed(1);
 
-  return (
-    <div className="flex flex-col items-center gap-10 p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-10 w-[67%]">
+    return (
+    <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 bg-[#1a1a1a] text-white rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl">
       {/* Header */}
       <div className="flex flex-col items-center text-center">
         <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
