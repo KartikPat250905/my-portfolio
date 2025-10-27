@@ -1,8 +1,9 @@
 "use client";
 
-import { patrick } from "/app/font";
+import { patrick } from "../app/font";
 import { Typewriter } from 'react-simple-typewriter';
 import Image from "next/image";
+import { getAssetPath } from "../utils/paths";
 
 export default function Hero() {
     const hours = new Date().getHours();
@@ -21,7 +22,7 @@ export default function Hero() {
         <div className="h-[87vh] w-full flex flex-row text-gray-500" id="home">
             <div className="w-1/2 h-full flex justify-center items-center pl-35">
             <Image
-                src="./assets/images/memoji.webp"
+                src={getAssetPath("/assets/images/memoji.webp")}
                 alt="My App Screenshot"
                 width={450}
                 height={450}
