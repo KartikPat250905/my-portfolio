@@ -20,6 +20,8 @@ interface HackathonStatsProps {
 
 export default function HackathonStats({ hackathons }: HackathonStatsProps) {
   const [selectedHackathon, setSelectedHackathon] = useState<Hackathon | null>(null);
+  const [expandedTechCards, setExpandedTechCards] = useState<Set<number>>(new Set());
+  const [showAllTechnologies, setShowAllTechnologies] = useState(false);
 
   // Use sample data if no hackathons provided
   const displayHackathons = hackathons && hackathons.length > 0 ? hackathons : sampleHackathons;
@@ -30,7 +32,7 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
   
   // Get all unique technologies
   const allTechnologies = Array.from(new Set(displayHackathons.flatMap(h => h.technologies)));
-  const topTechnologies = allTechnologies.slice(0, 6);
+  const topTechnologies = allTechnologies;
 
   // Show empty state if no hackathons
   if (displayHackathons.length === 0) {
@@ -133,7 +135,7 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
         >
-          {topTechnologies.map((tech, index) => (
+          {(showAllTechnologies ? topTechnologies : topTechnologies.slice(0, 5)).map((tech, index) => (
             <span
               key={tech}
               className="px-3 py-1 bg-gray-800 text-gray-300 rounded-full text-sm border border-gray-700 hover:border-purple-500 transition-colors"
@@ -141,6 +143,22 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
               {tech}
             </span>
           ))}
+          {topTechnologies.length > 5 && !showAllTechnologies && (
+            <button
+              onClick={() => setShowAllTechnologies(true)}
+              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-gray-300 rounded-full text-sm border border-gray-700 hover:border-purple-500 transition-colors cursor-pointer"
+            >
+              +{topTechnologies.length - 5}
+            </button>
+          )}
+          {showAllTechnologies && topTechnologies.length > 5 && (
+            <button
+              onClick={() => setShowAllTechnologies(false)}
+              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-gray-300 rounded-full text-sm border border-gray-700 hover:border-purple-500 transition-colors cursor-pointer"
+            >
+              Show less
+            </button>
+          )}
         </motion.div>
       )}
 
@@ -154,11 +172,7 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
         {displayHackathons.map((hackathon, index) => (
           <motion.div
             key={`${hackathon.name}-${index}`}
-            className={`
-              relative bg-gray-900 rounded-xl p-6 border-2 transition-all duration-300 hover:scale-105 cursor-pointer
-              ${getCardBorderClass(hackathon.isWinner, hackathon.position)}
-              ${getWinnerGradient(hackathon.isWinner, hackathon.position)}
-            `}
+            className={`relative bg-gray-900 rounded-xl p-6 border-2 transition-all duration-300 hover:scale-105 cursor-pointer ${getCardBorderClass(hackathon.isWinner, hackathon.position)} ${getWinnerGradient(hackathon.isWinner, hackathon.position)}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * index, duration: 0.5 }}
@@ -194,7 +208,7 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
               <div className="space-y-3">
                 {/* Technologies */}
                 <div className="flex flex-wrap gap-1">
-                  {hackathon.technologies.slice(0, 3).map((tech) => (
+                  {(expandedTechCards.has(index) ? hackathon.technologies : hackathon.technologies.slice(0, 3)).map((tech) => (
                     <span
                       key={tech}
                       className="px-2 py-1 bg-gray-800 text-gray-300 rounded text-xs border border-gray-700"
@@ -202,10 +216,31 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
                       {tech}
                     </span>
                   ))}
-                  {hackathon.technologies.length > 3 && (
-                    <span className="px-2 py-1 bg-gray-700 text-gray-400 rounded text-xs">
+                  {hackathon.technologies.length > 3 && !expandedTechCards.has(index) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedTechCards(prev => new Set(prev).add(index));
+                      }}
+                      className="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-gray-300 rounded text-xs transition-colors cursor-pointer"
+                    >
                       +{hackathon.technologies.length - 3}
-                    </span>
+                    </button>
+                  )}
+                  {expandedTechCards.has(index) && hackathon.technologies.length > 3 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedTechCards(prev => {
+                          const newSet = new Set(prev);
+                          newSet.delete(index);
+                          return newSet;
+                        });
+                      }}
+                      className="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-gray-300 rounded text-xs transition-colors cursor-pointer"
+                    >
+                      Show less
+                    </button>
                   )}
                 </div>
 

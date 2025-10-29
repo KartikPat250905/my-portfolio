@@ -19,7 +19,7 @@ export default function Hero() {
     }
     //TODO: add a avatar wavying hands besides it
     return (
-        <div className="min-h-[85vh] sm:h-[90vh] w-full flex flex-col lg:flex-row text-gray-500" id="home">
+        <div className="min-h-[70vh] sm:min-h-[85vh] lg:h-[90vh] w-full flex flex-col lg:flex-row text-gray-500" id="home">
             <div className="w-full lg:w-1/2 h-auto lg:h-full flex justify-center items-center p-2 sm:p-4 lg:pl-20">
             <Image
                 src={getAssetPath("/assets/images/memoji.webp")}
