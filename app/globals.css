@@ -1,9 +1,23 @@
 @import "tailwindcss";
 
-
 :root {
-  --background: #ffffff;
+  --background: #f8fafc;
   --foreground: #171717;
+  --text-primary: #171717;
+  --text-secondary: #6b7280;
+  --grid-color: rgba(200, 200, 200, 0.4);
+  --border-color: #f92ceb7c;
+  --shadow-color: #983f6c;
+}
+
+[data-theme="dark"] {
+  --background: #0f0f0f;
+  --foreground: #ededed;
+  --text-primary: #ededed;
+  --text-secondary: #9ca3af;
+  --grid-color: rgba(100, 100, 100, 0.3);
+  --border-color: #f92ceb7c;
+  --shadow-color: #983f6c;
 }
 
 @theme inline {
@@ -14,11 +28,10 @@
 }
 
 .sketch-border {
-  border: 2px solid #f92ceb7c;
+  border: 2px solid var(--border-color);
   border-radius: 0.5rem;
-  box-shadow: 1px 1px 0px #983f6c, -1px -1px 0px #f92ceb7c;
+  box-shadow: 1px 1px 0px var(--shadow-color), -1px -1px 0px var(--border-color);
 }
-
 
 .underline-center::after {
   content: '';
@@ -50,8 +63,8 @@
     height: 100%;
     pointer-events: none;
     background-image:
-      linear-gradient(to right, rgba(200,200,200,0.4) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(200,200,200,0.4) 1px, transparent 1px);
+      linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
     background-size: 40px 24px;
     z-index: -1;
   }
@@ -59,10 +72,12 @@
 
 body {
   margin: 0;
-  background-color: #ffffff;
+  background-color: var(--background);
+  color: var(--text-primary);
   position: relative;
   min-height: 100vh;
   font-family: 'Lato', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body::before {
@@ -74,10 +89,11 @@ body::before {
   height: 100%;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, rgba(200,200,200,0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(200,200,200,0.4) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
   background-size: 30px 25px;
   z-index: -1;
+  transition: background-image 0.3s ease;
 }
 
 @media (min-width: 640px) {
@@ -90,4 +106,64 @@ body::before {
   body::before {
     background-size: 50px 35px;
   }
+}
+
+/* Theme toggle button styles */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--background);
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .theme-toggle {
+  box-shadow: 2px 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  box-shadow: 3px 3px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive theme toggle */
+@media (max-width: 640px) {
+  .theme-toggle {
+    top: 15px;
+    right: 15px;
+    width: 45px;
+    height: 45px;
+  }
+}
+
+/* Dark mode text color utilities */
+.text-theme-primary {
+  color: var(--text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary);
+}
+
+/* Dark mode compatible shadows and effects */
+[data-theme="dark"] .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.1), 0 4px 6px -2px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -1px rgba(255, 255, 255, 0.06);
 }
