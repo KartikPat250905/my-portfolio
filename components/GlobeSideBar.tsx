@@ -21,7 +21,7 @@ export function GlobeSideBar({
   };
 
   return (
-    <div className="flex flex-col h-auto lg:h-full w-full lg:w-[300px] bg-white rounded-xl shadow-md p-4 mt-4 lg:mt-20 min-h-[200px] lg:min-h-[400px]">
+    <div className="flex flex-col h-auto lg:h-full w-full lg:w-[300px] rounded-xl shadow-md p-4 mt-4 lg:mt-20 min-h-[200px] lg:min-h-[400px]" style={{ backgroundColor: 'var(--background)' }}>
       {/* Top menu */}
       <div className="flex flex-wrap justify-center lg:justify-around gap-2 mb-4">
         {locations.map((city) => (
@@ -45,10 +45,10 @@ export function GlobeSideBar({
             <h2 className="text-base sm:text-lg font-semibold mb-2">
               {selectedLocation}
             </h2>
-            <p className="text-xs sm:text-sm leading-relaxed text-gray-600">{info[selectedLocation]}</p>
+            <p className="text-xs sm:text-sm leading-relaxed text-gray-800 dark:text-gray-300">{info[selectedLocation]}</p>
           </div>
         ) : (
-          <p className="text-xs sm:text-sm text-gray-600 text-center lg:text-left">
+          <p className="text-xs sm:text-sm text-gray-800 dark:text-gray-300 text-center lg:text-left">
             Select a location from the menu or click a label on the globe to
             learn more.
           </p>

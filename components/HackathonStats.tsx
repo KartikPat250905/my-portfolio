@@ -37,7 +37,7 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
   // Show empty state if no hackathons
   if (displayHackathons.length === 0) {
     return (
-    <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 bg-[#0f1419] text-white rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl">
+    <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
         <div className="flex flex-col items-center text-center">
           <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
             <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -96,7 +96,7 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 bg-[#0f1419] text-white rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl">
+    <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
       {/* Header */}
       <div className="flex flex-col items-center text-center">
         <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
