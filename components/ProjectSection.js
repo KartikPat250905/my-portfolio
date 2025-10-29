@@ -1,5 +1,5 @@
 import ProjectCard from "./ProjectCard";
-import { ProjectData } from "../app/ProjectData";
+import { ProjectData } from "../data/ProjectData";
 
 export default function ProjectsSection() {
   return (
