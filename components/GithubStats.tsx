@@ -174,7 +174,7 @@ export default function GithubStats() {
 
     if (error) {
         return (
-            <div className="flex flex-col items-center gap-4 p-8 bg-[#0d1117] text-white rounded-2xl shadow-xl m-10">
+            <div className="flex flex-col items-center gap-4 p-8 rounded-2xl shadow-xl m-10" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
                 <div className="text-red-400 text-center">
                     <h3 className="text-xl font-semibold mb-2">Error Loading GitHub Stats</h3>
                     <p className="text-sm">{error}</p>
@@ -194,7 +194,7 @@ export default function GithubStats() {
     }
 
     return (
-        <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 bg-[#0d1117] text-white rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl">
+        <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
             <div className="flex flex-col items-center text-center">
                 <Image
                     src="https://avatars.githubusercontent.com/u/166979981?v=4"
