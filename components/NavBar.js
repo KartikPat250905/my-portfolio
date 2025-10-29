@@ -2,8 +2,8 @@ import { cookie } from '../app/font';
 
 export default function NavBar() {
     return (
-        <div className="w-full h-auto min-h-[8vh] flex flex-col sm:flex-row justify-between items-center font-sans p-4 sm:p-6 lg:p-10">
-            <h1 className={`${cookie.className} p-2 sm:p-4 lg:p-8 text-black text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl`}>Portfolio</h1>
+        <div className="w-full h-auto min-h-[6vh] flex flex-col sm:flex-row justify-between items-center font-sans p-2 sm:p-3 lg:p-4">
+            <h1 className={`${cookie.className} p-1 sm:p-2 lg:p-3 text-black text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl`}>Portfolio</h1>
             <div className={`${cookie.className} text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 p-3 sm:p-4 lg:p-8 text-blue-500`}>
                 <a
                 className={`${cookie.className} text-blue-500 hover:text-pink-500 underline-center relative px-1 py-1`}
