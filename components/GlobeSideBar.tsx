@@ -45,10 +45,10 @@ export function GlobeSideBar({
             <h2 className="text-base sm:text-lg font-semibold mb-2">
               {selectedLocation}
             </h2>
-            <p className="text-xs sm:text-sm leading-relaxed text-gray-800 dark:text-gray-300">{info[selectedLocation]}</p>
+            <p className="text-xs sm:text-sm text-theme-secondary">{info[selectedLocation]}</p>
           </div>
         ) : (
-          <p className="text-xs sm:text-sm text-gray-800 dark:text-gray-300 text-center lg:text-left">
+          <p className="text-xs sm:text-sm text-gray-900 dark:text-gray-300 text-center lg:text-left text-theme-secondary">
             Select a location from the menu or click a label on the globe to
             learn more.
           </p>
