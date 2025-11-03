@@ -29,7 +29,7 @@ export default function ScrollIndicator() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+    <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 hidden sm:block">
       <div 
         onClick={scrollToProjects}
         className="cursor-pointer group flex flex-col items-center"
