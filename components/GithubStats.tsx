@@ -194,7 +194,8 @@ export default function GithubStats() {
     }
 
     return (
-        <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
+      <>
+        <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
             <div className="flex flex-col items-center text-center">
                 <Image
                     src="https://avatars.githubusercontent.com/u/166979981?v=4"
@@ -293,5 +294,25 @@ export default function GithubStats() {
                 </div>
             </motion.div> 
         </div>
+
+      <style jsx>{`
+        .stats-strong-shadow {
+          /* stronger elevation by default */
+          box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+        }
+
+        /* pinkish stronger shadow in dark mode (system preference) */
+        @media (prefers-color-scheme: dark) {
+          .stats-strong-shadow {
+            box-shadow: 0 25px 60px rgba(255,77,138,0.16);
+          }
+        }
+
+        /* pinkish stronger shadow when using class-based dark mode (e.g. .dark on html) */
+        :global(.dark) .stats-strong-shadow {
+          box-shadow: 0 25px 60px rgba(255,77,138,0.16);
+        }
+      `}</style>
+      </>
     );
 }
