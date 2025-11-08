@@ -5,6 +5,7 @@ import SectionHeader from "/components/SectionHeader";
 import { History } from "/components/History";
 import Stats from "/components/Stats";
 import ScrollIndicator from "/components/ScrollIndicator";
+import DownloadCV from "../components/DownloadCV";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
         <SectionHeader title="Stats" id="stats" />
         <Stats/>
         <ScrollIndicator />
+        <DownloadCV />
       </div>
     </>
   );
