@@ -6,6 +6,7 @@ import { History } from "/components/History";
 import Stats from "/components/Stats";
 import ScrollIndicator from "/components/ScrollIndicator";
 import DownloadCV from "../components/DownloadCV";
+import Comments from "/components/Comments";
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
         <Stats/>
         <ScrollIndicator />
         <DownloadCV />
+        <Comments />
       </div>
     </>
   );
