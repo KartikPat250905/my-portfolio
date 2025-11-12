@@ -22,7 +22,9 @@ export default function Home() {
         <Stats/>
         <ScrollIndicator />
         <DownloadCV />
-        <Comments />
+        <div className="w-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+          <Comments />
+        </div>
       </div>
     </>
   );

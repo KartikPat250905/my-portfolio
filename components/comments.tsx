@@ -141,8 +141,8 @@ export default function Comments() {
       return (
         <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-200">
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="#9CA3AF"/>
-            <path d="M4 20c0-2.761 3.582-5 8-5s8 2.239 8 5v1H4v-1z" fill="#9CA3AF"/>
+            <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="#9CA3AF" />
+            <path d="M4 20c0-2.761 3.582-5 8-5s8 2.239 8 5v1H4v-1z" fill="#9CA3AF" />
           </svg>
         </div>
       );
@@ -164,9 +164,16 @@ export default function Comments() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl bg-[var(--background)] text-[var(--text-primary)] border border-[var(--border-color)] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(255,77,138,0.16)]">
+    <>
+    <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
+      {/* Header */}
       <div className="flex flex-col items-center text-center">
-        <h2 className="text-2xl font-semibold">Comments</h2>
+        <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+          <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold">Comments</h2>
         <p className="text-gray-400 mt-1">Share feedback or say hi — choose how you'd like to appear.</p>
       </div>
 
@@ -258,7 +265,7 @@ export default function Comments() {
           <div className="text-gray-400">Loading comments...</div>
         ) : comments.length === 0 ? (
           <div className="text-gray-400">No comments yet. Be the first to leave feedback.</div>
-          ) : (
+        ) : (
           <ul className="flex flex-col gap-6">
             {getPageComments().map((c, idx) => {
               const isOwn = savedName === c.username;
@@ -302,5 +309,24 @@ export default function Comments() {
         )}
       </div>
     </div>
+      <style jsx>{`
+        .stats-strong-shadow {
+          /* stronger elevation by default */
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+        }
+
+        /* pinkish stronger shadow in dark mode (system preference) */
+        @media (prefers-color-scheme: dark) {
+          .stats-strong-shadow {
+            box-shadow: 0 25px 60px rgba(255, 77, 138, 0.16);
+          }
+        }
+
+        /* pinkish stronger shadow when using class-based dark mode (e.g. .dark on html) */
+        :global(.dark) .stats-strong-shadow {
+          box-shadow: 0 25px 60px rgba(255, 77, 138, 0.16);
+        }
+      `}</style>
+    </>
   );
 }
