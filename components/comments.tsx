@@ -4,6 +4,8 @@ import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from "firebase/database";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 
+// add reply and edit features later
+
 type CommentType = {
   id: string;
   username: string;
