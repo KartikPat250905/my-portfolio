@@ -6,7 +6,7 @@ import { History } from "/components/History";
 import Stats from "/components/Stats";
 import ScrollIndicator from "/components/ScrollIndicator";
 import DownloadCV from "../components/DownloadCV";
-import Comments from "/components/Comments";
+import Comments from "/components/comments";
 
 export default function Home() {
   return (
