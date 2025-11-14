@@ -325,7 +325,7 @@ export default function Comments() {
             </svg>
           </div>
           <h2 className="text-2xl font-bold">Comments</h2>
-          <p className="text-gray-400 mt-1">Share feedback or say hi — choose how you'd like to appear.</p>
+          <p className="text-gray-400 mt-1">Share feedback or say hi — choose how you&#39;d like to appear.</p>
         </div>
 
         {/* Authentication Section */}
