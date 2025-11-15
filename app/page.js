@@ -5,7 +5,6 @@ import SectionHeader from "/components/SectionHeader";
 import { History } from "/components/History";
 import Stats from "/components/Stats";
 import ScrollIndicator from "/components/ScrollIndicator";
-import DownloadCV from "../components/DownloadCV";
 import Comments from "/components/comments";
 
 export default function Home() {
@@ -21,7 +20,7 @@ export default function Home() {
         <SectionHeader title="Stats" id="stats" />
         <Stats/>
         <ScrollIndicator />
-        <DownloadCV />
+        <SectionHeader title="Feedback" id="feedback" />
         <div className="w-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
           <Comments />
         </div>
