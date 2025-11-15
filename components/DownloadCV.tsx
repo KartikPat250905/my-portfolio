@@ -23,11 +23,11 @@ const DownloadCV: React.FC<Props> = ({ fileName = 'cv.pdf', label = 'Download CV
         download={fileName}
         role="button"
         aria-label={label}
-        className={`inline-flex items-center gap-3 px-6 py-3 rounded-lg font-semibold text-lg shadow-lg border transition-transform active:translate-y-1 border-gray-200 dark:border-white/10 download-cv-btn ${className}`}
+        className={`inline-flex items-center gap-3 sm:gap-4 px-6 py-3 sm:px-8 sm:py-4 md:px-10 md:py-5 rounded-lg font-semibold text-xl sm:text-2xl md:text-3xl shadow-[0_15px_35px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_rgba(255,77,138,0.25)] border transition-transform active:translate-y-1 border-gray-200 dark:border-white/10 ${className}`}
         style={{ backgroundColor: 'var(--background)' }}
       >
         <svg
-          className="w-5 h-5"
+          className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -44,24 +44,6 @@ const DownloadCV: React.FC<Props> = ({ fileName = 'cv.pdf', label = 'Download CV
         </span>
       </a>
 
-      <style jsx>{`
-        .download-cv-btn {
-          /* default shadow fallback (light mode) */
-          box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-        }
-
-        /* pinkish shadow for dark mode via preference */
-        @media (prefers-color-scheme: dark) {
-          .download-cv-btn {
-            box-shadow: 0 10px 30px rgba(255,77,138,0.14);
-          }
-        }
-
-        /* pinkish shadow when using class-based dark mode (e.g. .dark on html) */
-        :global(.dark) .download-cv-btn {
-          box-shadow: 0 10px 30px rgba(255,77,138,0.14);
-        }
-      `}</style>
     </div>
   );
 };
