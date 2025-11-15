@@ -252,7 +252,7 @@ export default function GithubStats() {
                                     cy="50%"
                                     outerRadius={100}
                                     labelLine={false}
-                                    label={({ name, percent }) => (percent as number) > 0.08 ? `${name} ${((percent as number) * 100).toFixed(1)}%` : ""}
+                                    label={false}
                                 >
                                     {languages.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
