@@ -4,6 +4,7 @@ import { patrick } from "../app/font";
 import { Typewriter } from 'react-simple-typewriter';
 import Image from "next/image";
 import { getAssetPath } from "../utils/paths";
+import DownloadCV from "./DownloadCV";
 
 export default function Hero() {
     const hours = new Date().getHours();
@@ -46,6 +47,9 @@ export default function Hero() {
                         />
                     </span>
                 </h1>
+                <div className="mt-6 lg:mt-8">
+                    <DownloadCV className="lg:justify-start justify-center" />
+                </div>
             </div>
         </div>
     );

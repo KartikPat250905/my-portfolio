@@ -12,6 +12,7 @@
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
     "dat.gui": "^0.7.9",
+    "firebase": "^12.6.0",
     "framer-motion": "^12.23.16",
     "next": "15.5.3",
     "octokit": "^5.0.3",

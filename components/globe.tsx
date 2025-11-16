@@ -26,7 +26,7 @@ async function loadTexture(url: string): Promise<THREE.Texture | null> {
       (texture) => resolve(texture),
       undefined,
       (error) => {
-        console.error("Texture load failed:", error);
+        // Texture load failed - silently handled
         resolve(null);
       }
     );
@@ -63,15 +63,15 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container || initializedRef.current) return;
-    
+
     // Prevent initialization if WebGL is blocked
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     if (!gl) {
-      console.error('WebGL not available - please restart your browser');
+      // WebGL not available - silently handled
       return;
     }
-    
+
     initializedRef.current = true;
 
     async function init() {
@@ -80,12 +80,12 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
       try {
         // Check WebGL support before creating renderer
         const testCanvas = document.createElement('canvas');
-        const testContext = testCanvas.getContext('webgl', { 
-          failIfMajorPerformanceCaveat: true 
+        const testContext = testCanvas.getContext('webgl', {
+          failIfMajorPerformanceCaveat: true
         });
-        
+
         if (!testContext) {
-          console.error('WebGL context creation failed');
+          // WebGL context creation failed - show error UI
           const errorDiv = document.createElement('div');
           errorDiv.className = 'flex items-center justify-center h-full text-white';
           errorDiv.innerHTML = `
@@ -97,7 +97,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           container.appendChild(errorDiv);
           return;
         }
-        
+
         // Dispose test context
         const loseContext = testContext.getExtension('WEBGL_lose_context');
         if (loseContext) loseContext.loseContext();
@@ -139,7 +139,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         ]);
 
         if (!albedoMap || !bumpMap || !cloudsMap) {
-          console.error("Failed to load textures");
+          // Failed to load textures - silently handled
           return;
         }
 
@@ -161,9 +161,9 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         scene.add(sunLight);
 
         // Earth with medium detail
-        const earthGeometry = new THREE.SphereGeometry(1, 32, 32); // Increased from 20
+        const earthGeometry = new THREE.SphereGeometry(0.7, 32, 32); // Decreased from 1 to 0.7
         resourcesRef.current.geometries.push(earthGeometry);
-        
+
         const earthMaterial = new THREE.MeshStandardMaterial({
           map: albedoMap,
           bumpMap: bumpMap,
@@ -172,14 +172,14 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           metalness: 0.1,
         });
         resourcesRef.current.materials.push(earthMaterial);
-        
+
         const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
         scene.add(earthMesh);
 
         // Clouds with medium detail
-        const cloudGeometry = new THREE.SphereGeometry(1.01, 32, 32); // Increased from 16
+        const cloudGeometry = new THREE.SphereGeometry(0.71, 32, 32); // Decreased proportionally
         resourcesRef.current.geometries.push(cloudGeometry);
-        
+
         const cloudMaterial = new THREE.MeshStandardMaterial({
           map: cloudsMap,
           transparent: true,
@@ -187,7 +187,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           depthWrite: false,
         });
         resourcesRef.current.materials.push(cloudMaterial);
-        
+
         const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
         scene.add(cloudMesh);
 
@@ -210,8 +210,8 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         controls.enableZoom = true;
         controls.enableRotate = true;
         controls.enablePan = false;
-        controls.minDistance = 1.5;
-        controls.maxDistance = 5;
+        controls.minDistance = 1.2;
+        controls.maxDistance = 4;
 
         // Locations
         const locations = [
@@ -223,7 +223,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         // Labels
         const labelObjects: CSS2DObject[] = [];
         locations.forEach((loc) => {
-          const pos = latLonToVector3(loc.lat, loc.lon, 1);
+          const pos = latLonToVector3(loc.lat, loc.lon, 0.7);
           const label = createLabel(loc.name, pos, () => setSelectedLocation(loc.name));
           earthMesh.add(label);
           labelObjects.push(label);
@@ -238,27 +238,27 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         }[] = [];
 
         for (let i = 0; i < locations.length - 1; i++) {
-          const start = latLonToVector3(locations[i].lat, locations[i].lon, 1.01);
-          const end = latLonToVector3(locations[i + 1].lat, locations[i + 1].lon, 1.01);
-          const mid = start.clone().add(end).normalize().multiplyScalar(1.4);
+          const start = latLonToVector3(locations[i].lat, locations[i].lon, 0.71);
+          const end = latLonToVector3(locations[i + 1].lat, locations[i + 1].lon, 0.71);
+          const mid = start.clone().add(end).normalize().multiplyScalar(0.98);
           const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
 
           const points = curve.getPoints(50); // Increased from 30
           const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
           resourcesRef.current.geometries.push(lineGeometry);
-          
+
           const lineMaterial = new THREE.LineBasicMaterial({ color: 0x33ccff });
           resourcesRef.current.materials.push(lineMaterial);
-          
+
           const line = new THREE.Line(lineGeometry, lineMaterial);
           earthMesh.add(line);
 
           const arrowGeometry = new THREE.ConeGeometry(0.02, 0.06, 8); // Increased from 4
           resourcesRef.current.geometries.push(arrowGeometry);
-          
+
           const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc33 });
           resourcesRef.current.materials.push(arrowMaterial);
-          
+
           const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
           arrow.rotation.x = Math.PI;
           earthMesh.add(arrow);
@@ -281,7 +281,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
 
         function animate(currentTime: number) {
           animationFrameRef.current = requestAnimationFrame(animate);
-          
+
           // Throttle to 30 FPS
           if (currentTime - lastTime < frameInterval) return;
           lastTime = currentTime;
@@ -335,7 +335,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         // Handle context loss
         renderer.domElement.addEventListener("webglcontextlost", (event) => {
           event.preventDefault();
-          console.warn("WebGL context lost - attempting recovery");
+          // WebGL context lost - attempting recovery
           if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current);
           }
@@ -362,7 +362,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           controls.dispose();
         };
       } catch (error) {
-        console.error("Globe initialization failed:", error);
+        // Globe initialization failed - silently handled
       }
     }
 
@@ -388,7 +388,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
       resources.geometries.forEach((geo) => geo.dispose());
       resources.materials.forEach((mat) => mat.dispose());
       resources.textures.forEach((tex) => tex.dispose());
-      
+
       // Clear arrays
       resources.geometries = [];
       resources.materials = [];

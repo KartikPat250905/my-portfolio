@@ -21,36 +21,35 @@ export default function LeetCodeStats() {
   const [error, setError] = useState("");
   const username = "KartikPat25094";
 
-  useEffect(() => {
-    async function fetchLeetCodeStats() {
-      try {
-        // Use a proxy API to avoid CORS issues
-        const response = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`);
+  const fetchLeetCodeStats = async () => {
+    try {
+      const response = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`);
 
-        if (!response.ok) {
-          throw new Error("User not found or API error");
-        }
-
-        const data = await response.json();
-
-        setStats({
-          totalSolved: data.totalSolved,
-          totalQuestions: data.totalQuestions,
-          easySolved: data.easySolved,
-          mediumSolved: data.mediumSolved,
-          hardSolved: data.hardSolved,
-          ranking: data.ranking || 0,
-          acceptanceRate: parseFloat(data.acceptanceRate) || 0,
-          contributionPoints: data.contributionPoints || 0,
-        });
-      } catch (err: any) {
-        console.error("Failed to fetch LeetCode stats:", err);
-        setError(err.message || "Failed to load LeetCode stats");
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error("User not found or API error");
       }
-    }
 
+      const data = await response.json();
+
+      setStats({
+        totalSolved: data.totalSolved,
+        totalQuestions: data.totalQuestions,
+        easySolved: data.easySolved,
+        mediumSolved: data.mediumSolved,
+        hardSolved: data.hardSolved,
+        ranking: data.ranking || 0,
+        acceptanceRate: parseFloat(data.acceptanceRate) || 0,
+        contributionPoints: data.contributionPoints || 0,
+      });
+    } catch (err: any) {
+      console.error("Failed to fetch LeetCode stats:", err);
+      setError(err.message || "Failed to load LeetCode stats");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchLeetCodeStats();
   }, [username]);
 
@@ -62,21 +61,66 @@ export default function LeetCodeStats() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center gap-4 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
+      <div className="flex flex-col items-center gap-4 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl" style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
         <div className="text-gray-400">Loading LeetCode stats...</div>
       </div>
     );
   }
 
+  const handleRetry = () => {
+    setError("");
+    setLoading(true);
+    fetchLeetCodeStats();
+  };
+
   if (error) {
     return (
-      <div className="flex flex-col items-center gap-4 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
-        <div className="text-red-400 text-center">
-          <h3 className="text-xl font-semibold mb-2">Error Loading LeetCode Stats</h3>
-          <p className="text-sm">{error}</p>
-          <p className="text-xs text-gray-400 mt-2">
-            Make sure to update the username in the component
-          </p>
+      <div className="flex flex-col items-center gap-6 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
+        {/* Error Icon */}
+        <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-2 shadow-lg">
+          <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+
+        {/* Error Content */}
+        <div className="text-center space-y-4">
+          <h3 className="text-xl font-semibold text-red-400">Failed to Load LeetCode Stats</h3>
+          <div className="space-y-2">
+            <p className="text-sm text-gray-300 max-w-md">{error}</p>
+            <p className="text-xs text-gray-400">
+              This might be due to API limitations or network issues
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">
+            <button
+              onClick={handleRetry}
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Retry
+            </button>
+            <a
+              href={`https://leetcode.com/${username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              View Profile
+            </a>
+          </div>
+
+          {/* Additional Help */}
+          <div className="text-xs text-gray-500 pt-2 border-t border-gray-700 max-w-md">
+            <p>If the issue persists, the rate limit might be reached or the LeetCode API might be temporarily unavailable.</p>
+          </div>
         </div>
       </div>
     );
@@ -92,133 +136,154 @@ export default function LeetCodeStats() {
 
   const progressPercentage = ((stats.totalSolved / stats.totalQuestions) * 100).toFixed(1);
 
-    return (
-    <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
-      {/* Header */}
-      <div className="flex flex-col items-center text-center">
-        <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-          <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z"/>
-          </svg>
+  return (
+    <>
+      <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
+        {/* Header */}
+        <div className="flex flex-col items-center text-center">
+          <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+            <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold">LeetCode Stats</h2>
+          <p className="text-gray-400 mt-1">@{username}</p>
+          <a
+            href={`https://leetcode.com/${username}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
+          >
+            View Profile
+          </a>
         </div>
-        <h2 className="text-2xl font-bold">LeetCode Stats</h2>
-        <p className="text-gray-400 mt-1">@{username}</p>
-        <a
-          href={`https://leetcode.com/${username}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
+
+        {/* Progress Bar - Full Width Section */}
+        <motion.div
+          className="flex justify-center w-full"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
         >
-          View Profile
-        </a>
+          <div className="w-full">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-gray-300">Problems Solved</span>
+              <span className="text-gray-300">
+                {stats.totalSolved} / {stats.totalQuestions}
+              </span>
+            </div>
+            <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-green-500 to-blue-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercentage}%` }}
+                transition={{ duration: 1, delay: 0.2 }}
+              />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Difficulty Breakdown */}
+        <motion.div
+          className="w-full flex flex-col md:flex-row items-center justify-center gap-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+        >
+          <div className="w-full md:w-1/2 h-72">
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={100}
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#2d2d2d",
+                    border: "none",
+                    borderRadius: "8px",
+                    color: "#fff",
+                  }}
+                />
+                <Legend
+                  wrapperStyle={{
+                    color: "#d1d5db",
+                    fontSize: "0.9rem",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="flex flex-col gap-4 w-full md:w-1/2">
+            <div className="rounded-lg p-4" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+              <div className="flex items-center justify-between">
+                <span className="text-green-600 font-semibold">Easy</span>
+                <span className="text-2xl font-bold text-theme-primary">{stats.easySolved}</span>
+              </div>
+            </div>
+            <div className="rounded-lg p-4" style={{ backgroundColor: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
+              <div className="flex items-center justify-between">
+                <span className="text-yellow-600 font-semibold">Medium</span>
+                <span className="text-2xl font-bold text-theme-primary">{stats.mediumSolved}</span>
+              </div>
+            </div>
+            <div className="rounded-lg p-4" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+              <div className="flex items-center justify-between">
+                <span className="text-red-600 font-semibold">Hard</span>
+                <span className="text-2xl font-bold text-theme-primary">{stats.hardSolved}</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Stats Row */}
+        <motion.div
+          className="flex flex-wrap justify-center gap-8 mt-6 border-t border-gray-700 pt-6 w-full text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+        >
+          <div>
+            <h4 className="text-2xl font-semibold text-blue-400">
+              #{stats.ranking.toLocaleString()}
+            </h4>
+            <p className="text-gray-400 text-sm mt-1">Global Ranking</p>
+          </div>
+          <div>
+            <h4 className="text-2xl font-semibold text-green-400">{stats.acceptanceRate}%</h4>
+            <p className="text-gray-400 text-sm mt-1">Acceptance Rate</p>
+          </div>
+        </motion.div>
       </div>
 
-      {/* Progress Bar - Full Width Section */}
-      <motion.div
-        className="flex justify-center w-full"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="w-full">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-300">Problems Solved</span>
-            <span className="text-gray-300">
-              {stats.totalSolved} / {stats.totalQuestions}
-            </span>
-          </div>
-          <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-green-500 to-blue-500"
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercentage}%` }}
-              transition={{ duration: 1, delay: 0.2 }}
-            />
-          </div>
-        </div>
-      </motion.div>
+      <style jsx>{`
+      .stats-strong-shadow {
+        /* stronger elevation by default */
+        box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+      }
 
-      {/* Difficulty Breakdown */}
-      <motion.div
-        className="w-full flex flex-col md:flex-row items-center justify-center gap-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-      >
-        <div className="w-full md:w-1/2 h-72">
-          <ResponsiveContainer>
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={100}
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#2d2d2d",
-                  border: "none",
-                  borderRadius: "8px",
-                  color: "#fff",
-                }}
-              />
-              <Legend
-                wrapperStyle={{
-                  color: "#d1d5db",
-                  fontSize: "0.9rem",
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+      /* pinkish stronger shadow in dark mode (system preference) */
+      @media (prefers-color-scheme: dark) {
+        .stats-strong-shadow {
+          box-shadow: 0 25px 60px rgba(255,77,138,0.16);
+        }
+      }
 
-        <div className="flex flex-col gap-4 w-full md:w-1/2">
-          <div className="rounded-lg p-4" style={{backgroundColor: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)'}}>
-            <div className="flex items-center justify-between">
-              <span className="text-green-600 font-semibold">Easy</span>
-              <span className="text-2xl font-bold text-theme-primary">{stats.easySolved}</span>
-            </div>
-          </div>
-          <div className="rounded-lg p-4" style={{backgroundColor: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)'}}>
-            <div className="flex items-center justify-between">
-              <span className="text-yellow-600 font-semibold">Medium</span>
-              <span className="text-2xl font-bold text-theme-primary">{stats.mediumSolved}</span>
-            </div>
-          </div>
-          <div className="rounded-lg p-4" style={{backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)'}}>
-            <div className="flex items-center justify-between">
-              <span className="text-red-600 font-semibold">Hard</span>
-              <span className="text-2xl font-bold text-theme-primary">{stats.hardSolved}</span>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Stats Row */}
-      <motion.div
-        className="flex flex-wrap justify-center gap-8 mt-6 border-t border-gray-700 pt-6 w-full text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.6 }}
-      >
-        <div>
-          <h4 className="text-2xl font-semibold text-blue-400">
-            #{stats.ranking.toLocaleString()}
-          </h4>
-          <p className="text-gray-400 text-sm mt-1">Global Ranking</p>
-        </div>
-        <div>
-          <h4 className="text-2xl font-semibold text-green-400">{stats.acceptanceRate}%</h4>
-          <p className="text-gray-400 text-sm mt-1">Acceptance Rate</p>
-        </div>
-      </motion.div>
-    </div>
+      /* pinkish stronger shadow when using class-based dark mode (e.g. .dark on html) */
+      :global(.dark) .stats-strong-shadow {
+        box-shadow: 0 25px 60px rgba(255,77,138,0.16);
+      }
+    `}</style>
+    </>
   );
 }
