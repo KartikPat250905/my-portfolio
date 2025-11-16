@@ -172,22 +172,76 @@ export default function GithubStats() {
         "#f472b6", "#fb923c", "#4ade80", "#2dd4bf", "#38bdf8",
     ];
 
+    const handleRetry = () => {
+        setError("");
+        setLoading(true);
+        setLangLoading(true);
+        setStatsLoading(true);
+        // Re-trigger the useEffect by refreshing the page or manually calling the functions
+        window.location.reload();
+    };
+
     if (error) {
         return (
-            <div className="flex flex-col items-center gap-4 p-8 rounded-2xl shadow-xl m-10" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
-                <div className="text-red-400 text-center">
-                    <h3 className="text-xl font-semibold mb-2">Error Loading GitHub Stats</h3>
-                    <p className="text-sm">{error}</p>
+            <div className="flex flex-col items-center gap-6 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
+                {/* Error Icon */}
+                <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-2 shadow-lg">
+                    <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                
+                {/* Error Content */}
+                <div className="text-center space-y-4">
+                    <h3 className="text-xl font-semibold text-red-400">Failed to Load GitHub Stats</h3>
+                    <div className="space-y-2">
+                        <p className="text-sm text-gray-300 max-w-md">{error}</p>
+                        <p className="text-xs text-gray-400">
+                            This might be due to API rate limits, token issues, or network problems
+                        </p>
+                    </div>
+                    
+                    {/* Setup Instructions for missing token */}
                     {!GITHUB_TOKEN && (
-                        <div className="mt-4 text-gray-300 text-left max-w-md">
-                            <p className="font-semibold mb-2">Setup Instructions:</p>
-                            <ol className="list-decimal list-inside space-y-1 text-sm">
-                                <li>Create a <code className="bg-gray-800 px-1 rounded">.env.local</code> file in your project root</li>
-                                <li>Add: <code className="bg-gray-800 px-1 rounded">NEXT_PUBLIC_GITHUB_TOKEN=your_token_here</code></li>
+                        <div className="bg-gray-800 bg-opacity-50 rounded-lg p-4 text-left max-w-md">
+                            <p className="font-semibold mb-3 text-yellow-400">Setup Required:</p>
+                            <ol className="list-decimal list-inside space-y-2 text-sm text-gray-300">
+                                <li>Create a <code className="bg-gray-700 px-1 rounded text-yellow-300">.env.local</code> file in project root</li>
+                                <li>Add: <code className="bg-gray-700 px-1 rounded text-yellow-300">NEXT_PUBLIC_GITHUB_TOKEN=your_token_here</code></li>
+                                <li>Get token from <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">GitHub Settings</a></li>
                                 <li>Restart your development server</li>
                             </ol>
                         </div>
                     )}
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">
+                        <button
+                            onClick={handleRetry}
+                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center gap-2"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Retry
+                        </button>
+                        <a
+                            href="https://github.com/KartikPat250905"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center gap-2"
+                        >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                            </svg>
+                            View Profile
+                        </a>
+                    </div>
+                    
+                    {/* Additional Help */}
+                    <div className="text-xs text-gray-500 pt-2 border-t border-gray-700 max-w-md">
+                        <p>If the issue persists, check your GitHub token permissions or try again later due to API rate limits.</p>
+                    </div>
                 </div>
             </div>
         );
