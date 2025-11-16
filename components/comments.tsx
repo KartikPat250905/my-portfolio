@@ -520,7 +520,12 @@ export default function Comments() {
 
         :global(.dark) .stats-strong-shadow {
           box-shadow: 0 25px 60px rgba(255, 77, 138, 0.16);
-          }
+        }
+
+        .comment-textarea::placeholder {
+          color: #ededed !important;
+          opacity: 0.8;
+        }
       `}</style>
     </>
   );
