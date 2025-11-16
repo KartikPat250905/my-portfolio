@@ -5,6 +5,7 @@ import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from 
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 
 //TODO: add reply and edit features so that i can respond to comments
+// TODO: light mode text not visible enough in some places
 
 type CommentType = {
   id: string;
@@ -37,17 +38,17 @@ const auth = getAuth();
 
 async function writeUserData(userName: string, comment: string) {
   const user = auth.currentUser;
-  
+
   if (!user) {
     throw new Error("Not authenticated");
   }
 
   const db = getDatabase();
-  
+
   // Check rate limit
   const rateLimitRef = ref(db, `userRateLimit/${user.uid}`);
   const snapshot = await get(rateLimitRef);
-  
+
   if (snapshot.exists()) {
     const lastPost = snapshot.val();
     const timeSinceLastPost = Date.now() - lastPost;
@@ -96,7 +97,7 @@ export default function Comments() {
       if (user) {
         setCurrentUid(user.uid);
         setAuthLoading(false);
-        
+
         // Check for saved name
         try {
           const stored = localStorage.getItem("commenterName");
@@ -130,9 +131,9 @@ export default function Comments() {
     const db = getDatabase();
     const commentsRef = ref(db, "comments");
     setLoading(true);
-    
+
     const listener = onValue(
-      commentsRef, 
+      commentsRef,
       (snapshot) => {
         const data = snapshot.val() || {};
         const arr: CommentType[] = Object.keys(data).map((key) => ({
@@ -142,7 +143,7 @@ export default function Comments() {
           timestamp: data[key].timestamp,
           uid: data[key].uid
         }));
-        
+
         arr.sort((a, b) => b.timestamp - a.timestamp);
         setComments(arr);
         setLoading(false);
@@ -193,10 +194,10 @@ export default function Comments() {
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!isAuthenticated || submitting) return;
-    
+
     const trimmed = commentText.trim();
     if (!trimmed) return;
-    
+
     if (trimmed.length > 500) {
       setSubmitError("Comment too long (max 500 characters)");
       return;
@@ -262,14 +263,14 @@ export default function Comments() {
     if (diff < 24 * 3_600_000) return `${Math.floor(diff / 3_600_000)}h ago`;
 
     const sameYear = d.getFullYear() === new Date().getFullYear();
-    const dateStr = d.toLocaleDateString(undefined, { 
-      month: "short", 
-      day: "numeric", 
-      ...(sameYear ? {} : { year: "numeric" }) 
+    const dateStr = d.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      ...(sameYear ? {} : { year: "numeric" })
     });
-    const timeStr = d.toLocaleTimeString(undefined, { 
-      hour: "numeric", 
-      minute: "2-digit" 
+    const timeStr = d.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit"
     });
     return `${dateStr} at ${timeStr}`;
   };
@@ -280,7 +281,7 @@ export default function Comments() {
         <div className="text-red-500 text-center">
           <h3 className="text-xl font-semibold mb-2">Initialization Error</h3>
           <p className="text-sm">{initError}</p>
-          <p className="text-xs mt-4 text-gray-400">Check console for details</p>
+          <p className="text-xs mt-4 text-theme-secondary">Check console for details</p>
         </div>
       </div>
     );
@@ -289,16 +290,16 @@ export default function Comments() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center p-8 m-10">
-        <div className="text-gray-400">Initializing authentication...</div>
+        <div className="text-theme-secondary">Initializing authentication...</div>
       </div>
     );
   }
 
   return (
     <>
-      <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" 
-           style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
-        
+      <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow"
+        style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
+
         {/* Header */}
         <div className="flex flex-col items-center text-center">
           <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
@@ -306,8 +307,8 @@ export default function Comments() {
               <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold">Comments</h2>
-          <p className="text-gray-400 mt-1">Share feedback or say hi — choose how you&#39;d like to appear.</p>
+          <h2 className="text-2xl font-bold" style={{ color: '#0f0f0f' }}>Comments</h2>
+          <p className="mt-1" style={{ color: '#0f0f0f' }}>Share feedback or say hi — choose how you&#39;d like to appear.</p>
         </div>
 
         {/* Authentication Section */}
@@ -315,7 +316,7 @@ export default function Comments() {
           {!isAuthenticated ? (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-4">
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: '#ededed' }}>
                   <input
                     type="radio"
                     name="auth"
@@ -327,7 +328,7 @@ export default function Comments() {
                   <span>Post as Anonymous</span>
                 </label>
 
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: '#ededed' }}>
                   <input
                     type="radio"
                     name="auth"
@@ -351,8 +352,8 @@ export default function Comments() {
                 />
               )}
 
-              <button 
-                onClick={handleAuthenticate} 
+              <button
+                onClick={handleAuthenticate}
                 className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
               >
                 Continue
@@ -360,11 +361,11 @@ export default function Comments() {
             </div>
           ) : (
             <div className="flex items-center justify-between p-4 rounded-lg border bg-white dark:bg-[#071025]">
-              <div className="text-sm">
+              <div className="text-sm" style={{ color: '#ededed' }}>
                 Posting as <strong>{savedName}</strong>
               </div>
-              <button 
-                onClick={handleLogout} 
+              <button
+                onClick={handleLogout}
                 className="px-4 py-2 rounded-lg border text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 Change
@@ -383,18 +384,19 @@ export default function Comments() {
               onKeyDown={handleKeyPress}
               rows={4}
               className={`w-full p-4 rounded-lg border text-sm bg-white dark:bg-[#071025] resize-none ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
+              style={{ color: '#ededed' }}
               disabled={!isAuthenticated || submitting}
               maxLength={500}
             />
-            <div className="absolute bottom-3 right-3 text-xs text-gray-400">
+            <div className="absolute bottom-3 right-3 text-xs" style={{ color: '#ededed' }}>
               {commentText.length}/500
             </div>
           </div>
-          
+
           {submitError && (
-            <div className="mt-2 text-sm text-red-500">{submitError}</div>
+            <div className="mt-2 text-sm text-red-500" style={{ color: '#ef4444' }}>{submitError}</div>
           )}
-          
+
           <div className="flex justify-end gap-3 mt-3">
             <button
               type="button"
@@ -421,15 +423,15 @@ export default function Comments() {
         <div className="w-full max-w-3xl">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
             <div>
-              <strong className="text-lg">Comments</strong>
-              <div className="text-sm text-gray-400">{comments.length} total</div>
+              <strong className="text-lg" style={{ color: '#0f0f0f' }}>Comments</strong>
+              <div className="text-sm" style={{ color: '#0f0f0f' }}>{comments.length} total</div>
             </div>
           </div>
 
           {loading ? (
-            <div className="text-center text-gray-400 py-8">Loading comments...</div>
+            <div className="text-center text-theme-secondary py-8">Loading comments...</div>
           ) : comments.length === 0 ? (
-            <div className="text-center text-gray-400 py-8">
+            <div className="text-center text-theme-secondary py-8">
               No comments yet. Be the first to leave feedback!
             </div>
           ) : (
@@ -438,25 +440,25 @@ export default function Comments() {
                 {getPageComments().map((c) => {
                   const isOwn = currentUid === c.uid;
                   return (
-                    <li 
-                      key={c.id} 
+                    <li
+                      key={c.id}
                       className={`p-4 rounded-lg border bg-white dark:bg-[#071025] ${isOwn ? 'border-blue-400' : ''}`}
                     >
                       <div className="flex gap-3 items-start">
                         {renderAvatar(c.username)}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold text-sm">{c.username}</span>
+                            <span className="font-semibold text-sm" style={{ color: '#ededed' }}>{c.username}</span>
                             {isOwn && (
                               <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
                                 You
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-gray-400 mb-2">
+                          <div className="text-xs mb-2" style={{ color: '#ededed' }}>
                             {formatTimestamp(c.timestamp)}
                           </div>
-                          <p className="text-sm break-words whitespace-pre-wrap">{c.comment}</p>
+                          <p className="text-sm break-words whitespace-pre-wrap" style={{ color: '#ededed' }}>{c.comment}</p>
                         </div>
                       </div>
                     </li>
@@ -474,24 +476,23 @@ export default function Comments() {
                   >
                     Previous
                   </button>
-                  
+
                   {Array.from({ length: totalPages }, (_, i) => {
                     const pageNumber = i + 1;
                     return (
                       <button
                         key={pageNumber}
                         onClick={() => setPage(pageNumber)}
-                        className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                          page === pageNumber 
-                            ? "bg-blue-600 text-white" 
-                            : "border hover:bg-gray-100 dark:hover:bg-gray-800"
-                        }`}
+                        className={`px-3 py-2 rounded-md text-sm transition-colors ${page === pageNumber
+                          ? "bg-blue-600 text-white"
+                          : "border hover:bg-gray-100 dark:hover:bg-gray-800"
+                          }`}
                       >
                         {pageNumber}
                       </button>
                     );
                   })}
-                  
+
                   <button
                     onClick={() => setPage(Math.min(totalPages, page + 1))}
                     disabled={page === totalPages}
@@ -505,7 +506,7 @@ export default function Comments() {
           )}
         </div>
       </div>
-      
+
       <style jsx>{`
         .stats-strong-shadow {
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
