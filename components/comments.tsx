@@ -4,7 +4,7 @@ import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from "firebase/database";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 
-//TODO: add reply and edit features later
+//TODO: add reply and edit features so that i can respond to comments
 
 type CommentType = {
   id: string;
@@ -24,19 +24,12 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-console.log('Firebase env check:', {
-  hasApiKey: !!firebaseConfig.apiKey,
-  hasAuthDomain: !!firebaseConfig.authDomain,
-  hasDatabase: !!firebaseConfig.databaseURL,
-});
-
 // Initialize Firebase only once
 if (!getApps().length) {
   try {
     initializeApp(firebaseConfig);
-    console.log('Firebase initialized successfully');
   } catch (error) {
-    console.error('Firebase initialization error:', error);
+    // Firebase initialization error - silently handled
   }
 }
 
@@ -44,7 +37,6 @@ const auth = getAuth();
 
 async function writeUserData(userName: string, comment: string) {
   const user = auth.currentUser;
-  console.log('Writing comment, user:', user?.uid);
   
   if (!user) {
     throw new Error("Not authenticated");
@@ -78,8 +70,6 @@ async function writeUserData(userName: string, comment: string) {
     timestamp: serverTimestamp(),
     uid: user.uid
   });
-  
-  console.log('Comment posted successfully');
 }
 
 export default function Comments() {
@@ -102,11 +92,7 @@ export default function Comments() {
 
   // Initialize Firebase Auth
   useEffect(() => {
-    console.log('Setting up auth listener...');
-    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('Auth state changed:', user ? `User ${user.uid}` : 'No user');
-      
       if (user) {
         setCurrentUid(user.uid);
         setAuthLoading(false);
@@ -121,15 +107,15 @@ export default function Comments() {
             setIsAuthenticated(true);
           }
         } catch (e) {
-          console.error('LocalStorage error:', e);
+          // LocalStorage error - silently handled
         }
       } else {
-        console.log('No user, signing in anonymously...');
         // Sign in anonymously
         signInAnonymously(auth)
-          .then(() => console.log('Anonymous sign-in successful'))
+          .then(() => {
+            // Anonymous sign-in successful
+          })
           .catch((error) => {
-            console.error("Anonymous sign-in failed:", error);
             setInitError(`Authentication failed: ${error.message}`);
             setAuthLoading(false);
           });
@@ -141,7 +127,6 @@ export default function Comments() {
 
   // Load comments
   useEffect(() => {
-    console.log('Setting up comments listener...');
     const db = getDatabase();
     const commentsRef = ref(db, "comments");
     setLoading(true);
@@ -149,7 +134,6 @@ export default function Comments() {
     const listener = onValue(
       commentsRef, 
       (snapshot) => {
-        console.log('Comments snapshot received');
         const data = snapshot.val() || {};
         const arr: CommentType[] = Object.keys(data).map((key) => ({
           id: key,
@@ -159,13 +143,11 @@ export default function Comments() {
           uid: data[key].uid
         }));
         
-        console.log(`Loaded ${arr.length} comments`);
         arr.sort((a, b) => b.timestamp - a.timestamp);
         setComments(arr);
         setLoading(false);
       },
       (error) => {
-        console.error('Error loading comments:', error);
         setInitError(`Failed to load comments: ${error.message}`);
         setLoading(false);
       }
@@ -191,7 +173,7 @@ export default function Comments() {
     try {
       localStorage.setItem("commenterName", chosenName);
     } catch (e) {
-      console.error('LocalStorage error:', e);
+      // LocalStorage error - silently handled
     }
     setIsAuthenticated(true);
   };
@@ -204,7 +186,7 @@ export default function Comments() {
     try {
       localStorage.removeItem("commenterName");
     } catch (e) {
-      console.error('LocalStorage error:', e);
+      // LocalStorage error - silently handled
     }
   };
 
@@ -225,12 +207,10 @@ export default function Comments() {
 
     try {
       const userName = savedName || (authMethod === "anonymous" ? "Anonymous" : nameInput.trim() || "Anonymous");
-      console.log('Submitting comment as:', userName);
       await writeUserData(userName, trimmed);
       setCommentText("");
       setPage(1);
     } catch (error: any) {
-      console.error('Submit error:', error);
       setSubmitError(error.message || "Failed to post comment");
     } finally {
       setSubmitting(false);

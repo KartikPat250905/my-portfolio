@@ -26,7 +26,7 @@ async function loadTexture(url: string): Promise<THREE.Texture | null> {
       (texture) => resolve(texture),
       undefined,
       (error) => {
-        console.error("Texture load failed:", error);
+        // Texture load failed - silently handled
         resolve(null);
       }
     );
@@ -68,7 +68,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     if (!gl) {
-      console.error('WebGL not available - please restart your browser');
+      // WebGL not available - silently handled
       return;
     }
 
@@ -85,7 +85,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         });
 
         if (!testContext) {
-          console.error('WebGL context creation failed');
+          // WebGL context creation failed - show error UI
           const errorDiv = document.createElement('div');
           errorDiv.className = 'flex items-center justify-center h-full text-white';
           errorDiv.innerHTML = `
@@ -139,7 +139,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         ]);
 
         if (!albedoMap || !bumpMap || !cloudsMap) {
-          console.error("Failed to load textures");
+          // Failed to load textures - silently handled
           return;
         }
 
@@ -335,7 +335,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         // Handle context loss
         renderer.domElement.addEventListener("webglcontextlost", (event) => {
           event.preventDefault();
-          console.warn("WebGL context lost - attempting recovery");
+          // WebGL context lost - attempting recovery
           if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current);
           }
@@ -362,7 +362,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           controls.dispose();
         };
       } catch (error) {
-        console.error("Globe initialization failed:", error);
+        // Globe initialization failed - silently handled
       }
     }
 
