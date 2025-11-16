@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from "firebase/database";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { getAuth, signInAnonymously, onAuthStateChanged, Auth } from "firebase/auth";
 
 //TODO: add reply and edit features so that i can respond to comments
 // TODO: light mode text not visible enough in some places
@@ -25,18 +25,46 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Initialize Firebase only once
-if (!getApps().length) {
-  try {
-    initializeApp(firebaseConfig);
-  } catch (error) {
-    // Firebase initialization error - silently handled
-  }
-}
+// Initialize Firebase only on client-side
+let firebaseApp: FirebaseApp | null = null;
+let auth: Auth | null = null;
 
-const auth = getAuth();
+const initializeFirebase = (): boolean => {
+  if (typeof window === 'undefined') return false; // Server-side check
+  
+  if (!firebaseApp && !getApps().length) {
+    try {
+      // Check if all required config values are present
+      const hasRequiredConfig = firebaseConfig.apiKey && 
+                               firebaseConfig.authDomain && 
+                               firebaseConfig.databaseURL && 
+                               firebaseConfig.projectId;
+      
+      if (!hasRequiredConfig) {
+        console.warn('Firebase config missing required values');
+        return false;
+      }
+      
+      firebaseApp = initializeApp(firebaseConfig);
+      auth = getAuth(firebaseApp);
+      return true;
+    } catch (error) {
+      console.error('Firebase initialization error:', error);
+      return false;
+    }
+  } else if (getApps().length > 0) {
+    firebaseApp = getApps()[0];
+    auth = getAuth(firebaseApp);
+    return true;
+  }
+  return false;
+};
 
 async function writeUserData(userName: string, comment: string) {
+  if (!auth) {
+    throw new Error("Firebase not initialized");
+  }
+  
   const user = auth.currentUser;
 
   if (!user) {
@@ -93,6 +121,12 @@ export default function Comments() {
 
   // Initialize Firebase Auth
   useEffect(() => {
+    if (!initializeFirebase() || !auth) {
+      setInitError("Firebase initialization failed - environment variables may be missing");
+      setAuthLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUid(user.uid);
@@ -112,14 +146,16 @@ export default function Comments() {
         }
       } else {
         // Sign in anonymously
-        signInAnonymously(auth)
-          .then(() => {
-            // Anonymous sign-in successful
-          })
-          .catch((error) => {
-            setInitError(`Authentication failed: ${error.message}`);
-            setAuthLoading(false);
-          });
+        if (auth) {
+          signInAnonymously(auth)
+            .then(() => {
+              // Anonymous sign-in successful
+            })
+            .catch((error) => {
+              setInitError(`Authentication failed: ${error.message}`);
+              setAuthLoading(false);
+            });
+        }
       }
     });
 
@@ -128,6 +164,11 @@ export default function Comments() {
 
   // Load comments
   useEffect(() => {
+    if (!initializeFirebase()) {
+      setLoading(false);
+      return;
+    }
+
     const db = getDatabase();
     const commentsRef = ref(db, "comments");
     setLoading(true);
@@ -520,12 +561,7 @@ export default function Comments() {
 
         :global(.dark) .stats-strong-shadow {
           box-shadow: 0 25px 60px rgba(255, 77, 138, 0.16);
-        }
-
-        .comment-textarea::placeholder {
-          color: #ededed !important;
-          opacity: 0.8;
-        }
+          }
       `}</style>
     </>
   );
