@@ -5,7 +5,6 @@ import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from 
 import { getAuth, signInAnonymously, onAuthStateChanged, Auth } from "firebase/auth";
 
 //TODO: add reply and edit features so that i can respond to comments
-// TODO: light mode text not visible enough in some places
 
 type CommentType = {
   id: string;
@@ -15,14 +14,23 @@ type CommentType = {
   uid: string;
 };
 
+// Extract environment variables the same way as the GitHub token
+const FIREBASE_API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+const FIREBASE_AUTH_DOMAIN = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
+const FIREBASE_DATABASE_URL = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL;
+const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+const FIREBASE_STORAGE_BUCKET = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+const FIREBASE_MESSAGING_SENDER_ID = process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
+const FIREBASE_APP_ID = process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
+
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+  apiKey: FIREBASE_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  databaseURL: FIREBASE_DATABASE_URL,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+  appId: FIREBASE_APP_ID
 };
 
 // Initialize Firebase only on client-side
@@ -31,20 +39,20 @@ let auth: Auth | null = null;
 
 const initializeFirebase = (): boolean => {
   if (typeof window === 'undefined') return false; // Server-side check
-  
+
   if (!firebaseApp && !getApps().length) {
     try {
       // Check if all required config values are present
-      const hasRequiredConfig = firebaseConfig.apiKey && 
-                               firebaseConfig.authDomain && 
-                               firebaseConfig.databaseURL && 
-                               firebaseConfig.projectId;
-      
+      const hasRequiredConfig = firebaseConfig.apiKey &&
+        firebaseConfig.authDomain &&
+        firebaseConfig.databaseURL &&
+        firebaseConfig.projectId;
+
       if (!hasRequiredConfig) {
         console.warn('Firebase config missing required values');
         return false;
       }
-      
+
       firebaseApp = initializeApp(firebaseConfig);
       auth = getAuth(firebaseApp);
       return true;
@@ -64,7 +72,7 @@ async function writeUserData(userName: string, comment: string) {
   if (!auth) {
     throw new Error("Firebase not initialized");
   }
-  
+
   const user = auth.currentUser;
 
   if (!user) {
