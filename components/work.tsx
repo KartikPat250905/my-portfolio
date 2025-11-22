@@ -6,13 +6,22 @@ import { WorkData } from "../data/WorkData.js";
 export default function WorkExperience() {
     return (
         <>
-            <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" style={{backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)'}}>
-                
+            <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
+
                 {/* Header Section */}
                 <div className="flex flex-col items-center text-center">
                     <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
                         <svg className="w-8 h-8 md:w-10 md:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6m8 0H8" />
+                            {/* Main briefcase body - larger dimensions */}
+                            <rect x="4" y="7" width="16" height="14" rx="1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            {/* Briefcase handle on top */}
+                            <path d="M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            {/* Briefcase clasp/lock in center */}
+                            <rect x="11.5" y="13" width="1" height="2" strokeWidth="1.5" strokeLinecap="round"/>
+                            {/* Horizontal dividing line */}
+                            <path d="M4 14h16" strokeWidth="1" strokeLinecap="round"/>
+                            {/* Corner reinforcements */}
+                            <path d="M4 7l1 1M20 7l-1 1M4 21l1-1M20 21l-1-1" strokeWidth="1" strokeLinecap="round"/>
                         </svg>
                     </div>
                     <h3 className="text-xl md:text-2xl font-semibold mb-2">Work Experience</h3>
@@ -46,7 +55,7 @@ export default function WorkExperience() {
                                         </span>
                                     </div>
                                 </div>
-                                
+
                                 {/* Date/Period Display */}
                                 <div className="flex flex-col items-start sm:items-end text-sm text-gray-400">
                                     {exp.periods ? (
