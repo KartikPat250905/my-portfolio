@@ -6,6 +6,7 @@ import { History } from "/components/History";
 import Stats from "/components/Stats";
 import ScrollIndicator from "/components/ScrollIndicator";
 import Comments from "/components/comments";
+import WorkExperience from "/components/work";
 
 export default function Home() {
   return (
@@ -13,6 +14,10 @@ export default function Home() {
       <div className="min-h-screen flex flex-col">
         <NavBar />
         <Hero />
+        <SectionHeader title="Work Experience" id="work" />
+        <div className="w-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+          <WorkExperience />
+        </div>
         <SectionHeader title="Projects" id="projects" />
         <ProjectsSection />
         <SectionHeader title="History" id="history" />
