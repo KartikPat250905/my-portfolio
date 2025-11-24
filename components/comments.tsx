@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from "firebase/database";
 import { getAuth, signInAnonymously, onAuthStateChanged, Auth } from "firebase/auth";
+import emailjs from '@emailjs/browser';
 
 //TODO: add reply and edit features so that i can respond to comments
 
@@ -35,6 +36,11 @@ const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 const FIREBASE_STORAGE_BUCKET = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
 const FIREBASE_MESSAGING_SENDER_ID = process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
 const FIREBASE_APP_ID = process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
+
+// EmailJS Configuration
+const EMAILJS_SERVICE_ID = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
@@ -122,34 +128,142 @@ async function writeUserData(userName: string, comment: string) {
   });
 }
 
-async function writeFeedbackForm(name: string, email: string, subject: string, message: string) {
-  // Simply format the feedback as a comment and use the same writeUserData function
-  const feedbackComment = `📝 FEEDBACK: ${subject}
-
-${message}
-
-Contact: ${email}`;
-
-  // Validate the formatted comment meets the 500-character limit
-  if (feedbackComment.length > 500) {
-    throw new Error("Feedback too long. Please shorten your message to fit within 500 characters.");
+// Anti-bot protection utilities
+const checkRateLimit = (): boolean => {
+  try {
+    const lastSubmission = localStorage.getItem('lastFeedbackSubmission');
+    if (lastSubmission) {
+      const timeSinceLastSubmission = Date.now() - parseInt(lastSubmission);
+      const RATE_LIMIT_MS = 5 * 60 * 1000; // 5 minutes
+      if (timeSinceLastSubmission < RATE_LIMIT_MS) {
+        const remainingMinutes = Math.ceil((RATE_LIMIT_MS - timeSinceLastSubmission) / 60000);
+        throw new Error(`Please wait ${remainingMinutes} minute(s) before submitting another feedback.`);
+      }
+    }
+    return true;
+  } catch (e) {
+    // If localStorage is not available, allow submission
+    return true;
   }
+};
 
-  // Create a username that indicates this is feedback
-  const username = `${name}_Feedback`;
+const updateRateLimit = (): void => {
+  try {
+    localStorage.setItem('lastFeedbackSubmission', Date.now().toString());
+  } catch (e) {
+    // If localStorage is not available, silently continue
+  }
+};
+
+const validateSubmissionTime = (startTime: number): boolean => {
+  const submissionTime = Date.now() - startTime;
+  const MIN_SUBMISSION_TIME = 3000; // 3 seconds minimum
+  return submissionTime >= MIN_SUBMISSION_TIME;
+};
+
+async function writeFeedbackForm(name: string, email: string, subject: string, message: string, honeypot: string = '', startTime: number) {
+  // Anti-bot checks
   
-  // Validate username meets the rules (1-50 chars, alphanumeric with spaces, underscores, dashes)
-  if (username.length > 50) {
-    throw new Error("Name too long for feedback submission");
+  // 1. Honeypot check
+  if (honeypot.trim() !== '') {
+    throw new Error("Spam detection triggered. Please try again.");
   }
   
-  // Check if name contains only allowed characters
-  if (!/^[a-zA-Z0-9 _-]+$/.test(name)) {
-    throw new Error("Name contains invalid characters. Please use only letters, numbers, spaces, underscores, and dashes.");
+  // 2. Rate limiting check
+  checkRateLimit();
+  
+  // 3. Submission time check (prevent too-fast submissions)
+  if (!validateSubmissionTime(startTime)) {
+    throw new Error("Please take a moment to review your feedback before submitting.");
   }
-
-  // Use the exact same function as regular comments
-  await writeUserData(username, feedbackComment);
+  
+  // 4. Enhanced validation
+  const trimmedName = name.trim();
+  const trimmedEmail = email.trim();
+  const trimmedSubject = subject.trim();
+  const trimmedMessage = message.trim();
+  
+  // Name validation (prevent common spam patterns)
+  if (trimmedName.length < 2 || trimmedName.length > 50) {
+    throw new Error("Name must be between 2 and 50 characters.");
+  }
+  
+  if (!/^[a-zA-Z0-9\s._-]+$/.test(trimmedName)) {
+    throw new Error("Name contains invalid characters. Please use only letters, numbers, spaces, periods, underscores, and dashes.");
+  }
+  
+  // Email validation (enhanced)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(trimmedEmail) || trimmedEmail.length > 100) {
+    throw new Error("Please enter a valid email address.");
+  }
+  
+  // Subject validation
+  if (trimmedSubject.length < 5 || trimmedSubject.length > 100) {
+    throw new Error("Subject must be between 5 and 100 characters.");
+  }
+  
+  // Message validation
+  if (trimmedMessage.length < 10 || trimmedMessage.length > 1000) {
+    throw new Error("Message must be between 10 and 1000 characters.");
+  }
+  
+  // Check for common spam content
+  const spamPatterns = [
+    /\b(viagra|cialis|casino|lottery|winner)\b/i,
+    /\b(click here|visit now|act now)\b/i,
+    /(http[s]?:\/\/[^\s]+){3,}/i, // Multiple URLs
+  ];
+  
+  const fullText = `${trimmedName} ${trimmedEmail} ${trimmedSubject} ${trimmedMessage}`.toLowerCase();
+  for (const pattern of spamPatterns) {
+    if (pattern.test(fullText)) {
+      throw new Error("Message contains prohibited content.");
+    }
+  }
+  
+  // Check EmailJS configuration
+  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+    throw new Error("Email service is not properly configured. Please try again later.");
+  }
+  
+  try {
+    // Initialize EmailJS (if not already done)
+    if (typeof window !== 'undefined') {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
+    }
+    
+    // Send email via EmailJS
+    const templateParams = {
+      from_name: trimmedName,
+      from_email: trimmedEmail,
+      subject: trimmedSubject,
+      message: trimmedMessage,
+      to_email: 'kartikpat25@gmail.com',
+      timestamp: new Date().toLocaleString(),
+    };
+    
+    const response = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      templateParams
+    );
+    
+    if (response.status === 200) {
+      // Update rate limit after successful submission
+      updateRateLimit();
+    } else {
+      throw new Error("Failed to send email. Please try again.");
+    }
+    
+  } catch (error: any) {
+    console.error('EmailJS error:', error);
+    if (error.message) {
+      throw error;
+    } else {
+      throw new Error("Failed to send feedback. Please check your internet connection and try again.");
+    }
+  }
 }
 
 export default function Comments() {
@@ -171,6 +285,8 @@ export default function Comments() {
   const [formSubject, setFormSubject] = useState<string>("");
   const [formMessage, setFormMessage] = useState<string>("");
   const [formSubmissions, setFormSubmissions] = useState<FeedbackFormType[]>([]);
+  const [honeypot, setHoneypot] = useState<string>(""); // Hidden field for bot detection
+  const [formStartTime, setFormStartTime] = useState<number>(Date.now()); // Track when form interaction started
 
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
@@ -350,35 +466,17 @@ export default function Comments() {
         return;
       }
 
-      // Calculate the formatted feedback length using the actual format that will be sent
-      const testFeedback = `📝 FEEDBACK: ${trimmedSubject}
-
-${trimmedMessage}
-
-Contact: ${trimmedEmail}`;
-
-      if (testFeedback.length > 500) {
-        const overflow = testFeedback.length - 500;
-        setSubmitError(`Feedback too long by ${overflow} characters. Please shorten your message to fit within the 500-character limit.`);
-        return;
-      }
-
-      // Basic email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(trimmedEmail)) {
-        setSubmitError("Please enter a valid email address");
-        return;
-      }
-
       setSubmitting(true);
       setSubmitError("");
 
       try {
-        await writeFeedbackForm(trimmedName, trimmedEmail, trimmedSubject, trimmedMessage);
+        await writeFeedbackForm(trimmedName, trimmedEmail, trimmedSubject, trimmedMessage, honeypot, formStartTime);
         setFormName("");
         setFormEmail("");
         setFormSubject("");
         setFormMessage("");
+        setHoneypot(""); // Clear honeypot
+        setFormStartTime(Date.now()); // Reset form start time
         setSubmitSuccess("Feedback submitted successfully! Thank you for your input.");
         setPage(1);
         
@@ -699,7 +797,13 @@ Contact: ${trimmedEmail}`;
                     id="form-message"
                     placeholder={isAuthenticated ? "Write your detailed feedback..." : "Authenticate to enable form submission"}
                     value={formMessage}
-                    onChange={(e) => setFormMessage(e.target.value.slice(0, 1000))}
+                    onChange={(e) => {
+                      setFormMessage(e.target.value.slice(0, 1000));
+                      // Reset form start time when user starts typing (for bot detection)
+                      if (formStartTime === 0) {
+                        setFormStartTime(Date.now());
+                      }
+                    }}
                     rows={6}
                     className={`w-full p-4 rounded-lg border text-sm bg-white dark:bg-[#071025] resize-none ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
                     style={{ color: '#ededed' }}
@@ -711,6 +815,20 @@ Contact: ${trimmedEmail}`;
                     {formMessage.length}/1000
                   </div>
                 </div>
+              </div>
+              
+              {/* Honeypot field - hidden from users but visible to bots */}
+              <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
+                <label htmlFor="website">Please leave this field empty</label>
+                <input
+                  id="website"
+                  name="website"
+                  type="text"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
               </div>
             </div>
           )}
