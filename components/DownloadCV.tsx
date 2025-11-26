@@ -39,7 +39,7 @@ const DownloadCV: React.FC<Props> = ({ fileName = 'cv.pdf', label = 'Download CV
           <path d="M21 21H3" stroke="var(--text, currentColor)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
 
-        <span className="bg-gradient-to-r to-[#ffaccd] via-[#ff6fa3] from-[#f806f0] bg-clip-text text-transparent">
+        <span className="bg-gradient-to-r to-[#ff10e7] via-[#ff6fa3] from-[#f806f0] bg-clip-text text-transparent">
           {label}
         </span>
       </a>

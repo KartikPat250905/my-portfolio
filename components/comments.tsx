@@ -5,7 +5,6 @@ import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from 
 import { getAuth, signInAnonymously, onAuthStateChanged, Auth } from "firebase/auth";
 import emailjs from '@emailjs/browser';
 
-//TODO: small tweaks to make UI better
 
 type CommentType = {
   id: string;
