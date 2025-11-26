@@ -5,7 +5,7 @@ import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from 
 import { getAuth, signInAnonymously, onAuthStateChanged, Auth } from "firebase/auth";
 import emailjs from '@emailjs/browser';
 
-//TODO: add reply and edit features so that i can respond to comments
+//TODO: small tweaks to make UI better
 
 type CommentType = {
   id: string;
@@ -13,6 +13,17 @@ type CommentType = {
   comment: string;
   timestamp: number;
   uid: string;
+  editedAt?: number;
+  replies?: ReplyType[];
+};
+
+type ReplyType = {
+  id: string;
+  username: string;
+  comment: string;
+  timestamp: number;
+  uid: string;
+  parentId: string;
 };
 
 type FeedbackFormType = {
@@ -127,6 +138,49 @@ async function writeUserData(userName: string, comment: string) {
     uid: user.uid
   });
 }
+
+async function writeReply(userName: string, comment: string, parentId: string) {
+  if (!initializeFirebase() || !auth) {
+    throw new Error("Firebase not initialized");
+  }
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("Not authenticated");
+  }
+
+  const db = getDatabase();
+
+  // Check rate limit
+  const rateLimitRef = ref(db, `userRateLimit/${user.uid}`);
+  const snapshot = await get(rateLimitRef);
+
+  if (snapshot.exists()) {
+    const lastPost = snapshot.val();
+    const timeSinceLastPost = Date.now() - lastPost;
+    if (timeSinceLastPost < 5000) {
+      const remainingSeconds = Math.ceil((5000 - timeSinceLastPost) / 1000);
+      throw new Error(`Please wait ${remainingSeconds} seconds before posting again`);
+    }
+  }
+
+  // Update rate limit timestamp
+  await set(rateLimitRef, Date.now());
+
+  // Add reply
+  const repliesRef = ref(db, `comments/${parentId}/replies`);
+  const newReplyRef = push(repliesRef);
+
+  await set(newReplyRef, {
+    username: userName,
+    comment: comment,
+    timestamp: Date.now(),
+    uid: user.uid,
+    parentId: parentId
+  });
+}
+
 
 // Anti-bot protection utilities
 const checkRateLimit = (): boolean => {
@@ -296,6 +350,11 @@ export default function Comments() {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [initError, setInitError] = useState<string>("");
 
+  // Reply states
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState<string>("");
+  const [replySubmitting, setReplySubmitting] = useState<boolean>(false);
+
   // Initialize Firebase Auth
   useEffect(() => {
     if (!initializeFirebase() || !auth) {
@@ -349,19 +408,39 @@ export default function Comments() {
     const db = getDatabase();
     setLoading(true);
 
-    // Load comments
+    // Load comments with replies
     const commentsRef = ref(db, "comments");
     const commentsListener = onValue(
       commentsRef,
       (snapshot) => {
         const data = snapshot.val() || {};
-        const arr: CommentType[] = Object.keys(data).map((key) => ({
-          id: key,
-          username: data[key].username,
-          comment: data[key].comment,
-          timestamp: data[key].timestamp,
-          uid: data[key].uid
-        }));
+        const arr: CommentType[] = Object.keys(data).map((key) => {
+          const comment = data[key];
+          const replies: ReplyType[] = [];
+          
+          // Load replies if they exist
+          if (comment.replies) {
+            Object.keys(comment.replies).forEach((replyKey) => {
+              replies.push({
+                id: replyKey,
+                ...comment.replies[replyKey]
+              });
+            });
+          }
+          
+          // Sort replies by timestamp (oldest first for replies)
+          replies.sort((a, b) => a.timestamp - b.timestamp);
+
+          return {
+            id: key,
+            username: comment.username,
+            comment: comment.comment,
+            timestamp: comment.timestamp,
+            uid: comment.uid,
+            editedAt: comment.editedAt,
+            replies: replies
+          };
+        });
 
         // Filter out feedback submissions from comments display
         const filteredComments = arr.filter((comment) => 
@@ -496,6 +575,31 @@ export default function Comments() {
       handleSubmit();
     }
   };
+
+  // Handle reply submission
+  const handleReplySubmit = async (parentId: string) => {
+    if (!isAuthenticated || replySubmitting || !replyText.trim()) return;
+
+    if (replyText.trim().length > 500) {
+      setSubmitError("Reply too long (max 500 characters)");
+      return;
+    }
+
+    setReplySubmitting(true);
+    setSubmitError("");
+
+    try {
+      const userName = savedName || (authMethod === "anonymous" ? "Anonymous" : nameInput.trim() || "Anonymous");
+      await writeReply(userName, replyText.trim(), parentId);
+      setReplyText("");
+      setReplyingTo(null);
+    } catch (error: any) {
+      setSubmitError(error.message || "Failed to post reply");
+    } finally {
+      setReplySubmitting(false);
+    }
+  };
+
 
   const renderAvatar = (username: string) => {
     const isAnon = username === "Anonymous";
@@ -902,6 +1006,8 @@ export default function Comments() {
                 <ul className="flex flex-col gap-4">
                   {getPageComments().map((c) => {
                     const isOwn = currentUid === c.uid;
+                    const isReplyingToThis = replyingTo === c.id;
+                    
                     return (
                       <li
                         key={c.id}
@@ -918,10 +1024,104 @@ export default function Comments() {
                                 </span>
                               )}
                             </div>
-                            <div className="text-xs mb-2" style={{ color: '#ededed' }}>
-                              {formatTimestamp(c.timestamp)}
+                            <div className="flex items-center gap-2 text-xs mb-2" style={{ color: '#ededed' }}>
+                              <span>{formatTimestamp(c.timestamp)}</span>
+                              {c.editedAt && (
+                                <span className="text-xs opacity-75">(edited)</span>
+                              )}
                             </div>
-                            <p className="text-sm break-words whitespace-pre-wrap" style={{ color: '#ededed' }}>{c.comment}</p>
+                            
+                            <p className="text-sm break-words whitespace-pre-wrap mb-3" style={{ color: '#ededed' }}>
+                              {c.comment}
+                            </p>
+                            
+                            {/* Action buttons */}
+                            <div className="flex gap-3 text-xs">
+                              <button
+                                onClick={() => {
+                                  setReplyingTo(replyingTo === c.id ? null : c.id);
+                                  setReplyText("");
+                                }}
+                                className="text-blue-600 dark:text-blue-400 hover:underline"
+                              >
+                                Reply
+                              </button>
+                              
+                              {c.replies && c.replies.length > 0 && (
+                                <span className="text-gray-500">
+                                  {c.replies.length} {c.replies.length === 1 ? 'reply' : 'replies'}
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* Reply form */}
+                            {isReplyingToThis && (
+                              <div className="mt-3 space-y-3">
+                                <div className="relative">
+                                  <textarea
+                                    value={replyText}
+                                    onChange={(e) => setReplyText(e.target.value.slice(0, 500))}
+                                    className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-gray-700 resize-none"
+                                    style={{ color: '#ededed' }}
+                                    rows={3}
+                                    maxLength={500}
+                                    placeholder={`Reply to ${c.username}...`}
+                                  />
+                                  <div className="absolute bottom-2 right-2 text-xs opacity-75">
+                                    {replyText.length}/500
+                                  </div>
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleReplySubmit(c.id)}
+                                    disabled={replySubmitting || !replyText.trim()}
+                                    className="px-3 py-1 text-xs rounded-md bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                  >
+                                    {replySubmitting ? "Posting..." : "Post Reply"}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setReplyingTo(null);
+                                      setReplyText("");
+                                    }}
+                                    className="px-3 py-1 text-xs rounded-md border hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Replies */}
+                            {c.replies && c.replies.length > 0 && (
+                              <div className="mt-4 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+                                {c.replies.map((reply) => (
+                                  <div key={reply.id} className="flex gap-3 items-start">
+                                    <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-medium text-white">
+                                      {reply.username.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="font-medium text-xs" style={{ color: '#ededed' }}>
+                                          {reply.username}
+                                        </span>
+                                        {reply.uid === currentUid && (
+                                          <span className="text-xs px-1 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                            You
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-xs mb-1 opacity-75">
+                                        {formatTimestamp(reply.timestamp)}
+                                      </div>
+                                      <p className="text-xs break-words whitespace-pre-wrap" style={{ color: '#ededed' }}>
+                                        {reply.comment}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </li>
