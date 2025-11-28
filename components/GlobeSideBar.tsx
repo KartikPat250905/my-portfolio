@@ -30,7 +30,7 @@ export function GlobeSideBar({
     Anand:
       "I grew up in Anand, India, where I completed my schooling through 12th grade with 86%. Along the way, I earned a 1440 on the SAT and a 6.5 on the IELTS. I was also an Abacus Grand Master, winning both national and state-level awards.",
     Helsinki:
-      "Later, I moved to Finland to study at Metropolia University of Applied Sciences, where I got in through my SAT results. I also joined Hive Helsinki, a tuition-free coding program by Supercell and part of School 42 Paris. I finished my first year with a 5/5 GPA and two hackathon wins.",
+      "In Helsinki, Finland, I worked at Cydora as a Junior AI Developer (June 2025–Present) and previously as an AI Intern (May–June 2025), while studying for a Bachelor in IT at Metropolia University of Applied Sciences, where I achieved a 5/5 GPA and won two hackathons. I also attended Hive Helsinki, which is a world-class, free coding school funded by Supercell and part of the global 42 network. In 2025, 42 was ranked the 3rd most innovative educational institution in the world by WURI. Hive Helsinki gave me the chance to learn by building real projects, surrounded by an amazing community.",
     Toronto:
       "I’m now continuing my studies at Toronto Metropolitan University, focusing on technology, creativity, and innovation.",
   };
