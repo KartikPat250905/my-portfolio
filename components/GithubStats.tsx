@@ -1,5 +1,13 @@
+/**
+ * GithubStats component.
+ * Displays GitHub profile, activity stats, language usage, and contribution calendar for KartikPat250905.
+ */
 "use client";
 
+/**
+ * GithubStats component.
+ * Fetches and displays GitHub statistics for a user, including contributions and repositories.
+ */
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -7,6 +15,10 @@ import { Octokit } from "octokit";
 import GitHubCalendar from "react-github-calendar";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 
+/**
+ * Main GithubStats React component.
+ * Handles fetching, error states, and rendering of GitHub stats.
+ */
 export default function GithubStats() {
     const [userData, setUserData] = useState<any>(null);
     const [languages, setLanguages] = useState<{ name: string; value: number }[]>([]);

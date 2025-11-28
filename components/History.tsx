@@ -1,8 +1,17 @@
+/**
+ * History.tsx
+ * Displays an interactive globe and sidebar for viewing location-based history.
+ * Combines Globe and GlobeSideBar components.
+ */
+
 "use client";
 import Globe from "./globe";
 import { GlobeSideBar } from "./GlobeSideBar";
 import { useState } from "react";
 
+/**
+ * History component showing a globe and a sidebar for location selection.
+ */
 export function History()
 {
     const [selectedLocation, setSelectedLocation] = useState<string | null>(null);

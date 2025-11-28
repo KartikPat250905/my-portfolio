@@ -1,7 +1,16 @@
+/**
+ * ScrollIndicator.js
+ * Displays a scroll indicator arrow that disappears after scrolling down.
+ * Clicking the indicator scrolls smoothly to the projects section.
+ */
+
 "use client";
 
 import { useEffect, useState } from 'react';
 
+/**
+ * ScrollIndicator component for smooth scroll navigation.
+ */
 export default function ScrollIndicator() {
   const [isVisible, setIsVisible] = useState(true);
 

@@ -1,9 +1,16 @@
+/**
+ * HackathonStats component.
+ * Displays a summary and interactive cards for hackathon achievements, including stats, technologies, and modal details.
+ */
 "use client";
 
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { sampleHackathons } from "../data/hackathonData.js";
 
+/**
+ * Hackathon object type.
+ */
 interface Hackathon {
   name: string;
   date?: string;
@@ -14,10 +21,17 @@ interface Hackathon {
   category?: string;
 }
 
+/**
+ * Props for HackathonStats component.
+ */
 interface HackathonStatsProps {
   hackathons?: Hackathon[];
 }
 
+/**
+ * Main HackathonStats React component.
+ * Renders hackathon stats, technology tags, cards, and modal for details.
+ */
 export default function HackathonStats({ hackathons }: HackathonStatsProps) {
   const [selectedHackathon, setSelectedHackathon] = useState<Hackathon | null>(null);
   const [expandedTechCards, setExpandedTechCards] = useState<Set<number>>(new Set());
@@ -53,6 +67,9 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
     );
   }
 
+  /**
+   * Returns the appropriate icon for a winner's position.
+   */
   const getPositionIcon = (isWinner: boolean, position?: string) => {
     if (!isWinner) return null;
 
@@ -67,6 +84,9 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
     }
   };
 
+  /**
+   * Returns the border class for a hackathon card based on win status and position.
+   */
   const getCardBorderClass = (isWinner: boolean, position?: string) => {
     if (!isWinner) return "border-gray-700";
 
@@ -81,6 +101,9 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
     }
   };
 
+  /**
+   * Returns the background gradient for a winner's card.
+   */
   const getWinnerGradient = (isWinner: boolean, position?: string) => {
     if (!isWinner) return "";
 

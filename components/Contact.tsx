@@ -1,3 +1,9 @@
+// Contact.tsx
+/**
+ * Contact component.
+ * Displays contact information and social links for Kartik Patel.
+ * Renders a styled section with phone, email, LinkedIn, and GitHub links.
+ */
 "use client";
 // Contact.tsx
 import React from "react";

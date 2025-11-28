@@ -1,9 +1,24 @@
+/**
+ * GlobeSideBar.tsx
+ * Sidebar component for selecting and displaying information about locations.
+ * Used in conjunction with a globe visualization.
+ * 
+ * Props:
+ * - selectedLocation: currently selected location (string or null)
+ * - setSelectedLocation: function to update the selected location
+ */
+
 "use client";
 import { useState } from "react";
 import { indieflower, lato } from "../app/font";
 
 const locations = ["Anand", "Helsinki", "Toronto"];
 
+/**
+ * Sidebar for selecting a location and displaying related information.
+ * @param selectedLocation - The currently selected location.
+ * @param setSelectedLocation - Function to update the selected location.
+ */
 export function GlobeSideBar({
   selectedLocation,
   setSelectedLocation,

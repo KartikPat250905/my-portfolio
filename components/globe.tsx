@@ -1,3 +1,9 @@
+/**
+ * Globe component.
+ * Renders an interactive 3D globe using Three.js, with animated location markers and connecting arrows.
+ * Handles WebGL context loss, resource cleanup, and performance optimizations for smooth rendering.
+ * Accepts selectedLocation and setSelectedLocation props for interactivity.
+ */
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -9,6 +15,9 @@ const Albedo = getAssetPath("/assets/globe/Albedo.jpg");
 const Bump = getAssetPath("/assets/globe/Bump.jpg");
 const Clouds = getAssetPath("/assets/globe/Clouds.png");
 
+/**
+ * Converts latitude and longitude to a 3D vector on a sphere.
+ */
 function latLonToVector3(lat: number, lon: number, radius: number) {
   const phi = (90 - lat) * (Math.PI / 180);
   const theta = (lon + 180) * (Math.PI / 180);
@@ -19,6 +28,9 @@ function latLonToVector3(lat: number, lon: number, radius: number) {
   );
 }
 
+/**
+ * Loads a texture from a URL, returns null if loading fails.
+ */
 async function loadTexture(url: string): Promise<THREE.Texture | null> {
   return new Promise((resolve) => {
     new THREE.TextureLoader().load(
@@ -33,6 +45,9 @@ async function loadTexture(url: string): Promise<THREE.Texture | null> {
   });
 }
 
+/**
+ * Creates a CSS2D label for a given position on the globe.
+ */
 function createLabel(text: string, position: THREE.Vector3, onClick?: () => void) {
   const div = document.createElement("div");
   div.className =
@@ -46,6 +61,10 @@ function createLabel(text: string, position: THREE.Vector3, onClick?: () => void
   return label;
 }
 
+/**
+ * Main Globe React component.
+ * Handles initialization, rendering, animation, and cleanup of the 3D globe scene.
+ */
 export default function Globe({ selectedLocation, setSelectedLocation }: any) {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);

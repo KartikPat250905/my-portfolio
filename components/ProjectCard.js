@@ -1,5 +1,17 @@
+/**
+ * ProjectCard.js
+ * Displays a single project card with title, description, and GitHub link.
+ */
+
 import { indieflower, lato, patrick } from "/app/font";
 
+/**
+ * ProjectCard component for showing project details.
+ * @param {Object} props
+ * @param {string} props.title - Project title
+ * @param {string} props.desc - Project description
+ * @param {string} props.github - GitHub repository URL
+ */
 export default function ProjectCard({ title, desc, github }) {
     return (
         <div className={`p-3 sm:p-6 lg:p-8 w-full sm:w-1/2 lg:w-1/3 ${indieflower.className} `}>
