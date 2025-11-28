@@ -1,4 +1,6 @@
-// components/core-utils.js
+/**
+ * Utility functions for initializing and running Three.js scenes and loading textures.
+ */
 import * as THREE from "three";
 
 /**

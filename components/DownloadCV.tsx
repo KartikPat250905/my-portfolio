@@ -1,3 +1,8 @@
+/**
+ * DownloadCV component.
+ * Renders a button to download the CV PDF from the public assets folder.
+ * Uses getAssetPath for compatibility with different deployment environments.
+ */
 'use client';
 import React from 'react';
 import { getAssetPath } from '../utils/paths';

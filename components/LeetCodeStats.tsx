@@ -1,9 +1,16 @@
+/**
+ * LeetCodeStats component.
+ * Fetches and displays LeetCode statistics for a given user, including solved problems, ranking, and difficulty breakdown.
+ */
 "use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
+/**
+ * Type for LeetCode statistics data.
+ */
 interface LeetCodeStats {
   totalSolved: number;
   totalQuestions: number;
@@ -15,6 +22,10 @@ interface LeetCodeStats {
   contributionPoints: number;
 }
 
+/**
+ * Main LeetCodeStats React component.
+ * Handles fetching, error states, and rendering of stats and charts.
+ */
 export default function LeetCodeStats() {
   const [stats, setStats] = useState<LeetCodeStats | null>(null);
   const [loading, setLoading] = useState(true);

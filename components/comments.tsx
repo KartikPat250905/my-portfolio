@@ -1,3 +1,8 @@
+/**
+ * Comments and Feedback component.
+ * Provides a chat-style comment system and a feedback form with Firebase and EmailJS integration.
+ * Handles authentication, anti-bot protection, and displays comments with replies.
+ */
 "use client";
 import React, { useEffect, useState } from "react";
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
@@ -5,7 +10,7 @@ import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from 
 import { getAuth, signInAnonymously, onAuthStateChanged, Auth } from "firebase/auth";
 import emailjs from '@emailjs/browser';
 
-
+// Type definition for information associated with a comment
 type CommentType = {
   id: string;
   username: string;
@@ -16,6 +21,7 @@ type CommentType = {
   replies?: ReplyType[];
 };
 
+// Type definition for information associated with a reply
 type ReplyType = {
   id: string;
   username: string;
@@ -25,6 +31,7 @@ type ReplyType = {
   parentId: string;
 };
 
+// Type definition for information associated with a feedback form submission
 type FeedbackFormType = {
   id: string;
   name: string;
@@ -66,6 +73,7 @@ const firebaseConfig = {
 let firebaseApp: FirebaseApp | null = null;
 let auth: Auth | null = null;
 
+// Function to initialize Firebase returns a boolean indicating success or failure
 const initializeFirebase = (): boolean => {
   if (typeof window === 'undefined') return false; // Server-side check
 
@@ -97,6 +105,10 @@ const initializeFirebase = (): boolean => {
   return false;
 };
 
+/**
+ * Writes a new user comment to the Firebase database after authentication and rate limiting.
+ * Throws error if not authenticated or rate limit exceeded.
+ */
 async function writeUserData(userName: string, comment: string) {
   if (!initializeFirebase() || !auth) {
     throw new Error("Firebase not initialized");
@@ -138,6 +150,10 @@ async function writeUserData(userName: string, comment: string) {
   });
 }
 
+/**
+ * Writes a reply to a specific comment in the Firebase database after authentication and rate limiting.
+ * Throws error if not authenticated or rate limit exceeded.
+ */
 async function writeReply(userName: string, comment: string, parentId: string) {
   if (!initializeFirebase() || !auth) {
     throw new Error("Firebase not initialized");
@@ -214,78 +230,82 @@ const validateSubmissionTime = (startTime: number): boolean => {
   return submissionTime >= MIN_SUBMISSION_TIME;
 };
 
+/**
+ * Handles feedback form submission with anti-bot checks, validation, and sends feedback via EmailJS.
+ * Throws error if validation fails or email sending fails.
+ */
 async function writeFeedbackForm(name: string, email: string, subject: string, message: string, honeypot: string = '', startTime: number) {
   // Anti-bot checks
-  
+
   // 1. Honeypot check
   if (honeypot.trim() !== '') {
     throw new Error("Spam detection triggered. Please try again.");
   }
-  
+
   // 2. Rate limiting check
   checkRateLimit();
-  
+
   // 3. Submission time check (prevent too-fast submissions)
   if (!validateSubmissionTime(startTime)) {
     throw new Error("Please take a moment to review your feedback before submitting.");
   }
-  
+
   // 4. Enhanced validation
   const trimmedName = name.trim();
   const trimmedEmail = email.trim();
   const trimmedSubject = subject.trim();
   const trimmedMessage = message.trim();
-  
+
   // Name validation (prevent common spam patterns)
   if (trimmedName.length < 2 || trimmedName.length > 50) {
     throw new Error("Name must be between 2 and 50 characters.");
   }
-  
+
   if (!/^[a-zA-Z0-9\s._-]+$/.test(trimmedName)) {
     throw new Error("Name contains invalid characters. Please use only letters, numbers, spaces, periods, underscores, and dashes.");
   }
-  
+
   // Email validation (enhanced)
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(trimmedEmail) || trimmedEmail.length > 100) {
     throw new Error("Please enter a valid email address.");
   }
-  
+
   // Subject validation
   if (trimmedSubject.length < 5 || trimmedSubject.length > 100) {
     throw new Error("Subject must be between 5 and 100 characters.");
   }
-  
+
   // Message validation
   if (trimmedMessage.length < 10 || trimmedMessage.length > 1000) {
     throw new Error("Message must be between 10 and 1000 characters.");
   }
-  
+
   // Check for common spam content
   const spamPatterns = [
     /\b(viagra|cialis|casino|lottery|winner)\b/i,
     /\b(click here|visit now|act now)\b/i,
     /(http[s]?:\/\/[^\s]+){3,}/i, // Multiple URLs
   ];
-  
+
   const fullText = `${trimmedName} ${trimmedEmail} ${trimmedSubject} ${trimmedMessage}`.toLowerCase();
   for (const pattern of spamPatterns) {
     if (pattern.test(fullText)) {
       throw new Error("Message contains prohibited content.");
     }
   }
-  
+
   // Check EmailJS configuration
   if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
     throw new Error("Email service is not properly configured. Please try again later.");
   }
-  
+
   try {
     // Initialize EmailJS (if not already done)
     if (typeof window !== 'undefined') {
       emailjs.init(EMAILJS_PUBLIC_KEY);
     }
-    
+
     // Send email via EmailJS
     const templateParams = {
       from_name: trimmedName,
@@ -295,20 +315,20 @@ async function writeFeedbackForm(name: string, email: string, subject: string, m
       to_email: 'kartikpat25@gmail.com',
       timestamp: new Date().toLocaleString(),
     };
-    
+
     const response = await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
       templateParams
     );
-    
+
     if (response.status === 200) {
       // Update rate limit after successful submission
       updateRateLimit();
     } else {
       throw new Error("Failed to send email. Please try again.");
     }
-    
+
   } catch (error: any) {
     console.error('EmailJS error:', error);
     if (error.message) {
@@ -319,6 +339,10 @@ async function writeFeedbackForm(name: string, email: string, subject: string, m
   }
 }
 
+/**
+ * Main Comments React component.
+ * Provides a chat-style comment system and a feedback form with authentication, anti-bot protection, and pagination.
+ */
 export default function Comments() {
   const PAGE_SIZE = 5;
 
@@ -416,7 +440,7 @@ export default function Comments() {
         const arr: CommentType[] = Object.keys(data).map((key) => {
           const comment = data[key];
           const replies: ReplyType[] = [];
-          
+
           // Load replies if they exist
           if (comment.replies) {
             Object.keys(comment.replies).forEach((replyKey) => {
@@ -426,7 +450,7 @@ export default function Comments() {
               });
             });
           }
-          
+
           // Sort replies by timestamp (oldest first for replies)
           replies.sort((a, b) => a.timestamp - b.timestamp);
 
@@ -442,11 +466,11 @@ export default function Comments() {
         });
 
         // Filter out feedback submissions from comments display
-        const filteredComments = arr.filter((comment) => 
-          !comment.username.includes('_Feedback') && 
+        const filteredComments = arr.filter((comment) =>
+          !comment.username.includes('_Feedback') &&
           !comment.comment.startsWith('📝 FEEDBACK:')
         );
-        
+
         filteredComments.sort((a, b) => b.timestamp - a.timestamp);
         setComments(filteredComments);
         setLoading(false);
@@ -474,12 +498,6 @@ export default function Comments() {
     const startIndex = (page - 1) * PAGE_SIZE;
     const endIndex = startIndex + PAGE_SIZE;
     return comments.slice(startIndex, endIndex);
-  };
-
-  const getPageForms = (): FeedbackFormType[] => {
-    const startIndex = (page - 1) * PAGE_SIZE;
-    const endIndex = startIndex + PAGE_SIZE;
-    return formSubmissions.slice(startIndex, endIndex);
   };
 
   const handleAuthenticate = () => {
@@ -557,7 +575,7 @@ export default function Comments() {
         setFormStartTime(Date.now()); // Reset form start time
         setSubmitSuccess("Feedback submitted successfully! Thank you for your input.");
         setPage(1);
-        
+
         // Clear success message after 5 seconds
         setTimeout(() => setSubmitSuccess(""), 5000);
       } catch (error: any) {
@@ -708,8 +726,8 @@ export default function Comments() {
                 setSubmitError("");
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${feedbackMode === 'chat'
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
             >
               💬 Chat Comments
@@ -721,8 +739,8 @@ export default function Comments() {
                 setSubmitError("");
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${feedbackMode === 'form'
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
             >
               📝 Feedback Form
@@ -919,7 +937,7 @@ export default function Comments() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Honeypot field - hidden from users but visible to bots */}
               <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
                 <label htmlFor="website">Please leave this field empty</label>
@@ -1006,7 +1024,7 @@ export default function Comments() {
                   {getPageComments().map((c) => {
                     const isOwn = currentUid === c.uid;
                     const isReplyingToThis = replyingTo === c.id;
-                    
+
                     return (
                       <li
                         key={c.id}
@@ -1029,11 +1047,11 @@ export default function Comments() {
                                 <span className="text-xs opacity-75">(edited)</span>
                               )}
                             </div>
-                            
+
                             <p className="text-sm break-words whitespace-pre-wrap mb-3" style={{ color: '#ededed' }}>
                               {c.comment}
                             </p>
-                            
+
                             {/* Action buttons */}
                             <div className="flex gap-3 text-xs">
                               <button
@@ -1045,14 +1063,14 @@ export default function Comments() {
                               >
                                 Reply
                               </button>
-                              
+
                               {c.replies && c.replies.length > 0 && (
                                 <span className="text-gray-500">
                                   {c.replies.length} {c.replies.length === 1 ? 'reply' : 'replies'}
                                 </span>
                               )}
                             </div>
-                            
+
                             {/* Reply form */}
                             {isReplyingToThis && (
                               <div className="mt-3 space-y-3">
@@ -1090,7 +1108,7 @@ export default function Comments() {
                                 </div>
                               </div>
                             )}
-                            
+
                             {/* Replies */}
                             {c.replies && c.replies.length > 0 && (
                               <div className="mt-4 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
