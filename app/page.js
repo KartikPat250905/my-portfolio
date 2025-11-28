@@ -7,6 +7,7 @@ import Stats from "/components/Stats";
 import ScrollIndicator from "/components/ScrollIndicator";
 import Comments from "/components/comments";
 import WorkExperience from "/components/work";
+import Contact from "/components/Contact";
 
 export default function Home() {
   return (
@@ -28,6 +29,9 @@ export default function Home() {
         <SectionHeader title="Feedback" id="feedback" />
         <div className="w-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
           <Comments />
+        </div>
+        <div className="w-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+          <Contact />
         </div>
       </div>
     </>
