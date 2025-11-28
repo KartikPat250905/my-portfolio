@@ -1,7 +1,16 @@
+/**
+ * ThemeToggle.js
+ * Button component to toggle between light and dark themes using ThemeProvider context.
+ */
+
 "use client";
 
 import { useTheme } from './ThemeProvider';
 
+/**
+ * ThemeToggle component renders a button to switch themes.
+ * Displays a sun icon for light mode and a moon icon for dark mode.
+ */
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
 

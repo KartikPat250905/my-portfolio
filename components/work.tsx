@@ -1,8 +1,18 @@
+/**
+ * work.tsx
+ * Displays a list of work experiences using animated cards and summary stats.
+ * Data is sourced from WorkData and rendered with Framer Motion animations.
+ */
+
 "use client";
 
 import { motion } from "framer-motion";
 import { WorkData } from "../data/WorkData.js";
 
+/**
+ * WorkExperience component renders professional experience cards and summary stats.
+ * Uses Framer Motion for animation and supports multiple periods, technologies, and responsibilities.
+ */
 export default function WorkExperience() {
     return (
         <>

@@ -1,3 +1,9 @@
+/**
+ * Hero.js
+ * Main hero section for the portfolio homepage.
+ * Displays a greeting, avatar image, animated typewriter text, and a download CV button.
+ */
+
 "use client";
 
 import { patrick } from "../app/font";
@@ -6,6 +12,10 @@ import Image from "next/image";
 import { getAssetPath } from "../utils/paths";
 import DownloadCV from "./DownloadCV";
 
+/**
+ * Hero section component for the homepage.
+ * Shows a personalized greeting, avatar, animated interests, and CV download.
+ */
 export default function Hero() {
     const hours = new Date().getHours();
     let greeting;

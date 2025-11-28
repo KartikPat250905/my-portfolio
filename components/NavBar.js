@@ -1,6 +1,15 @@
+/**
+ * NavBar.js
+ * Navigation bar component for the portfolio.
+ * Includes navigation links and a theme toggle button.
+ */
+
 import { patrick } from '../app/font';
 import ThemeToggle from './ThemeToggle';
 
+/**
+ * NavBar component displaying site navigation and theme toggle.
+ */
 export default function NavBar() {
     return (
         <div className="w-full h-auto min-h-[6vh] flex flex-col sm:flex-row justify-between items-center font-sans p-3 sm:p-4 lg:p-5">

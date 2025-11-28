@@ -1,3 +1,8 @@
+/**
+ * SectionHeader.tsx
+ * Renders a stylized section header with a title and optional subtitle.
+ */
+
 import React from "react";
 
 type Props = {
@@ -7,6 +12,13 @@ type Props = {
   className?: string;
 };
 
+/**
+ * SectionHeader component for displaying section titles and subtitles.
+ * @param {string} title - The main title text.
+ * @param {string} [subtitle] - Optional subtitle text.
+ * @param {string} [id] - Optional id for the container div.
+ * @param {string} [className] - Optional additional class names.
+ */
 export default function SectionHeader({ title, subtitle, id, className }: Props) {
   return (
     <div id={id} className={`w-full flex flex-col items-center my-6 ${className ?? ""}`}>
