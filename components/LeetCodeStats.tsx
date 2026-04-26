@@ -25,14 +25,14 @@ export default function LeetCodeStats() {
     medium: "#ffc01e",
     hard: "#ef4743",
   };
-  
+
   const fetchLeetCodeStats = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
 
       const response = await fetch(
-        `/api/leetcode?username=${encodeURIComponent(username)}`,
+        `/.netlify/functions/leetcode?username=${encodeURIComponent(username)}`,
         {
           method: "GET",
           cache: "no-store",
