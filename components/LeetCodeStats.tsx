@@ -1,16 +1,9 @@
-/**
- * LeetCodeStats component.
- * Fetches and displays LeetCode statistics for a given user, including solved problems, ranking, and difficulty breakdown.
- */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
-/**
- * Type for LeetCode statistics data.
- */
 interface LeetCodeStats {
   totalSolved: number;
   totalQuestions: number;
@@ -19,118 +12,127 @@ interface LeetCodeStats {
   hardSolved: number;
   ranking: number;
   acceptanceRate: number;
-  contributionPoints: number;
 }
 
-/**
- * Main LeetCodeStats React component.
- * Handles fetching, error states, and rendering of stats and charts.
- */
 export default function LeetCodeStats() {
   const [stats, setStats] = useState<LeetCodeStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const username = "KartikPat25094";
 
-  const fetchLeetCodeStats = async () => {
-    try {
-      const response = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`);
-
-      if (!response.ok) {
-        throw new Error("User not found or API error");
-      }
-
-      const data = await response.json();
-
-      setStats({
-        totalSolved: data.totalSolved,
-        totalQuestions: data.totalQuestions,
-        easySolved: data.easySolved,
-        mediumSolved: data.mediumSolved,
-        hardSolved: data.hardSolved,
-        ranking: data.ranking || 0,
-        acceptanceRate: parseFloat(data.acceptanceRate) || 0,
-        contributionPoints: data.contributionPoints || 0,
-      });
-    } catch (err: any) {
-      console.error("Failed to fetch LeetCode stats:", err);
-      setError(err.message || "Failed to load LeetCode stats");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchLeetCodeStats();
-  }, [username]);
-
   const COLORS = {
     easy: "#00b8a3",
     medium: "#ffc01e",
     hard: "#ef4743",
   };
+  
+  const fetchLeetCodeStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        `/api/leetcode?username=${encodeURIComponent(username)}`,
+        {
+          method: "GET",
+          cache: "no-store",
+        }
+      );
+
+      const contentType = response.headers.get("content-type") || "";
+
+      if (!contentType.includes("application/json")) {
+        const text = await response.text();
+        throw new Error(
+          `API returned non-JSON response (${response.status}): ${text.slice(0, 200)}`
+        );
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to load LeetCode stats");
+      }
+
+      setStats(data);
+    } catch (err: any) {
+      console.error("Failed to fetch LeetCode stats:", err);
+      setError(err.message || "Failed to load LeetCode stats");
+      setStats(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [username]);
+
+  useEffect(() => {
+    fetchLeetCodeStats();
+  }, [fetchLeetCodeStats]);
+
+  const handleRetry = () => {
+    fetchLeetCodeStats();
+  };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center gap-4 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl" style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
+      <div
+        className="flex flex-col items-center gap-4 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl"
+        style={{
+          backgroundColor: "var(--background)",
+          color: "var(--text-primary)",
+          border: "1px solid var(--border-color)",
+        }}
+      >
         <div className="text-gray-400">Loading LeetCode stats...</div>
       </div>
     );
   }
 
-  const handleRetry = () => {
-    setError("");
-    setLoading(true);
-    fetchLeetCodeStats();
-  };
-
   if (error) {
     return (
-      <div className="flex flex-col items-center gap-6 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
-        {/* Error Icon */}
+      <div
+        className="flex flex-col items-center gap-6 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow"
+        style={{
+          backgroundColor: "var(--background)",
+          color: "var(--text-primary)",
+          border: "1px solid var(--border-color)",
+        }}
+      >
         <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-2 shadow-lg">
           <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
           </svg>
         </div>
 
-        {/* Error Content */}
         <div className="text-center space-y-4">
           <h3 className="text-xl font-semibold text-red-400">Failed to Load LeetCode Stats</h3>
           <div className="space-y-2">
             <p className="text-sm text-gray-300 max-w-md">{error}</p>
             <p className="text-xs text-gray-400">
-              This might be due to API limitations or network issues
+              This might be due to rate limits, temporary API issues, or the user not existing.
             </p>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">
             <button
               onClick={handleRetry}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center gap-2"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
               Retry
             </button>
+
             <a
               href={`https://leetcode.com/${username}`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center gap-2"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
               View Profile
             </a>
-          </div>
-
-          {/* Additional Help */}
-          <div className="text-xs text-gray-500 pt-2 border-t border-gray-700 max-w-md">
-            <p>If the issue persists, the rate limit might be reached or the LeetCode API might be temporarily unavailable.</p>
           </div>
         </div>
       </div>
@@ -145,12 +147,21 @@ export default function LeetCodeStats() {
     { name: "Hard", value: stats.hardSolved, color: COLORS.hard },
   ];
 
-  const progressPercentage = ((stats.totalSolved / stats.totalQuestions) * 100).toFixed(1);
+  const progressPercentage =
+    stats.totalQuestions > 0
+      ? ((stats.totalSolved / stats.totalQuestions) * 100).toFixed(1)
+      : "0.0";
 
   return (
     <>
-      <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow" style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>
-        {/* Header */}
+      <div
+        className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow"
+        style={{
+          backgroundColor: "var(--background)",
+          color: "var(--text-primary)",
+          border: "1px solid var(--border-color)",
+        }}
+      >
         <div className="flex flex-col items-center text-center">
           <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
             <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -169,7 +180,6 @@ export default function LeetCodeStats() {
           </a>
         </div>
 
-        {/* Progress Bar - Full Width Section */}
         <motion.div
           className="flex justify-center w-full"
           initial={{ opacity: 0, y: 10 }}
@@ -194,7 +204,6 @@ export default function LeetCodeStats() {
           </div>
         </motion.div>
 
-        {/* Difficulty Breakdown */}
         <motion.div
           className="w-full flex flex-col md:flex-row items-center justify-center gap-8"
           initial={{ opacity: 0 }}
@@ -236,19 +245,30 @@ export default function LeetCodeStats() {
           </div>
 
           <div className="flex flex-col gap-4 w-full md:w-1/2">
-            <div className="rounded-lg p-4" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+            <div
+              className="rounded-lg p-4"
+              style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.3)" }}
+            >
               <div className="flex items-center justify-between">
                 <span className="text-green-600 font-semibold">Easy</span>
                 <span className="text-2xl font-bold text-theme-primary">{stats.easySolved}</span>
               </div>
             </div>
-            <div className="rounded-lg p-4" style={{ backgroundColor: 'rgba(251, 191, 36, 0.1)', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
+
+            <div
+              className="rounded-lg p-4"
+              style={{ backgroundColor: "rgba(251, 191, 36, 0.1)", border: "1px solid rgba(251, 191, 36, 0.3)" }}
+            >
               <div className="flex items-center justify-between">
                 <span className="text-yellow-600 font-semibold">Medium</span>
                 <span className="text-2xl font-bold text-theme-primary">{stats.mediumSolved}</span>
               </div>
             </div>
-            <div className="rounded-lg p-4" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+
+            <div
+              className="rounded-lg p-4"
+              style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)" }}
+            >
               <div className="flex items-center justify-between">
                 <span className="text-red-600 font-semibold">Hard</span>
                 <span className="text-2xl font-bold text-theme-primary">{stats.hardSolved}</span>
@@ -257,7 +277,6 @@ export default function LeetCodeStats() {
           </div>
         </motion.div>
 
-        {/* Stats Row */}
         <motion.div
           className="flex flex-wrap justify-center gap-8 mt-6 border-t border-gray-700 pt-6 w-full text-center"
           initial={{ opacity: 0 }}
@@ -278,23 +297,20 @@ export default function LeetCodeStats() {
       </div>
 
       <style jsx>{`
-      .stats-strong-shadow {
-        /* stronger elevation by default */
-        box-shadow: 0 20px 50px rgba(0,0,0,0.18);
-      }
-
-      /* pinkish stronger shadow in dark mode (system preference) */
-      @media (prefers-color-scheme: dark) {
         .stats-strong-shadow {
-          box-shadow: 0 25px 60px rgba(255,77,138,0.16);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
         }
-      }
 
-      /* pinkish stronger shadow when using class-based dark mode (e.g. .dark on html) */
-      :global(.dark) .stats-strong-shadow {
-        box-shadow: 0 25px 60px rgba(255,77,138,0.16);
-      }
-    `}</style>
+        @media (prefers-color-scheme: dark) {
+          .stats-strong-shadow {
+            box-shadow: 0 25px 60px rgba(255, 77, 138, 0.16);
+          }
+        }
+
+        :global(.dark) .stats-strong-shadow {
+          box-shadow: 0 25px 60px rgba(255, 77, 138, 0.16);
+        }
+      `}</style>
     </>
   );
 }

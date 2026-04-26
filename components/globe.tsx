@@ -8,19 +8,34 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { CSS2DRenderer, CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer";
+import { CSS2DRenderer, CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer.js";
 import { getAssetPath } from "../utils/paths";
 
 const Albedo = getAssetPath("/assets/globe/Albedo.jpg");
 const Bump = getAssetPath("/assets/globe/Bump.jpg");
 const Clouds = getAssetPath("/assets/globe/Clouds.png");
 
-/**
- * Converts latitude and longitude to a 3D vector on a sphere.
- */
+type GlobeProps = {
+  selectedLocation?: string | null;
+  setSelectedLocation: (location: string) => void;
+};
+
+type TrackedResources = {
+  geometries: THREE.BufferGeometry[];
+  materials: THREE.Material[];
+  textures: THREE.Texture[];
+};
+
+type LocationPoint = {
+  name: string;
+  lat: number;
+  lon: number;
+};
+
 function latLonToVector3(lat: number, lon: number, radius: number) {
   const phi = (90 - lat) * (Math.PI / 180);
   const theta = (lon + 180) * (Math.PI / 180);
+
   return new THREE.Vector3(
     -radius * Math.sin(phi) * Math.cos(theta),
     radius * Math.cos(phi),
@@ -28,85 +43,91 @@ function latLonToVector3(lat: number, lon: number, radius: number) {
   );
 }
 
-/**
- * Loads a texture from a URL, returns null if loading fails.
- */
 async function loadTexture(url: string): Promise<THREE.Texture | null> {
   return new Promise((resolve) => {
     new THREE.TextureLoader().load(
       url,
       (texture) => resolve(texture),
       undefined,
-      (error) => {
-        // Texture load failed - silently handled
-        resolve(null);
-      }
+      () => resolve(null)
     );
   });
 }
 
-/**
- * Creates a CSS2D label for a given position on the globe.
- */
 function createLabel(text: string, position: THREE.Vector3, onClick?: () => void) {
   const div = document.createElement("div");
   div.className =
     "text-xs px-2 py-1 bg-black/70 text-white rounded whitespace-nowrap cursor-pointer transition-opacity duration-200";
   div.textContent = text;
-  if (onClick) div.onclick = onClick;
+
+  if (onClick) {
+    div.onclick = onClick;
+  }
 
   const label = new CSS2DObject(div);
   label.position.copy(position.clone().multiplyScalar(1.05));
   label.element.style.pointerEvents = "auto";
+
   return label;
 }
 
-/**
- * Main Globe React component.
- * Handles initialization, rendering, animation, and cleanup of the 3D globe scene.
- */
-export default function Globe({ selectedLocation, setSelectedLocation }: any) {
+export default function Globe({ selectedLocation, setSelectedLocation }: GlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const labelRendererRef = useRef<CSS2DRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<{ dispose: () => void } | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const initializedRef = useRef(false);
-  const resourcesRef = useRef<{
-    geometries: THREE.BufferGeometry[];
-    materials: THREE.Material[];
-    textures: THREE.Texture[];
-  }>({ geometries: [], materials: [], textures: [] });
+  const mountedRef = useRef(false);
+  const cleanupInitRef = useRef<(() => void) | null>(null);
+
+  const resourcesRef = useRef<TrackedResources>({
+    geometries: [],
+    materials: [],
+    textures: [],
+  });
 
   useEffect(() => {
+    mountedRef.current = true;
     const container = containerRef.current;
-    if (!container || initializedRef.current) return;
 
-    // Prevent initialization if WebGL is blocked
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    if (!gl) {
-      // WebGL not available - silently handled
+    if (!container || initializedRef.current) return;
+    initializedRef.current = true;
+
+    const locations: LocationPoint[] = [
+      { name: "Anand", lat: 22.5645, lon: 72.9289 },
+      { name: "Helsinki", lat: 60.1699, lon: 24.9384 },
+      { name: "Toronto", lat: 43.6532, lon: -79.3832 },
+    ];
+
+    const webglTestCanvas = document.createElement("canvas");
+    const webglContext =
+      webglTestCanvas.getContext("webgl") ||
+      webglTestCanvas.getContext("experimental-webgl");
+
+    if (!webglContext) {
+      initializedRef.current = false;
       return;
     }
 
-    initializedRef.current = true;
-
     async function init() {
-      if (!container) return;
+      if (!container || !mountedRef.current) return;
+
+      let removeResizeListener: (() => void) | null = null;
+      let removeContextLostListener: (() => void) | null = null;
+      let removeContextRestoredListener: (() => void) | null = null;
 
       try {
-        // Check WebGL support before creating renderer
-        const testCanvas = document.createElement('canvas');
-        const testContext = testCanvas.getContext('webgl', {
-          failIfMajorPerformanceCaveat: true
+        const testCanvas = document.createElement("canvas");
+        const testContext = testCanvas.getContext("webgl", {
+          failIfMajorPerformanceCaveat: true,
         });
 
         if (!testContext) {
-          // WebGL context creation failed - show error UI
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'flex items-center justify-center h-full text-white';
+          const errorDiv = document.createElement("div");
+          errorDiv.className = "flex items-center justify-center h-full text-white";
           errorDiv.innerHTML = `
             <div class="text-center p-4 bg-red-900/50 rounded">
               <p class="font-bold">WebGL Unavailable</p>
@@ -117,11 +138,9 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           return;
         }
 
-        // Dispose test context
-        const loseContext = testContext.getExtension('WEBGL_lose_context');
+        const loseContext = testContext.getExtension("WEBGL_lose_context");
         if (loseContext) loseContext.loseContext();
 
-        // Create renderer with minimal settings (NEW canvas)
         const renderer = new THREE.WebGLRenderer({
           antialias: false,
           alpha: true,
@@ -131,13 +150,13 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           depth: true,
           preserveDrawingBuffer: false,
         });
+
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Cap at 1.5x
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
         rendererRef.current = renderer;
 
-        // Scene and camera
         const scene = new THREE.Scene();
         sceneRef.current = scene;
 
@@ -150,28 +169,27 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         camera.position.set(0, 0, 3);
         cameraRef.current = camera;
 
-        // Load textures with smaller size
         const [albedoMap, bumpMap, cloudsMap] = await Promise.all([
           loadTexture(Albedo),
           loadTexture(Bump),
           loadTexture(Clouds),
         ]);
 
+        if (!mountedRef.current) return;
+
         if (!albedoMap || !bumpMap || !cloudsMap) {
-          // Failed to load textures - silently handled
           return;
         }
 
-        // Aggressively optimize textures
-        [albedoMap, bumpMap, cloudsMap].forEach((tex) => {
-          tex.minFilter = THREE.LinearFilter;
-          tex.magFilter = THREE.LinearFilter;
-          tex.generateMipmaps = false;
-          tex.anisotropy = 1; // Disable anisotropic filtering
+        [albedoMap, bumpMap, cloudsMap].forEach((texture) => {
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          texture.generateMipmaps = false;
+          texture.anisotropy = 1;
         });
+
         resourcesRef.current.textures.push(albedoMap, bumpMap, cloudsMap);
 
-        // Simple lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
         scene.add(ambientLight);
 
@@ -179,13 +197,12 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         sunLight.position.set(5, 2, 5);
         scene.add(sunLight);
 
-        // Earth with medium detail
-        const earthGeometry = new THREE.SphereGeometry(0.7, 32, 32); // Decreased from 1 to 0.7
+        const earthGeometry = new THREE.SphereGeometry(0.7, 32, 32);
         resourcesRef.current.geometries.push(earthGeometry);
 
         const earthMaterial = new THREE.MeshStandardMaterial({
           map: albedoMap,
-          bumpMap: bumpMap,
+          bumpMap,
           bumpScale: 0.02,
           roughness: 0.7,
           metalness: 0.1,
@@ -195,8 +212,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
         scene.add(earthMesh);
 
-        // Clouds with medium detail
-        const cloudGeometry = new THREE.SphereGeometry(0.71, 32, 32); // Decreased proportionally
+        const cloudGeometry = new THREE.SphereGeometry(0.71, 32, 32);
         resourcesRef.current.geometries.push(cloudGeometry);
 
         const cloudMaterial = new THREE.MeshStandardMaterial({
@@ -210,19 +226,21 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
         scene.add(cloudMesh);
 
-        // CSS2DRenderer
         const labelRenderer = new CSS2DRenderer();
         labelRenderer.setSize(container.clientWidth, container.clientHeight);
         labelRenderer.domElement.style.position = "absolute";
         labelRenderer.domElement.style.top = "0";
+        labelRenderer.domElement.style.left = "0";
         labelRenderer.domElement.style.pointerEvents = "none";
         container.appendChild(labelRenderer.domElement);
         labelRendererRef.current = labelRenderer;
 
-        // OrbitControls
         const { OrbitControls } = await import(
-          "three/examples/jsm/controls/OrbitControls"
+          "three/examples/jsm/controls/OrbitControls.js"
         );
+
+        if (!mountedRef.current) return;
+
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.1;
@@ -231,16 +249,10 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         controls.enablePan = false;
         controls.minDistance = 1.2;
         controls.maxDistance = 4;
+        controlsRef.current = controls;
 
-        // Locations
-        const locations = [
-          { name: "Anand", lat: 22.5645, lon: 72.9289 },
-          { name: "Helsinki", lat: 60.1699, lon: 24.9384 },
-          { name: "Toronto", lat: 43.6532, lon: -79.3832 },
-        ];
-
-        // Labels
         const labelObjects: CSS2DObject[] = [];
+
         locations.forEach((loc) => {
           const pos = latLonToVector3(loc.lat, loc.lon, 0.7);
           const label = createLabel(loc.name, pos, () => setSelectedLocation(loc.name));
@@ -248,9 +260,8 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           labelObjects.push(label);
         });
 
-        // Lines + arrows with minimal geometry
         const lineArrows: {
-          curve: THREE.Curve<THREE.Vector3>;
+          curve: THREE.QuadraticBezierCurve3;
           arrow: THREE.Mesh;
           duration: number;
           offset: number;
@@ -262,7 +273,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           const mid = start.clone().add(end).normalize().multiplyScalar(0.98);
           const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
 
-          const points = curve.getPoints(50); // Increased from 30
+          const points = curve.getPoints(50);
           const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
           resourcesRef.current.geometries.push(lineGeometry);
 
@@ -272,7 +283,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           const line = new THREE.Line(lineGeometry, lineMaterial);
           earthMesh.add(line);
 
-          const arrowGeometry = new THREE.ConeGeometry(0.02, 0.06, 8); // Increased from 4
+          const arrowGeometry = new THREE.ConeGeometry(0.02, 0.06, 8);
           resourcesRef.current.geometries.push(arrowGeometry);
 
           const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc33 });
@@ -282,63 +293,74 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
           arrow.rotation.x = Math.PI;
           earthMesh.add(arrow);
 
-          lineArrows.push({ curve, arrow, duration: 3, offset: i * 0.5 });
+          lineArrows.push({
+            curve,
+            arrow,
+            duration: 3,
+            offset: i * 0.5,
+          });
         }
 
         const clock = new THREE.Clock();
-
-        // Cached vectors
         const worldPos = new THREE.Vector3();
         const normal = new THREE.Vector3();
         const camDir = new THREE.Vector3();
         const tangent = new THREE.Vector3();
         const tangentOnSphere = new THREE.Vector3();
+        const axis = new THREE.Vector3(0, 1, 0);
+        const quaternion = new THREE.Quaternion();
 
         let lastTime = 0;
-        const targetFPS = 30; // Limit to 30 FPS
+        const targetFPS = 30;
         const frameInterval = 1000 / targetFPS;
 
         function animate(currentTime: number) {
+          if (!mountedRef.current) return;
+
           animationFrameRef.current = requestAnimationFrame(animate);
 
-          // Throttle to 30 FPS
           if (currentTime - lastTime < frameInterval) return;
           lastTime = currentTime;
 
           const delta = clock.getDelta();
+          const elapsed = clock.getElapsedTime();
 
-          // Rotate earth & clouds (slower)
           earthMesh.rotation.y += 0.1 * delta;
           cloudMesh.rotation.y += 0.12 * delta;
 
-          // Move arrows
-          const elapsed = clock.getElapsedTime();
-          lineArrows.forEach((la) => {
-            const t = ((elapsed - la.offset) % la.duration) / la.duration;
-            const pos = la.curve.getPoint(t);
-            la.arrow.position.copy(pos);
+          lineArrows.forEach((lineArrow) => {
+            const t =
+              ((elapsed - lineArrow.offset) % lineArrow.duration) / lineArrow.duration;
 
-            tangent.copy(la.curve.getTangent(t)).normalize();
+            const pos = lineArrow.curve.getPoint(t);
+            lineArrow.arrow.position.copy(pos);
+
+            tangent.copy(lineArrow.curve.getTangent(t)).normalize();
             normal.copy(pos).normalize();
-            const dotProduct = tangent.dot(normal);
-            tangentOnSphere.copy(tangent).sub(normal.multiplyScalar(dotProduct)).normalize();
 
-            const axis = new THREE.Vector3(0, 1, 0);
-            const quaternion = new THREE.Quaternion().setFromUnitVectors(axis, tangentOnSphere);
-            la.arrow.setRotationFromQuaternion(quaternion);
+            const dotProduct = tangent.dot(normal);
+            tangentOnSphere
+              .copy(tangent)
+              .sub(normal.clone().multiplyScalar(dotProduct))
+              .normalize();
+
+            quaternion.setFromUnitVectors(axis, tangentOnSphere);
+            lineArrow.arrow.setRotationFromQuaternion(quaternion);
           });
 
           controls.update();
           renderer.render(scene, camera);
           labelRenderer.render(scene, camera);
 
-          // Update label visibility
           camDir.copy(camera.position).normalize();
+
           labelObjects.forEach((label) => {
             label.getWorldPosition(worldPos);
             normal.copy(worldPos).normalize();
+
             const dot = normal.dot(camDir);
             const element = label.element as HTMLElement;
+
             if (dot > 0.1) {
               element.style.opacity = "1";
               element.style.pointerEvents = "auto";
@@ -351,51 +373,71 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
 
         animate(0);
 
-        // Handle context loss
-        renderer.domElement.addEventListener("webglcontextlost", (event) => {
+        const handleContextLost = (event: Event) => {
           event.preventDefault();
-          // WebGL context lost - attempting recovery
           if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = null;
           }
-        });
-
-        renderer.domElement.addEventListener("webglcontextrestored", () => {
-          animate(0);
-        });
-
-        // Handle window resize
-        const handleResize = () => {
-          if (!container) return;
-          const width = container.clientWidth;
-          const height = container.clientHeight;
-          camera.aspect = width / height;
-          camera.updateProjectionMatrix();
-          renderer.setSize(width, height);
-          labelRenderer.setSize(width, height);
         };
-        window.addEventListener("resize", handleResize);
 
-        return () => {
-          window.removeEventListener("resize", handleResize);
+        const handleContextRestored = () => {
+          animate(0);
+        };
+
+        renderer.domElement.addEventListener("webglcontextlost", handleContextLost);
+        renderer.domElement.addEventListener("webglcontextrestored", handleContextRestored);
+
+        removeContextLostListener = () => {
+          renderer.domElement.removeEventListener("webglcontextlost", handleContextLost);
+        };
+
+        removeContextRestoredListener = () => {
+          renderer.domElement.removeEventListener(
+            "webglcontextrestored",
+            handleContextRestored
+          );
+        };
+
+        const handleResize = () => {
+          if (!containerRef.current || !cameraRef.current || !rendererRef.current || !labelRendererRef.current) {
+            return;
+          }
+
+          const width = containerRef.current.clientWidth;
+          const height = containerRef.current.clientHeight;
+
+          cameraRef.current.aspect = width / height;
+          cameraRef.current.updateProjectionMatrix();
+          rendererRef.current.setSize(width, height);
+          labelRendererRef.current.setSize(width, height);
+        };
+
+        window.addEventListener("resize", handleResize);
+        removeResizeListener = () => window.removeEventListener("resize", handleResize);
+
+        cleanupInitRef.current = () => {
+          removeResizeListener?.();
+          removeContextLostListener?.();
+          removeContextRestoredListener?.();
           controls.dispose();
         };
-      } catch (error) {
-        // Globe initialization failed - silently handled
+      } catch {
+        cleanupInitRef.current = null;
       }
     }
 
     init();
+
+    return () => {
+      mountedRef.current = false;
+      cleanupInitRef.current?.();
+      cleanupInitRef.current = null;
+    };
   }, [setSelectedLocation]);
 
-  // Aggressive cleanup on unmount
   useEffect(() => {
-    // Capture ref values at start of effect
     const resources = resourcesRef.current;
-    const scene = sceneRef.current;
-    const renderer = rendererRef.current;
-    const labelRenderer = labelRendererRef.current;
-    const container = containerRef.current;
 
     return () => {
       if (animationFrameRef.current) {
@@ -403,40 +445,47 @@ export default function Globe({ selectedLocation, setSelectedLocation }: any) {
         animationFrameRef.current = null;
       }
 
-      // Dispose all tracked resources
-      resources.geometries.forEach((geo) => geo.dispose());
-      resources.materials.forEach((mat) => mat.dispose());
-      resources.textures.forEach((tex) => tex.dispose());
+      controlsRef.current?.dispose();
+      controlsRef.current = null;
 
-      // Clear arrays
+      resources.geometries.forEach((geometry) => geometry.dispose());
+      resources.materials.forEach((material) => material.dispose());
+      resources.textures.forEach((texture) => texture.dispose());
+
       resources.geometries = [];
       resources.materials = [];
       resources.textures = [];
 
-      if (scene) {
-        scene.clear();
+      if (sceneRef.current) {
+        sceneRef.current.clear();
         sceneRef.current = null;
       }
 
-      if (renderer) {
-        renderer.dispose();
-        renderer.forceContextLoss();
-        renderer.domElement.remove();
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+        rendererRef.current.forceContextLoss();
+        rendererRef.current.domElement.remove();
         rendererRef.current = null;
       }
 
-      if (labelRenderer) {
-        labelRenderer.domElement.remove();
+      if (labelRendererRef.current) {
+        labelRendererRef.current.domElement.remove();
         labelRendererRef.current = null;
       }
 
-      if (container) {
-        container.innerHTML = "";
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
       }
 
+      cameraRef.current = null;
       initializedRef.current = false;
     };
   }, []);
 
-  return <div ref={containerRef} className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] m-2 sm:m-4 lg:m-8"></div>;
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] m-2 sm:m-4 lg:m-8"
+    />
+  );
 }
