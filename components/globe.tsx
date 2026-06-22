@@ -121,9 +121,9 @@ export default function Globe({ selectedLocation, setSelectedLocation }: GlobePr
 
       try {
         const testCanvas = document.createElement("canvas");
-        const testContext = testCanvas.getContext("webgl", {
-          failIfMajorPerformanceCaveat: true,
-        });
+        // Try standard WebGL contexts first; avoid strict performance caveat checks
+        const testContext =
+          testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
 
         if (!testContext) {
           const errorDiv = document.createElement("div");
@@ -131,15 +131,14 @@ export default function Globe({ selectedLocation, setSelectedLocation }: GlobePr
           errorDiv.innerHTML = `
             <div class="text-center p-4 bg-red-900/50 rounded">
               <p class="font-bold">WebGL Unavailable</p>
-              <p class="text-sm mt-2">Please restart your browser</p>
+              <p class="text-sm mt-2">Please restart your browser or enable WebGL in your browser settings</p>
             </div>
           `;
           container.appendChild(errorDiv);
           return;
         }
 
-        const loseContext = testContext.getExtension("WEBGL_lose_context");
-        if (loseContext) loseContext.loseContext();
+        // Proceed without forcing context loss; continue to renderer creation
 
         const renderer = new THREE.WebGLRenderer({
           antialias: false,
