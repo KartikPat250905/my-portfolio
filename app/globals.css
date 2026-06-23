@@ -108,6 +108,11 @@ body::before {
   }
 }
 
+/* Prevent transitions during initial theme application */
+.no-transitions, .no-transitions * {
+  transition: none !important;
+}
+
 /* Theme toggle button styles */
 .theme-toggle {
   position: fixed;
@@ -166,4 +171,76 @@ body::before {
 
 [data-theme="dark"] .shadow-md {
   box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -1px rgba(255, 255, 255, 0.06);
+}
+
+ /* Animations: NavBar & Hero */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 600ms cubic-bezier(.2,.9,.2,1) both;
+}
+
+@keyframes floatY {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+.hero-image {
+  animation: floatY 6s ease-in-out 0.5s infinite;
+  will-change: transform;
+}
+
+/* Nav logo subtle lift */
+.nav-logo {
+  transition: transform 300ms ease, text-shadow 300ms ease;
+}
+.nav-logo:hover {
+  transform: translateY(-3px) scale(1.02);
+  text-shadow: 0 10px 30px rgba(124,58,237,0.12);
+}
+
+/* Nav links entrance stagger */
+.nav-links a.nav-link {
+  position: relative;
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: fadeInUp 420ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+/* Target first 4 children as the anchors (theme toggle sits after) */
+.nav-links a.nav-link:nth-child(1) { animation-delay: 0.04s; }
+.nav-links a.nav-link:nth-child(2) { animation-delay: 0.10s; }
+.nav-links a.nav-link:nth-child(3) { animation-delay: 0.16s; }
+.nav-links a.nav-link:nth-child(4) { animation-delay: 0.22s; }
+
+/* Hero content staggered reveal */
+.hero-content .hero-title,
+.hero-content .hero-subtitle,
+.hero-content .hero-cta {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeInUp 520ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+.hero-content .hero-title { animation-delay: 0.06s; }
+.hero-content .hero-subtitle { animation-delay: 0.16s; }
+.hero-content .hero-cta { animation-delay: 0.28s; }
+
+/* Reduce motion on small screens for performance */
+@media (max-width: 640px) {
+  .hero-image { animation: none; }
+  .nav-links a.nav-link { transform: none; opacity: 1; animation: none; }
+  .hero-content .hero-title,
+  .hero-content .hero-subtitle,
+  .hero-content .hero-cta { transform: none; opacity: 1; animation: none; }
 }

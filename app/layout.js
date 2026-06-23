@@ -24,6 +24,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.documentElement.classList.add('no-transitions');requestAnimationFrame(function(){document.documentElement.classList.remove('no-transitions');});}catch(e){}})();` }} />
         <ThemeProvider>
           <ThemeToggle />
           {children}
