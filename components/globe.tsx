@@ -385,20 +385,6 @@ export default function Globe({ selectedLocation, setSelectedLocation }: GlobePr
                entries.forEach((entry) => {
                  const visible = entry.isIntersecting && entry.intersectionRatio > 0.08;
                  isVisibleRef.current = visible;
- 
-                 // renderer canvas
-                 if (rendererRef.current) {
-                   const canvasEl = rendererRef.current.domElement;
-                   canvasEl.style.transition = "opacity 150ms ease";
-                   canvasEl.style.opacity = visible ? "1" : "0";
-                 }
- 
-                 // label renderer
-                 if (labelRendererRef.current) {
-                   const labelEl = labelRendererRef.current.domElement;
-                   labelEl.style.transition = "opacity 150ms ease";
-                   labelEl.style.opacity = visible ? "1" : "0";
-                 }
                });
              },
              { threshold: [0, 0.08, 0.2] }

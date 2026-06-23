@@ -291,6 +291,49 @@ body::before {
   }
 }
 
+/* History section: fade + subtle slide/scale for globe and sidebar */
+.history-container .history-globe,
+.history-container .history-sidebar {
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+  transition: opacity 900ms cubic-bezier(.2,.9,.2,1), transform 900ms cubic-bezier(.2,.9,.2,1);
+  will-change: opacity, transform;
+}
+
+.history-container.in-view .history-globe,
+.history-container.in-view .history-sidebar {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Slight stagger on larger screens for visual rhythm */
+@media (min-width: 1024px) {
+  .history-container.in-view .history-globe { transition-delay: 0ms; }
+  .history-container.in-view .history-sidebar { transition-delay: 140ms; }
+}
+
+/* Reduce motion on small screens for performance and accessibility */
+@media (max-width: 640px), (prefers-reduced-motion: reduce) {
+  .history-container .history-globe,
+  .history-container .history-sidebar {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Sidebar content fade when History section is in view */
+.history-sidebar .sidebar-content {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 900ms cubic-bezier(.2,.9,.2,1), transform 900ms cubic-bezier(.2,.9,.2,1);
+}
+
+.history-container.in-view .history-sidebar .sidebar-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @keyframes floatY {
   0% { transform: translateY(0); }
   50% { transform: translateY(-8px); }

@@ -55,19 +55,21 @@ export function GlobeSideBar({
 
       {/* Content area */}
       <div className="flex-1 overflow-y-auto">
-        {selectedLocation ? (
-          <div className={`${lato.className}`}>
-            <h2 className="text-base sm:text-lg font-semibold mb-2">
-              {selectedLocation}
-            </h2>
-            <p className="text-xs sm:text-sm text-theme-secondary">{info[selectedLocation]}</p>
-          </div>
-        ) : (
-          <p className="text-xs sm:text-sm text-gray-900 dark:text-gray-300 text-center lg:text-left text-theme-secondary">
-            Select a location from the menu or click a label on the globe to
-            learn more.
-          </p>
-        )}
+        <div className="sidebar-content opacity-0 translate-y-2 transition-opacity transition-transform duration-[900ms]">
+          {selectedLocation ? (
+            <div className={`${lato.className}`}>
+              <h2 className="text-base sm:text-lg font-semibold mb-2">
+                {selectedLocation}
+              </h2>
+              <p className="text-xs sm:text-sm text-theme-secondary">{info[selectedLocation]}</p>
+            </div>
+          ) : (
+            <p className="text-xs sm:text-sm text-gray-900 dark:text-gray-300 text-center lg:text-left text-theme-secondary">
+              Select a location from the menu or click a label on the globe to
+              learn more.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
