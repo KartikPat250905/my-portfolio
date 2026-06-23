@@ -77,7 +77,7 @@ export default function HackathonStats({ hackathons }: HackathonStatsProps) {
         <p className="text-gray-400 mt-1">Building innovative solutions</p>
       </div>
 
-      <motion.div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-6" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
+      <motion.div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
         <div className="flex flex-col items-center">
           <h4 className="text-3xl font-bold text-purple-400">{totalHackathons}</h4>
           <p className="text-gray-400 text-sm mt-1">Total Hackathons</p>

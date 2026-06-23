@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import AnimateIn from "./AnimateIn";
 
 interface LeetCodeStats {
   totalSolved: number;
@@ -108,7 +109,7 @@ export default function LeetCodeStats() {
           </svg>
         </div>
 
-          <div className="text-center space-y-4 animate-wrapper">
+          <AnimateIn className="text-center space-y-4">
           <h3 className="text-xl font-semibold text-red-400">Failed to Load LeetCode Stats</h3>
           <div className="space-y-2">
             <p className="text-sm text-gray-300 max-w-md">{error}</p>
@@ -116,7 +117,7 @@ export default function LeetCodeStats() {
               This might be due to API rate limits, token issues, or network problems
             </p>
           </div>
-
+ 
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-4">
             <button
               onClick={handleRetry}
@@ -124,7 +125,7 @@ export default function LeetCodeStats() {
             >
               Retry
             </button>
-
+ 
             <a
               href={`https://leetcode.com/${username}`}
               target="_blank"
@@ -134,7 +135,7 @@ export default function LeetCodeStats() {
               View Profile
             </a>
           </div>
-        </div>
+        </AnimateIn>
       </div>
     );
   }
@@ -180,102 +181,107 @@ export default function LeetCodeStats() {
           </a>
         </div>
 
-        <motion.div
-          className="flex justify-center w-full"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="w-full">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-300">Problems Solved</span>
-              <span className="text-gray-300">
-                {stats.totalSolved} / {stats.totalQuestions}
-              </span>
-            </div>
-            <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-green-500 to-blue-500"
-                initial={{ width: 0 }}
-                animate={{ width: `${progressPercentage}%` }}
-                transition={{ duration: 1, delay: 0.2 }}
-              />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="w-full flex flex-col md:flex-row items-center justify-center gap-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <div className="w-full md:w-1/2 h-72">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={100}
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#2d2d2d",
-                    border: "none",
-                    borderRadius: "8px",
-                    color: "#fff",
-                  }}
+        <AnimateIn className="w-full max-w-6xl">
+          <motion.div
+            className="flex justify-center w-full"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="flex-1 w-full min-w-0 max-w-5xl">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-300">Problems Solved</span>
+                <span className="text-gray-300">
+                  {stats.totalSolved} / {stats.totalQuestions}
+                </span>
+              </div>
+              <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden min-w-0">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-green-500 to-blue-500"
+                  style={{ minWidth: 0 }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercentage}%` }}
+                  transition={{ duration: 1, delay: 0.2 }}
                 />
-                <Legend
-                  wrapperStyle={{
-                    color: "#d1d5db",
-                    fontSize: "0.9rem",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="flex flex-col gap-4 w-full md:w-1/2">
-            <div
-              className="rounded-lg p-4"
-              style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.3)" }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-green-600 font-semibold">Easy</span>
-                <span className="text-2xl font-bold text-theme-primary">{stats.easySolved}</span>
               </div>
             </div>
+          </motion.div>
+        </AnimateIn>
 
-            <div
-              className="rounded-lg p-4"
-              style={{ backgroundColor: "rgba(251, 191, 36, 0.1)", border: "1px solid rgba(251, 191, 36, 0.3)" }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-yellow-600 font-semibold">Medium</span>
-                <span className="text-2xl font-bold text-theme-primary">{stats.mediumSolved}</span>
+        <AnimateIn className="w-full">
+          <motion.div
+            className="w-full flex flex-col md:flex-row items-center justify-center gap-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
+            <div className="w-full md:w-1/2 h-72">
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={100}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#2d2d2d",
+                      border: "none",
+                      borderRadius: "8px",
+                      color: "#fff",
+                    }}
+                  />
+                  <Legend
+                    wrapperStyle={{
+                      color: "#d1d5db",
+                      fontSize: "0.9rem",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+     
+            <div className="flex flex-col gap-4 w-full md:w-1/2">
+              <div
+                className="rounded-lg p-4"
+                style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.3)" }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-green-600 font-semibold">Easy</span>
+                  <span className="text-2xl font-bold text-theme-primary">{stats.easySolved}</span>
+                </div>
+              </div>
+     
+              <div
+                className="rounded-lg p-4"
+                style={{ backgroundColor: "rgba(251, 191, 36, 0.1)", border: "1px solid rgba(251, 191, 36, 0.3)" }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-yellow-600 font-semibold">Medium</span>
+                  <span className="text-2xl font-bold text-theme-primary">{stats.mediumSolved}</span>
+                </div>
+              </div>
+     
+              <div
+                className="rounded-lg p-4"
+                style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)" }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-red-600 font-semibold">Hard</span>
+                  <span className="text-2xl font-bold text-theme-primary">{stats.hardSolved}</span>
+                </div>
               </div>
             </div>
-
-            <div
-              className="rounded-lg p-4"
-              style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)" }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-red-600 font-semibold">Hard</span>
-                <span className="text-2xl font-bold text-theme-primary">{stats.hardSolved}</span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </AnimateIn>
 
         <motion.div
           className="flex flex-wrap justify-center gap-8 mt-6 border-t border-gray-700 pt-6 w-full text-center"
