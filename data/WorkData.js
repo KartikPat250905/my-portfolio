@@ -5,7 +5,7 @@ export const WorkData = {
             "company": "Cydora",
             "location": "Helsinki, Finland",
             "periods": [
-                "June 2025 - Present"
+                "June 2025 - Feb 2025"
             ],
             "technologies": [
                 "Python",
@@ -25,7 +25,7 @@ export const WorkData = {
             "title": "AI Intern",
             "company": "Cydora",
             "location": "Helsinki, Finland",
-            "period": "May 2025 - June 2025",
+            "period": "Mar 2025 - June 2025",
             "technologies": [
                 "Python",
                 "React.js",
