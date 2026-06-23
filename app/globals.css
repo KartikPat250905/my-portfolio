@@ -189,6 +189,108 @@ body::before {
   animation: fadeInUp 600ms cubic-bezier(.2,.9,.2,1) both;
 }
 
+/* SectionHeader animations: entrance, subtitle fade, shimmer, underline sweep */
+@keyframes sectionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtitleEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(10%);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+@keyframes underlineSweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(110%);
+  }
+}
+
+/* utility classes for SectionHeader animations */
+.animate-section-enter {
+  animation: sectionEnter 600ms cubic-bezier(.2,.9,.2,1) forwards;
+  animation-delay: 350ms;
+}
+
+.animate-subtitle-enter {
+  animation: subtitleEnter 600ms cubic-bezier(.2,.9,.2,1) forwards;
+  animation-delay: 260ms;
+}
+
+/* shimmer overlay placed over the text using mix-blend or gradient */
+.shimmer-mask {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0) 100%);
+  mix-blend-mode: screen;
+  transform: translateX(-120%);
+  animation: shimmer 1.6s ease-in-out 400ms;
+  border-radius: 4px;
+}
+
+/* underline sweep utility */
+.animate-underline-sweep {
+  animation: underlineSweep 1400ms ease-in-out 500ms both;
+}
+
+/* SectionHeader fade-in triggered via .in-view (IntersectionObserver) */
+.section-title,
+.section-subtitle {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 600ms cubic-bezier(.2,.9,.2,1), transform 600ms cubic-bezier(.2,.9,.2,1);
+}
+
+.section-header.in-view .section-title {
+  animation: sectionEnter 600ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+.section-header.in-view .section-subtitle {
+  animation: subtitleEnter 600ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .section-title,
+  .section-subtitle {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 @keyframes floatY {
   0% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
