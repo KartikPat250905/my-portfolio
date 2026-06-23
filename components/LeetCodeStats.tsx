@@ -32,7 +32,7 @@ export default function LeetCodeStats() {
       setError("");
 
       const response = await fetch(
-        `/.netlify/functions/leetcode?username=${encodeURIComponent(username)}`,
+        `/api/leetcode?username=${encodeURIComponent(username)}`,
         {
           method: "GET",
           cache: "no-store",
@@ -108,12 +108,12 @@ export default function LeetCodeStats() {
           </svg>
         </div>
 
-        <div className="text-center space-y-4">
+          <div className="text-center space-y-4 animate-wrapper">
           <h3 className="text-xl font-semibold text-red-400">Failed to Load LeetCode Stats</h3>
           <div className="space-y-2">
             <p className="text-sm text-gray-300 max-w-md">{error}</p>
             <p className="text-xs text-gray-400">
-              This might be due to rate limits, temporary API issues, or the user not existing.
+              This might be due to API rate limits, token issues, or network problems
             </p>
           </div>
 

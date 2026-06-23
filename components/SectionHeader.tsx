@@ -3,7 +3,6 @@
  * SectionHeader.tsx
  * Renders a stylized section header with a title and optional subtitle.
  */
-
 import React, { useEffect, useRef } from "react";
 
 type Props = {

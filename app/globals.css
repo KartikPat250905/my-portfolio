@@ -300,6 +300,20 @@ body::before {
   will-change: opacity, transform;
 }
 
+/* Generic animate-wrapper used across stats sections */
+.animate-in-wrapper,
+.animate-wrapper {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 700ms cubic-bezier(.2,.9,.2,1), transform 700ms cubic-bezier(.2,.9,.2,1);
+}
+
+.animate-in-wrapper.in-view,
+.animate-wrapper.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .history-container.in-view .history-globe,
 .history-container.in-view .history-sidebar {
   opacity: 1;
