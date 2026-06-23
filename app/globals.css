@@ -244,3 +244,36 @@ body::before {
   .hero-content .hero-subtitle,
   .hero-content .hero-cta { transform: none; opacity: 1; animation: none; }
 }
+
+/* Project cards: entrance + subtle hover */
+.project-card {
+  opacity: 0;
+  transform: translateY(18px) scale(0.995);
+  will-change: transform, opacity;
+  transition: opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms cubic-bezier(.2,.9,.2,1);
+}
+.project-card.in-view {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Slight alternate shadow on hover for depth */
+.project-card .shadow-lg {
+  transition: box-shadow 200ms ease;
+}
+
+/* Reduce motion on small screens for performance */
+@media (max-width: 640px) {
+  .hero-image { animation: none; }
+  .nav-links a.nav-link { transform: none; opacity: 1; animation: none; }
+  .hero-content .hero-title,
+  .hero-content .hero-subtitle,
+  .hero-content .hero-cta { transform: none; opacity: 1; animation: none; }
+
+  /* Disable card entrances on small screens for performance */
+  .project-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
