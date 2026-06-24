@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import AnimateIn from "./AnimateIn";
+import AnimatedNumber from "./AnimatedNumber";
 
 interface LeetCodeStats {
   totalSolved: number;
@@ -182,17 +183,12 @@ export default function LeetCodeStats() {
         </div>
 
         <AnimateIn className="w-full max-w-6xl">
-          <motion.div
-            className="flex justify-center w-full"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+          <div className="flex justify-center w-full">
             <div className="flex-1 w-full min-w-0 max-w-5xl">
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-gray-300">Problems Solved</span>
                 <span className="text-gray-300">
-                  {stats.totalSolved} / {stats.totalQuestions}
+                  <AnimatedNumber value={stats.totalSolved} duration={600} /> / <AnimatedNumber value={stats.totalQuestions} duration={600} />
                 </span>
               </div>
               <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden min-w-0">
@@ -205,15 +201,12 @@ export default function LeetCodeStats() {
                 />
               </div>
             </div>
-          </motion.div>
+          </div>
         </AnimateIn>
 
         <AnimateIn className="w-full">
-          <motion.div
+          <div
             className="w-full flex flex-col md:flex-row items-center justify-center gap-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
           >
             <div className="w-full md:w-1/2 h-72">
               <ResponsiveContainer>
@@ -256,7 +249,7 @@ export default function LeetCodeStats() {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-green-600 font-semibold">Easy</span>
-                  <span className="text-2xl font-bold text-theme-primary">{stats.easySolved}</span>
+                  <span className="text-2xl font-bold text-theme-primary"><AnimatedNumber value={stats.easySolved} duration={600} /></span>
                 </div>
               </div>
      
@@ -266,7 +259,7 @@ export default function LeetCodeStats() {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-yellow-600 font-semibold">Medium</span>
-                  <span className="text-2xl font-bold text-theme-primary">{stats.mediumSolved}</span>
+                  <span className="text-2xl font-bold text-theme-primary"><AnimatedNumber value={stats.mediumSolved} duration={600} /></span>
                 </div>
               </div>
      
@@ -276,30 +269,25 @@ export default function LeetCodeStats() {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-red-600 font-semibold">Hard</span>
-                  <span className="text-2xl font-bold text-theme-primary">{stats.hardSolved}</span>
+                  <span className="text-2xl font-bold text-theme-primary"><AnimatedNumber value={stats.hardSolved} duration={600} /></span>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </AnimateIn>
 
-        <motion.div
-          className="flex flex-wrap justify-center gap-8 mt-6 border-t border-gray-700 pt-6 w-full text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-        >
+        <AnimateIn className="flex flex-wrap justify-center gap-8 mt-6 border-t border-gray-700 pt-6 w-full text-center">
           <div>
             <h4 className="text-2xl font-semibold text-blue-400">
-              #{stats.ranking.toLocaleString()}
+              #<AnimatedNumber value={stats.ranking} duration={600} />
             </h4>
             <p className="text-gray-400 text-sm mt-1">Global Ranking</p>
           </div>
           <div>
-            <h4 className="text-2xl font-semibold text-green-400">{stats.acceptanceRate}%</h4>
+            <h4 className="text-2xl font-semibold text-green-400"><AnimatedNumber value={stats.acceptanceRate} duration={600} />%</h4>
             <p className="text-gray-400 text-sm mt-1">Acceptance Rate</p>
           </div>
-        </motion.div>
+        </AnimateIn>
       </div>
 
       <style jsx>{`
