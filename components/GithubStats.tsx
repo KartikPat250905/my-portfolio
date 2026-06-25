@@ -291,16 +291,24 @@ export default function GithubStats() {
                 )}
             </div>
 
-            <AnimateIn className="flex justify-center w-full">
-                <GitHubCalendar
-                    username="KartikPat250905"
-                    colorScheme="dark"
-                    showWeekdayLabels
-                    blockSize={13}
-                    blockMargin={5}
-                    fontSize={14}
-                />
-            </AnimateIn>
+            <motion.div
+                className="flex justify-center w-full"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, ease: [0.2, 0.9, 0.2, 1] }}
+            >
+                <div className="w-full flex justify-center">
+                    <GitHubCalendar
+                        username="KartikPat250905"
+                        colorScheme="dark"
+                        showWeekdayLabels
+                        blockSize={13}
+                        blockMargin={5}
+                        fontSize={14}
+                    />
+                </div>
+            </motion.div>
 
             {!langLoading && languages.length > 0 && (
                 <div className="flex flex-col md:flex-row items-center justify-center gap-8 w-full">
