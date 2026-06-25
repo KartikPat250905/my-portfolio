@@ -108,6 +108,11 @@ body::before {
   }
 }
 
+/* Prevent transitions during initial theme application */
+.no-transitions, .no-transitions * {
+  transition: none !important;
+}
+
 /* Theme toggle button styles */
 .theme-toggle {
   position: fixed;
@@ -166,4 +171,268 @@ body::before {
 
 [data-theme="dark"] .shadow-md {
   box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -1px rgba(255, 255, 255, 0.06);
+}
+
+ /* Animations: NavBar & Hero */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 600ms cubic-bezier(.2,.9,.2,1) both;
+}
+
+/* SectionHeader animations: entrance, subtitle fade, shimmer, underline sweep */
+@keyframes sectionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtitleEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(10%);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+@keyframes underlineSweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(110%);
+  }
+}
+
+/* utility classes for SectionHeader animations */
+.animate-section-enter {
+  animation: sectionEnter 600ms cubic-bezier(.2,.9,.2,1) forwards;
+  animation-delay: 350ms;
+}
+
+.animate-subtitle-enter {
+  animation: subtitleEnter 600ms cubic-bezier(.2,.9,.2,1) forwards;
+  animation-delay: 260ms;
+}
+
+/* shimmer overlay placed over the text using mix-blend or gradient */
+.shimmer-mask {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0) 100%);
+  mix-blend-mode: screen;
+  transform: translateX(-120%);
+  animation: shimmer 1.6s ease-in-out 400ms;
+  border-radius: 4px;
+}
+
+/* underline sweep utility */
+.animate-underline-sweep {
+  animation: underlineSweep 1400ms ease-in-out 500ms both;
+}
+
+/* SectionHeader fade-in triggered via .in-view (IntersectionObserver) */
+.section-title,
+.section-subtitle {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 600ms cubic-bezier(.2,.9,.2,1), transform 600ms cubic-bezier(.2,.9,.2,1);
+}
+
+.section-header.in-view .section-title {
+  animation: sectionEnter 600ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+.section-header.in-view .section-subtitle {
+  animation: subtitleEnter 600ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .section-title,
+  .section-subtitle {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* History section: fade + subtle slide/scale for globe and sidebar */
+.history-container .history-globe,
+.history-container .history-sidebar {
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+  transition: opacity 900ms cubic-bezier(.2,.9,.2,1), transform 900ms cubic-bezier(.2,.9,.2,1);
+  will-change: opacity, transform;
+}
+
+/* Generic animate-wrapper used across stats sections */
+.animate-in-wrapper,
+.animate-wrapper {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 600ms cubic-bezier(.2,.9,.2,1), transform 600ms cubic-bezier(.2,.9,.2,1);
+}
+
+.animate-in-wrapper.in-view,
+.animate-wrapper.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.history-container.in-view .history-globe,
+.history-container.in-view .history-sidebar {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Slight stagger on larger screens for visual rhythm */
+@media (min-width: 1024px) {
+  .history-container.in-view .history-globe { transition-delay: 0ms; }
+  .history-container.in-view .history-sidebar { transition-delay: 140ms; }
+}
+
+/* Reduce motion on small screens for performance and accessibility */
+@media (max-width: 640px), (prefers-reduced-motion: reduce) {
+  .history-container .history-globe,
+  .history-container .history-sidebar {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Sidebar content fade when History section is in view */
+.history-sidebar .sidebar-content {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 900ms cubic-bezier(.2,.9,.2,1), transform 900ms cubic-bezier(.2,.9,.2,1);
+}
+
+.history-container.in-view .history-sidebar .sidebar-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes floatY {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+.hero-image {
+  animation: floatY 6s ease-in-out 0.5s infinite;
+  will-change: transform;
+}
+
+/* Nav logo subtle lift */
+.nav-logo {
+  transition: transform 300ms ease, text-shadow 300ms ease;
+}
+.nav-logo:hover {
+  transform: translateY(-3px) scale(1.02);
+  text-shadow: 0 10px 30px rgba(124,58,237,0.12);
+}
+
+/* Nav links entrance stagger */
+.nav-links a.nav-link {
+  position: relative;
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: fadeInUp 420ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+/* Target first 4 children as the anchors (theme toggle sits after) */
+.nav-links a.nav-link:nth-child(1) { animation-delay: 0.04s; }
+.nav-links a.nav-link:nth-child(2) { animation-delay: 0.10s; }
+.nav-links a.nav-link:nth-child(3) { animation-delay: 0.16s; }
+.nav-links a.nav-link:nth-child(4) { animation-delay: 0.22s; }
+
+/* Hero content staggered reveal */
+.hero-content .hero-title,
+.hero-content .hero-subtitle,
+.hero-content .hero-cta {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeInUp 520ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+.hero-content .hero-title { animation-delay: 0.06s; }
+.hero-content .hero-subtitle { animation-delay: 0.16s; }
+.hero-content .hero-cta { animation-delay: 0.28s; }
+
+/* Reduce motion on small screens for performance */
+@media (max-width: 640px) {
+  .hero-image { animation: none; }
+  .nav-links a.nav-link { transform: none; opacity: 1; animation: none; }
+  .hero-content .hero-title,
+  .hero-content .hero-subtitle,
+  .hero-content .hero-cta { transform: none; opacity: 1; animation: none; }
+}
+
+/* Project cards: entrance + subtle hover */
+.project-card {
+  opacity: 0;
+  transform: translateY(18px) scale(0.995);
+  will-change: transform, opacity;
+  transition: opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms cubic-bezier(.2,.9,.2,1);
+}
+.project-card.in-view {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Slight alternate shadow on hover for depth */
+.project-card .shadow-lg {
+  transition: box-shadow 200ms ease;
+}
+
+/* Reduce motion on small screens for performance */
+@media (max-width: 640px) {
+  .hero-image { animation: none; }
+  .nav-links a.nav-link { transform: none; opacity: 1; animation: none; }
+  .hero-content .hero-title,
+  .hero-content .hero-subtitle,
+  .hero-content .hero-cta { transform: none; opacity: 1; animation: none; }
+
+  /* Disable card entrances on small screens for performance */
+  .project-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

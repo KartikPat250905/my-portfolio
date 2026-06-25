@@ -13,6 +13,8 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Octokit } from "octokit";
 import GitHubCalendar from "react-github-calendar";
+import AnimateIn from "./AnimateIn";
+import AnimatedNumber from "./AnimatedNumber";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
 
 /**
@@ -291,18 +293,21 @@ export default function GithubStats() {
 
             <motion.div
                 className="flex justify-center w-full"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, ease: [0.2, 0.9, 0.2, 1] }}
             >
-                <GitHubCalendar
-                    username="KartikPat250905"
-                    colorScheme="dark"
-                    showWeekdayLabels
-                    blockSize={13}
-                    blockMargin={5}
-                    fontSize={14}
-                />
+                <div className="w-full flex justify-center">
+                    <GitHubCalendar
+                        username="KartikPat250905"
+                        colorScheme="dark"
+                        showWeekdayLabels
+                        blockSize={13}
+                        blockMargin={5}
+                        fontSize={14}
+                    />
+                </div>
             </motion.div>
 
             {!langLoading && languages.length > 0 && (
@@ -340,25 +345,20 @@ export default function GithubStats() {
                 </div>
             )}
 
-            <motion.div
-                className="flex flex-wrap justify-center gap-8 mt-6 border-t border-gray-700 pt-6 w-full max-w-3xl text-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-            >
+            <AnimateIn className="flex flex-wrap justify-center gap-8 mt-6 border-t border-gray-700 pt-6 w-full max-w-3xl text-center">
                 <div>
                     <h4 className="text-xl font-semibold">
-                        {statsLoading ? "..." : totalCommits.toLocaleString()}
+                        {statsLoading ? "..." : <AnimatedNumber value={totalCommits} duration={600} />}
                     </h4>
                     <p className="text-gray-400 text-sm">Total Commits</p>
                 </div>
                 <div>
                     <h4 className="text-xl font-semibold">
-                        {statsLoading ? "..." : totalPRs.toLocaleString()}
+                        {statsLoading ? "..." : <AnimatedNumber value={totalPRs} duration={600} />}
                     </h4>
                     <p className="text-gray-400 text-sm">Total Pull Requests</p>
                 </div>
-            </motion.div> 
+            </AnimateIn> 
         </div>
 
       <style jsx>{`

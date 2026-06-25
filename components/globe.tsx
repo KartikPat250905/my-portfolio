@@ -82,6 +82,8 @@ export default function Globe({ selectedLocation, setSelectedLocation }: GlobePr
   const initializedRef = useRef(false);
   const mountedRef = useRef(false);
   const cleanupInitRef = useRef<(() => void) | null>(null);
+  // track whether globe is visible in viewport (for quick fade & pause)
+  const isVisibleRef = useRef<boolean>(true);
 
   const resourcesRef = useRef<TrackedResources>({
     geometries: [],
@@ -324,8 +326,9 @@ export default function Globe({ selectedLocation, setSelectedLocation }: GlobePr
           const delta = clock.getDelta();
           const elapsed = clock.getElapsedTime();
 
-          earthMesh.rotation.y += 0.1 * delta;
-          cloudMesh.rotation.y += 0.12 * delta;
+          // faster, snappier rotation while visible; pause when not visible
+          earthMesh.rotation.y += (isVisibleRef.current ? 0.5 : 0) * delta;
+          cloudMesh.rotation.y += (isVisibleRef.current ? 0.6 : 0) * delta;
 
           lineArrows.forEach((lineArrow) => {
             const t =
@@ -368,17 +371,42 @@ export default function Globe({ selectedLocation, setSelectedLocation }: GlobePr
               element.style.pointerEvents = "none";
             }
           });
-        }
-
-        animate(0);
-
-        const handleContextLost = (event: Event) => {
-          event.preventDefault();
-          if (animationFrameRef.current) {
-            cancelAnimationFrame(animationFrameRef.current);
-            animationFrameRef.current = null;
-          }
-        };
+         }
+ 
+         animate(0);
+ 
+         // quick fade & pause when not in viewport: use IntersectionObserver on container
+         (function setupVisibilityObserver() {
+           const el = containerRef.current;
+           if (!el) return;
+ 
+           const obs = new IntersectionObserver(
+             (entries) => {
+               entries.forEach((entry) => {
+                 const visible = entry.isIntersecting && entry.intersectionRatio > 0.08;
+                 isVisibleRef.current = visible;
+               });
+             },
+             { threshold: [0, 0.08, 0.2] }
+           );
+ 
+           obs.observe(el);
+ 
+           // disconnect when component unmounts / cleanup
+           const oldCleanup = cleanupInitRef.current;
+           cleanupInitRef.current = () => {
+             obs.disconnect();
+             oldCleanup?.();
+           };
+         })();
+ 
+         const handleContextLost = (event: Event) => {
+           event.preventDefault();
+           if (animationFrameRef.current) {
+             cancelAnimationFrame(animationFrameRef.current);
+             animationFrameRef.current = null;
+           }
+         };
 
         const handleContextRestored = () => {
           animate(0);

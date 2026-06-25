@@ -32,28 +32,28 @@ export default function Hero() {
       className="h-[calc(100vh-80px)] lg:h-[85vh] w-full flex flex-col lg:flex-row justify-center items-center text-theme-secondary mb-20"
       id="home"
     >
-      <div className="flex justify-center items-center p-2 sm:p-4 mb-4 sm:mb-6 lg:mb-0 lg:mr-8">
+      <div className="flex justify-center items-center p-2 sm:p-4 mb-4 sm:mb-6 lg:mb-0 lg:mr-8 animate-fade-in">
         <Image
           src={getAssetPath("/assets/images/memoji.webp")}
           alt="Kartik memoji"
           width={450}
           height={450}
-          className="rounded-lg w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 xl:w-96 xl:h-96 object-cover"
+          className="hero-image rounded-lg w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 xl:w-96 xl:h-96 object-cover"
           priority
         />
       </div>
 
-      <div className="flex flex-col justify-center items-center lg:items-start text-center lg:text-left p-2 sm:p-4">
+      <div className="hero-content flex flex-col justify-center items-center lg:items-start text-center lg:text-left p-2 sm:p-4">
         <h1
-          className={`text-4xl sm:text-5xl md:text-5xl lg:text-5xl xl:text-7xl ${patrick.className} p-3 sm:p-4 lg:p-4 tracking-wide`}
+          className={`hero-title text-4xl sm:text-5xl md:text-5xl lg:text-5xl xl:text-7xl ${patrick.className} p-3 sm:p-4 lg:p-4 tracking-wide`}
         >
           Hello, {greeting} 👋
         </h1>
 
         <h1
-          className={`text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl ${patrick.className} p-3 sm:p-4 lg:p-4 tracking-wide`}
+          className={`hero-subtitle text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl ${patrick.className} p-3 sm:p-4 lg:p-4 tracking-wide`}
         >
-          I&apos;m Kartik, currently{" "}
+          I'm Kartik, currently{" "}
           <span className="text-indigo-500">
             <Typewriter
               words={["exploring", "building", "learning"]}
@@ -67,9 +67,9 @@ export default function Hero() {
           </span>
         </h1>
 
-        <div className="mt-6 lg:mt-8">
-          <DownloadCV className="lg:justify-start justify-center" />
-        </div>
+          <div className="mt-6 lg:mt-8">
+            <DownloadCV className="hero-cta lg:justify-start justify-center" />
+          </div>
       </div>
     </div>
   );
