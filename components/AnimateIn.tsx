@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, PropsWithChildren } from "react";
+import React, { useEffect, useState, PropsWithChildren } from "react";
 
 type AnimateInProps = PropsWithChildren<{
   className?: string;
@@ -11,17 +11,17 @@ type AnimateInProps = PropsWithChildren<{
  * Accepts optional className and threshold.
  */
 export default function AnimateIn({ children, className = "", threshold = 0.12 }: AnimateInProps) {
-  const ref = useRef<HTMLDivElement | null>(null);
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    if (!element) return;
 
     const obs = new IntersectionObserver(
       (entries, o) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            el.classList.add("in-view");
+            setIsVisible(true);
             o.unobserve(entry.target);
           }
         });
@@ -29,11 +29,21 @@ export default function AnimateIn({ children, className = "", threshold = 0.12 }
       { threshold }
     );
 
-    obs.observe(el);
+    obs.observe(element);
     return () => obs.disconnect();
-  }, [threshold]);
+  }, [element, threshold]);
 
-  const combinedClass = `${className ? className + " " : ""}animate-in-wrapper opacity-0 translate-y-4`;
+  const combinedClass = className || "";
+  const style = {
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible ? "translateY(0px)" : "translateY(18px)",
+    transition: "opacity 900ms ease, transform 900ms cubic-bezier(.2,.9,.2,1)",
+    willChange: "opacity, transform",
+  } as const;
 
-  return <div ref={ref} className={combinedClass}>{children}</div>;
+  return (
+    <div ref={setElement} className={combinedClass} style={style}>
+      {children}
+    </div>
+  );
 }

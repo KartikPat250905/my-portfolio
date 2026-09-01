@@ -1,57 +1,109 @@
+
 "use client";
 
 /**
  * ProjectCard.js
  * Displays a single project card with title, description, and GitHub link.
+ * Sized by its parent coverflow slot (see ProjectSection.js). Hover tilt +
+ * glow only apply to the centered card — side cards are inert previews.
  */
 
-import { indieflower, lato, patrick } from "/app/font";
-import { useEffect, useRef } from "react";
+import { indieflower, lato, spaceGrotesk } from "/app/font";
+import { useRef } from "react";
 
-/**
- * ProjectCard component for showing project details.
- * @param {Object} props
- * @param {string} props.title - Project title
- * @param {string} props.desc - Project description
- * @param {string} props.github - GitHub repository URL
- * @param {number} props.index - index for staggered animation
- */
-export default function ProjectCard({ title, desc, github, index = 0 }) {
-  const ref = useRef(null);
+export default function ProjectCard({
+  title,
+  desc,
+  github,
+  index = 0,
+  isCenter = true,
+}) {
+  const cardRef = useRef(null);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            el.classList.add("in-view");
-            io.unobserve(el);
-          }
-        });
-      },
-      { threshold: 0.14 }
+  const handlePointerMove = (e) => {
+    if (!isCenter) return;
+
+    const card = cardRef.current;
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
+
+    card.style.setProperty(
+      "--tilt-x",
+      `${(py - 0.5) * -5}deg`
     );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+    card.style.setProperty(
+      "--tilt-y",
+      `${(px - 0.5) * 5}deg`
+    );
+    card.style.setProperty("--mx", `${px * 100}%`);
+    card.style.setProperty("--my", `${py * 100}%`);
+  };
+
+  const handlePointerLeave = () => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    card.style.setProperty("--tilt-x", "0deg");
+    card.style.setProperty("--tilt-y", "0deg");
+  };
 
   return (
-    <div
-      ref={ref}
-      className={`project-card p-3 sm:p-6 lg:p-8 w-full ${indieflower.className}`}
-      style={{ transitionDelay: `${index * 120}ms` }}
-    >
+    <div className={`project-card h-full w-full ${indieflower.className}`}>
       <div
-        className={`p-5 rounded-lg border border-[var(--border-color)] shadow-[0_20px_50px_rgba(0,0,0,0.18)] dark:shadow-[0_25px_60px_rgba(255,77,138,0.16)] transform transition-all duration-500 hover:-translate-y-1 hover:shadow-lg`}
+        ref={cardRef}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        className="project-tilt group relative flex h-full w-full flex-col overflow-hidden rounded-lg border border-[var(--border-color)] p-5 shadow-lg"
         style={{ backgroundColor: "var(--background)" }}
       >
-        <h2 className={`text-2xl mb-2 ${patrick.className} text-theme-primary`}>{title}</h2>
-        <p className={`text-md mb-4 ${lato.className} text-theme-secondary`}>{desc}</p>
-        <a href={github} target="_blank" className="text-xl text-pink-600 hover:underline font-medium">
-          See more on GitHub
-        </a>
+        {isCenter && (
+          <span className="project-glow" aria-hidden="true" />
+        )}
+
+        <h2
+          className={`relative mb-2 text-xl tracking-tight ${spaceGrotesk.className} text-theme-primary`}
+        >
+          {title}
+        </h2>
+
+      <p className={`relative project-desc-clamp text-sm mb-4 flex-1 min-h-0 ${lato.className} text-theme-secondary`}>
+        {desc}
+      </p>
+
+        {isCenter ? (
+          <a
+            href={github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="project-link relative mt-auto inline-flex items-center gap-1.5 text-base font-medium text-pink-600"
+          >
+            See more on GitHub
+
+            <svg
+              className="project-link-arrow"
+              width="14"
+              height="14"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3.5 12.5L12.5 3.5M12.5 3.5H5.5M12.5 3.5V10.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </a>
+        ) : (
+          <span className="relative mt-auto text-base text-theme-secondary/60">
+            See more on GitHub
+          </span>
+        )}
       </div>
     </div>
   );

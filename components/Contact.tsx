@@ -8,19 +8,21 @@
 // Contact.tsx
 import React from "react";
 import SectionHeader from "./SectionHeader";
+import AnimateIn from "./AnimateIn";
 import { FaLinkedin, FaGithub, FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 
 export default function Contact() {
   return (
     <section className="w-full flex flex-col items-center my-4 sm:my-6 md:my-8 lg:my-10 xl:my-12">
       <SectionHeader title="Contact" id="contact"/>
-      <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 rounded-2xl shadow-xl m-2 sm:m-4 md:m-6 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl stats-strong-shadow"
-        style={{
-          backgroundColor: "var(--background)",
-          color: "var(--text-primary)",
-          border: "1px solid var(--border-color)",
-        }}
-      >
+      <AnimateIn className="w-full flex justify-center">
+        <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 rounded-2xl shadow-xl m-2 sm:m-4 md:m-6 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl stats-strong-shadow"
+          style={{
+            backgroundColor: "var(--background)",
+            color: "var(--text-primary)",
+            border: "1px solid var(--border-color)",
+          }}
+        >
         <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r to-[#ff10e7] via-[#ff6fa3] from-[#f806f0] bg-clip-text text-transparent mb-1 sm:mb-2 md:mb-4 text-theme-secondary">
           Kartik Patel
         </h3>
@@ -56,7 +58,8 @@ export default function Contact() {
             </a>
           </div>
         </div>
-      </div>
+        </div>
+      </AnimateIn>
       <style jsx>{`
         .stats-strong-shadow {
           box-shadow: 0 20px 50px rgba(0,0,0,0.18);

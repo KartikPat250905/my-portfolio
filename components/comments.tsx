@@ -9,6 +9,7 @@ import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getDatabase, ref, set, onValue, push, off, get, serverTimestamp } from "firebase/database";
 import { getAuth, signInAnonymously, onAuthStateChanged, Auth } from "firebase/auth";
 import emailjs from '@emailjs/browser';
+import AnimateIn from "./AnimateIn";
 
 // Type definition for information associated with a comment
 type CommentType = {
@@ -835,55 +836,74 @@ export default function Comments() {
 
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="w-full max-w-3xl">
-          {feedbackMode === 'chat' ? (
-            // Chat Comment Form
-            <div className="relative">
-              <textarea
-                placeholder={isAuthenticated ? "Write your comment... (Press Enter to submit, Shift+Enter for new line)" : "Authenticate to enable commenting"}
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value.slice(0, 500))}
-                onKeyDown={handleKeyPress}
-                rows={4}
-                className={`w-full p-4 rounded-lg border text-sm bg-white dark:bg-[#071025] resize-none ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
-                style={{ color: '#ededed' }}
-                disabled={!isAuthenticated || submitting}
-                maxLength={500}
-              />
-              <div className="absolute bottom-3 right-3 text-xs" style={{ color: '#ededed' }}>
-                {commentText.length}/500
+          <AnimateIn className="w-full space-y-4">
+            {feedbackMode === 'chat' ? (
+              // Chat Comment Form
+              <div className="relative">
+                <textarea
+                  placeholder={isAuthenticated ? "Write your comment... (Press Enter to submit, Shift+Enter for new line)" : "Authenticate to enable commenting"}
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value.slice(0, 500))}
+                  onKeyDown={handleKeyPress}
+                  rows={4}
+                  className={`w-full p-4 rounded-lg border text-sm bg-white dark:bg-[#071025] resize-none ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
+                  style={{ color: '#ededed' }}
+                  disabled={!isAuthenticated || submitting}
+                  maxLength={500}
+                />
+                <div className="absolute bottom-3 right-3 text-xs" style={{ color: '#ededed' }}>
+                  {commentText.length}/500
+                </div>
               </div>
-            </div>
-          ) : (
-            // Feedback Form
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="form-name" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
-                    Name *
-                  </label>
-                  <input
-                    id="form-name"
-                    type="text"
-                    placeholder="Your full name"
-                    value={formName}
-                    onChange={(e) => setFormName(e.target.value.slice(0, 50))}
-                    className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-[#071025]"
-                    style={{ color: '#ededed' }}
-                    disabled={!isAuthenticated || submitting}
-                    maxLength={50}
-                    required
-                  />
+            ) : (
+              // Feedback Form
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="form-name" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
+                      Name *
+                    </label>
+                    <input
+                      id="form-name"
+                      type="text"
+                      placeholder="Your full name"
+                      value={formName}
+                      onChange={(e) => setFormName(e.target.value.slice(0, 50))}
+                      className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-[#071025]"
+                      style={{ color: '#ededed' }}
+                      disabled={!isAuthenticated || submitting}
+                      maxLength={50}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="form-email" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
+                      Email *
+                    </label>
+                    <input
+                      id="form-email"
+                      type="email"
+                      placeholder="your.email@example.com"
+                      value={formEmail}
+                      onChange={(e) => setFormEmail(e.target.value.slice(0, 100))}
+                      className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-[#071025]"
+                      style={{ color: '#ededed' }}
+                      disabled={!isAuthenticated || submitting}
+                      maxLength={100}
+                      required
+                    />
+                  </div>
                 </div>
                 <div>
-                  <label htmlFor="form-email" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
-                    Email *
+                  <label htmlFor="form-subject" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
+                    Subject *
                   </label>
                   <input
-                    id="form-email"
-                    type="email"
-                    placeholder="your.email@example.com"
-                    value={formEmail}
-                    onChange={(e) => setFormEmail(e.target.value.slice(0, 100))}
+                    id="form-subject"
+                    type="text"
+                    placeholder="Brief description of your feedback"
+                    value={formSubject}
+                    onChange={(e) => setFormSubject(e.target.value.slice(0, 100))}
                     className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-[#071025]"
                     style={{ color: '#ededed' }}
                     disabled={!isAuthenticated || submitting}
@@ -891,108 +911,91 @@ export default function Comments() {
                     required
                   />
                 </div>
-              </div>
-              <div>
-                <label htmlFor="form-subject" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
-                  Subject *
-                </label>
-                <input
-                  id="form-subject"
-                  type="text"
-                  placeholder="Brief description of your feedback"
-                  value={formSubject}
-                  onChange={(e) => setFormSubject(e.target.value.slice(0, 100))}
-                  className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-[#071025]"
-                  style={{ color: '#ededed' }}
-                  disabled={!isAuthenticated || submitting}
-                  maxLength={100}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="form-message" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
-                  Message *
-                </label>
-                <div className="relative">
-                  <textarea
-                    id="form-message"
-                    placeholder={isAuthenticated ? "Write your detailed feedback..." : "Authenticate to enable form submission"}
-                    value={formMessage}
-                    onChange={(e) => {
-                      setFormMessage(e.target.value.slice(0, 1000));
-                      // Reset form start time when user starts typing (for bot detection)
-                      if (formStartTime === 0) {
-                        setFormStartTime(Date.now());
-                      }
-                    }}
-                    rows={6}
-                    className={`w-full p-4 rounded-lg border text-sm bg-white dark:bg-[#071025] resize-none ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
-                    style={{ color: '#ededed' }}
-                    disabled={!isAuthenticated || submitting}
-                    maxLength={1000}
-                    required
-                  />
-                  <div className="absolute bottom-3 right-3 text-xs" style={{ color: '#ededed' }}>
-                    {formMessage.length}/1000
+                <div>
+                  <label htmlFor="form-message" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
+                    Message *
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      id="form-message"
+                      placeholder={isAuthenticated ? "Write your detailed feedback..." : "Authenticate to enable form submission"}
+                      value={formMessage}
+                      onChange={(e) => {
+                        setFormMessage(e.target.value.slice(0, 1000));
+                        // Reset form start time when user starts typing (for bot detection)
+                        if (formStartTime === 0) {
+                          setFormStartTime(Date.now());
+                        }
+                      }}
+                      rows={6}
+                      className={`w-full p-4 rounded-lg border text-sm bg-white dark:bg-[#071025] resize-none ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
+                      style={{ color: '#ededed' }}
+                      disabled={!isAuthenticated || submitting}
+                      maxLength={1000}
+                      required
+                    />
+                    <div className="absolute bottom-3 right-3 text-xs" style={{ color: '#ededed' }}>
+                      {formMessage.length}/1000
+                    </div>
                   </div>
                 </div>
+
+                {/* Honeypot field - hidden from users but visible to bots */}
+                <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
+                  <label htmlFor="website">Please leave this field empty</label>
+                  <input
+                    id="website"
+                    name="website"
+                    type="text"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
               </div>
+            )}
 
-              {/* Honeypot field - hidden from users but visible to bots */}
-              <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
-                <label htmlFor="website">Please leave this field empty</label>
-                <input
-                  id="website"
-                  name="website"
-                  type="text"
-                  value={honeypot}
-                  onChange={(e) => setHoneypot(e.target.value)}
-                  tabIndex={-1}
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          )}
+            {submitError && (
+              <div className="mt-2 text-sm text-red-500" style={{ color: '#ef4444' }}>{submitError}</div>
+            )}
 
-          {submitError && (
-            <div className="mt-2 text-sm text-red-500" style={{ color: '#ef4444' }}>{submitError}</div>
-          )}
+            {submitSuccess && (
+              <div className="mt-2 text-sm text-green-600" style={{ color: '#16a34a' }}>{submitSuccess}</div>
+            )}
 
-          {submitSuccess && (
-            <div className="mt-2 text-sm text-green-600" style={{ color: '#16a34a' }}>{submitSuccess}</div>
-          )}
-
-          <div className="flex justify-end gap-3 mt-3">
-            <button
-              type="button"
-              onClick={() => {
-                if (feedbackMode === 'chat') {
-                  setCommentText("");
-                } else {
-                  setFormName("");
-                  setFormEmail("");
-                  setFormSubject("");
-                  setFormMessage("");
+            <div className="flex justify-end gap-3 mt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (feedbackMode === 'chat') {
+                    setCommentText("");
+                  } else {
+                    setFormName("");
+                    setFormEmail("");
+                    setFormSubject("");
+                    setFormMessage("");
+                  }
+                  setSubmitError("");
+                }}
+                disabled={feedbackMode === 'chat' ? !commentText.trim() : !formName.trim() && !formEmail.trim() && !formSubject.trim() && !formMessage.trim()}
+                className="px-4 py-2 rounded-lg border text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Clear
+              </button>
+              <button
+                type="submit"
+                disabled={
+                  !isAuthenticated ||
+                  submitting ||
+                  (feedbackMode === 'chat' ? !commentText.trim() : !formName.trim() || !formEmail.trim() || !formSubject.trim() || !formMessage.trim())
                 }
-                setSubmitError("");
-              }}
-              disabled={feedbackMode === 'chat' ? !commentText.trim() : !formName.trim() && !formEmail.trim() && !formSubject.trim() && !formMessage.trim()}
-              className="px-4 py-2 rounded-lg border text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Clear
-            </button>
-            <button
-              type="submit"
-              disabled={
-                !isAuthenticated ||
-                submitting ||
-                (feedbackMode === 'chat' ? !commentText.trim() : !formName.trim() || !formEmail.trim() || !formSubject.trim() || !formMessage.trim())
-              }
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? (feedbackMode === 'chat' ? "Posting..." : "Submitting...") : (feedbackMode === 'chat' ? "Post Comment" : "Submit Feedback")}
-            </button>
-          </div>
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? (feedbackMode === 'chat' ? "Posting..." : "Submitting...") : (feedbackMode === 'chat' ? "Post Comment" : "Submit Feedback")}
+              </button>
+            </div>
+          </AnimateIn>
         </form>
 
         {/* Content Display */}
@@ -1026,122 +1029,121 @@ export default function Comments() {
                     const isReplyingToThis = replyingTo === c.id;
 
                     return (
-                      <li
-                        key={c.id}
-                        className={`p-4 rounded-lg border bg-white dark:bg-[#071025] ${isOwn ? 'border-blue-400' : ''}`}
-                      >
-                        <div className="flex gap-3 items-start">
-                          {renderAvatar(c.username)}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-sm" style={{ color: '#ededed' }}>{c.username}</span>
-                              {isOwn && (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
-                                  You
-                                </span>
+                      <AnimateIn key={c.id} className={isOwn ? 'border-blue-400' : ''}>
+                        <li className="p-4 rounded-lg border bg-white dark:bg-[#071025]">
+                          <div className="flex gap-3 items-start">
+                            {renderAvatar(c.username)}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-sm" style={{ color: '#ededed' }}>{c.username}</span>
+                                {isOwn && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                    You
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs mb-2" style={{ color: '#ededed' }}>
+                                <span>{formatTimestamp(c.timestamp)}</span>
+                                {c.editedAt && (
+                                  <span className="text-xs opacity-75">(edited)</span>
+                                )}
+                              </div>
+
+                              <p className="text-sm break-words whitespace-pre-wrap mb-3" style={{ color: '#ededed' }}>
+                                {c.comment}
+                              </p>
+
+                              {/* Action buttons */}
+                              <div className="flex gap-3 text-xs">
+                                <button
+                                  onClick={() => {
+                                    setReplyingTo(replyingTo === c.id ? null : c.id);
+                                    setReplyText("");
+                                  }}
+                                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                                >
+                                  Reply
+                                </button>
+
+                                {c.replies && c.replies.length > 0 && (
+                                  <span className="text-gray-500">
+                                    {c.replies.length} {c.replies.length === 1 ? 'reply' : 'replies'}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Reply form */}
+                              {isReplyingToThis && (
+                                <div className="mt-3 space-y-3">
+                                  <div className="relative">
+                                    <textarea
+                                      value={replyText}
+                                      onChange={(e) => setReplyText(e.target.value.slice(0, 500))}
+                                      className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-gray-700 resize-none"
+                                      style={{ color: '#ededed' }}
+                                      rows={3}
+                                      maxLength={500}
+                                      placeholder={`Reply to ${c.username}...`}
+                                    />
+                                    <div className="absolute bottom-2 right-2 text-xs opacity-75">
+                                      {replyText.length}/500
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleReplySubmit(c.id)}
+                                      disabled={replySubmitting || !replyText.trim()}
+                                      className="px-3 py-1 text-xs rounded-md bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                      {replySubmitting ? "Posting..." : "Post Reply"}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setReplyingTo(null);
+                                        setReplyText("");
+                                      }}
+                                      className="px-3 py-1 text-xs rounded-md border hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
                               )}
-                            </div>
-                            <div className="flex items-center gap-2 text-xs mb-2" style={{ color: '#ededed' }}>
-                              <span>{formatTimestamp(c.timestamp)}</span>
-                              {c.editedAt && (
-                                <span className="text-xs opacity-75">(edited)</span>
-                              )}
-                            </div>
 
-                            <p className="text-sm break-words whitespace-pre-wrap mb-3" style={{ color: '#ededed' }}>
-                              {c.comment}
-                            </p>
-
-                            {/* Action buttons */}
-                            <div className="flex gap-3 text-xs">
-                              <button
-                                onClick={() => {
-                                  setReplyingTo(replyingTo === c.id ? null : c.id);
-                                  setReplyText("");
-                                }}
-                                className="text-blue-600 dark:text-blue-400 hover:underline"
-                              >
-                                Reply
-                              </button>
-
+                              {/* Replies */}
                               {c.replies && c.replies.length > 0 && (
-                                <span className="text-gray-500">
-                                  {c.replies.length} {c.replies.length === 1 ? 'reply' : 'replies'}
-                                </span>
+                                <div className="mt-4 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+                                  {c.replies.map((reply) => (
+                                    <div key={reply.id} className="flex gap-3 items-start">
+                                      <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-medium text-white">
+                                        {reply.username.charAt(0).toUpperCase()}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <span className="font-medium text-xs" style={{ color: '#ededed' }}>
+                                            {reply.username}
+                                          </span>
+                                          {reply.uid === currentUid && (
+                                            <span className="text-xs px-1 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                              You
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="text-xs mb-1 opacity-75">
+                                          {formatTimestamp(reply.timestamp)}
+                                        </div>
+                                        <p className="text-xs break-words whitespace-pre-wrap" style={{ color: '#ededed' }}>
+                                          {reply.comment}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
                               )}
                             </div>
-
-                            {/* Reply form */}
-                            {isReplyingToThis && (
-                              <div className="mt-3 space-y-3">
-                                <div className="relative">
-                                  <textarea
-                                    value={replyText}
-                                    onChange={(e) => setReplyText(e.target.value.slice(0, 500))}
-                                    className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-gray-700 resize-none"
-                                    style={{ color: '#ededed' }}
-                                    rows={3}
-                                    maxLength={500}
-                                    placeholder={`Reply to ${c.username}...`}
-                                  />
-                                  <div className="absolute bottom-2 right-2 text-xs opacity-75">
-                                    {replyText.length}/500
-                                  </div>
-                                </div>
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => handleReplySubmit(c.id)}
-                                    disabled={replySubmitting || !replyText.trim()}
-                                    className="px-3 py-1 text-xs rounded-md bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                  >
-                                    {replySubmitting ? "Posting..." : "Post Reply"}
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setReplyingTo(null);
-                                      setReplyText("");
-                                    }}
-                                    className="px-3 py-1 text-xs rounded-md border hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Replies */}
-                            {c.replies && c.replies.length > 0 && (
-                              <div className="mt-4 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
-                                {c.replies.map((reply) => (
-                                  <div key={reply.id} className="flex gap-3 items-start">
-                                    <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-medium text-white">
-                                      {reply.username.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <span className="font-medium text-xs" style={{ color: '#ededed' }}>
-                                          {reply.username}
-                                        </span>
-                                        {reply.uid === currentUid && (
-                                          <span className="text-xs px-1 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
-                                            You
-                                          </span>
-                                        )}
-                                      </div>
-                                      <div className="text-xs mb-1 opacity-75">
-                                        {formatTimestamp(reply.timestamp)}
-                                      </div>
-                                      <p className="text-xs break-words whitespace-pre-wrap" style={{ color: '#ededed' }}>
-                                        {reply.comment}
-                                      </p>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
                           </div>
-                        </div>
-                      </li>
+                        </li>
+                      </AnimateIn>
                     );
                   })}
                 </ul>
