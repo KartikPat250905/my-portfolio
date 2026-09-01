@@ -436,3 +436,191 @@ body::before {
     transition: none;
   }
 }
+
+.project-track-fade {
+  --fade-w: 32px;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black var(--fade-w),
+    black calc(100% - var(--fade-w)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black var(--fade-w),
+    black calc(100% - var(--fade-w)),
+    transparent 100%
+  );
+}
+
+.project-track {
+  box-sizing: border-box;
+  display: flex;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  padding: 0.5rem var(--fade-w, 32px) 1.5rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.project-track::-webkit-scrollbar {
+  display: none;
+}
+
+.project-track-item {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: 82%;
+  max-width: 320px;
+  min-width: 0;
+  scroll-snap-align: center;
+  transition: transform 200ms ease, opacity 200ms ease;
+  transform-origin: center;
+}
+
+@media (min-width: 640px) {
+  .project-track-item {
+    width: 44%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .project-track-item {
+    width: 28%;
+  }
+}
+
+.project-desc-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---- scroll progress bar ---- */
+
+.project-progress-track {
+  position: relative;
+  height: 3px;
+  margin-top: 0.5rem;
+  border-radius: 9999px;
+  background: var(--border-color);
+  overflow: hidden;
+}
+
+.project-progress-thumb {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #ff4d8a, #ff9ac4);
+  box-shadow: 0 0 8px rgba(255, 77, 138, 0.6);
+  transition: left 100ms linear, width 100ms linear;
+}
+
+/* ---- card hover: tilt + glow ---- */
+
+.project-tilt {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  transform: perspective(800px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 200ms ease, box-shadow 300ms ease;
+  will-change: transform;
+}
+
+.project-tilt:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.project-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  background: radial-gradient(
+    260px circle at var(--mx) var(--my),
+    rgba(255, 77, 138, 0.16),
+    transparent 70%
+  );
+}
+
+.project-tilt:hover .project-glow {
+  opacity: 1;
+}
+
+.project-link-arrow {
+  transition: transform 200ms ease;
+}
+
+.project-link:hover .project-link-arrow {
+  transform: translate(2px, -2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-tilt,
+  .project-track-item,
+  .project-progress-thumb {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+.project-tilt {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  transform: perspective(800px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 200ms ease, box-shadow 300ms ease;
+  will-change: transform;
+}
+
+.project-tilt:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.project-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  background: radial-gradient(
+    300px circle at var(--mx) var(--my),
+    rgba(255, 77, 138, 0.16),
+    transparent 70%
+  );
+}
+
+.project-tilt:hover .project-glow {
+  opacity: 1;
+}
+
+.project-link-arrow {
+  transition: transform 200ms ease;
+}
+
+.project-link:hover .project-link-arrow {
+  transform: translate(2px, -2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-tilt {
+    transform: none !important;
+    transition: none !important;
+  }
+}
