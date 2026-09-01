@@ -496,10 +496,17 @@ body::before {
 }
 
 .project-desc-clamp {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px; /* avoid text touching the scrollbar */
+}
+
+.project-desc-clamp::-webkit-scrollbar {
+  width: 4px;
+}
+.project-desc-clamp::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 9999px;
 }
 
 /* ---- scroll progress bar ---- */

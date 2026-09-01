@@ -69,11 +69,9 @@ export default function ProjectCard({
           {title}
         </h2>
 
-        <p
-          className={`relative project-desc-clamp mb-4 text-sm ${lato.className} text-theme-secondary`}
-        >
-          {desc}
-        </p>
+      <p className={`relative project-desc-clamp text-sm mb-4 flex-1 min-h-0 ${lato.className} text-theme-secondary`}>
+        {desc}
+      </p>
 
         {isCenter ? (
           <a
