@@ -7,20 +7,30 @@
  * Below 800px, the coverflow math causes side previews to overlap the
  * center card, so it switches to a clean slide carousel instead: only the
  * center card is visible, neighbors slide fully off-screen rather than
- * tucking behind it. Navigate with left/right arrow keys, the nav buttons,
- * or (on wide screens) by clicking a side card to bring it to center.
+ * tucking behind it.
+ *
+ * Navigation:
+ * - Left/right arrow keys (any screen size).
+ * - Nav arrow buttons — positioned further out from the card on wide
+ *   screens, but pulled in close to the card edges on small screens so
+ *   they stay on-screen instead of overflowing past the viewport.
+ * - Touch swipe (left/right) on the stage, for touch devices.
+ * - Clicking a side preview card to bring it to center (wide screens only).
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ProjectCard from "./ProjectCard";
 import { ProjectData } from "../data/ProjectData";
 
 const COMPACT_BREAKPOINT = 800;
+const SWIPE_THRESHOLD = 40; // px — minimum horizontal drag to register a swipe
 
 export default function ProjectsSection() {
   const [current, setCurrent] = useState(0);
   const [isCompact, setIsCompact] = useState(false);
   const total = ProjectData.length;
+  const touchStartX = useRef(null);
+  const touchDeltaX = useRef(0);
 
   useEffect(() => {
     const check = () => setIsCompact(window.innerWidth < COMPACT_BREAKPOINT);
@@ -48,19 +58,42 @@ export default function ProjectsSection() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [next, prev]);
 
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  };
+
+  const handleTouchMove = (e) => {
+    if (touchStartX.current === null) return;
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  };
+
+  const handleTouchEnd = () => {
+    if (Math.abs(touchDeltaX.current) > SWIPE_THRESHOLD) {
+      if (touchDeltaX.current < 0) {
+        next();
+      } else {
+        prev();
+      }
+    }
+    touchStartX.current = null;
+    touchDeltaX.current = 0;
+  };
+
   return (
     <section id="projects" className="w-full overflow-x-hidden">
       <div className="relative mx-auto w-full max-w-full px-2 sm:px-8 md:px-16 lg:px-24 xl:px-32 2xl:px-52">
         <div className="relative mx-auto w-full max-w-4xl">
-          {/* Nav arrows — pushed further out from the card, but capped so
-              they never reach the section's full width */}
+          {/* Nav arrows — always visible. On small screens they sit close
+              to the card edges (inside the section's safe area); on wider
+              screens they move further out for breathing room. */}
           <button
             type="button"
             aria-label="Previous project"
             onClick={prev}
-            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 -left-10 md:-left-16 lg:-left-20 z-30 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
+            className="flex absolute top-1/2 -translate-y-1/2 left-0 sm:-left-10 md:-left-16 lg:-left-20 z-30 h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/80 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
           >
-            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" className="rotate-180" xmlns="http://www.w3.org/2000/svg">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rotate-180" xmlns="http://www.w3.org/2000/svg">
               <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -68,9 +101,9 @@ export default function ProjectsSection() {
             type="button"
             aria-label="Next project"
             onClick={next}
-            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 -right-10 md:-right-16 lg:-right-20 z-30 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
+            className="flex absolute top-1/2 -translate-y-1/2 right-0 sm:-right-10 md:-right-16 lg:-right-20 z-30 h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/80 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
           >
-            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -79,14 +112,17 @@ export default function ProjectsSection() {
               narrow ones. overflow is only clipped in compact mode (to hide
               the off-screen slide neighbors) — on wide screens it must stay
               visible or the rotated/scaled coverflow cards get cut off at
-              their far edge. */}
+              their far edge. Touch handlers enable swipe navigation. */}
           <div
-            className="relative w-full h-[440px] sm:h-[420px] flex items-center justify-center"
+            className="relative w-full h-[440px] sm:h-[420px] flex items-center justify-center touch-pan-y"
             style={{
               perspective: isCompact ? "none" : "1600px",
               overflow: isCompact ? "hidden" : "visible",
             }}
             tabIndex={0}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             <div
               className="relative w-full h-full"
@@ -143,7 +179,7 @@ export default function ProjectsSection() {
                       pointerEvents: hidden ? "none" : "auto",
                     }}
                   >
-                    <div className="w-[86%] xs:w-[78%] sm:w-[62%] md:w-[48%] lg:w-[38%] max-w-[380px] h-[85%]">
+                    <div className="w-[80%] sm:w-[62%] md:w-[48%] lg:w-[38%] max-w-[380px] h-[85%]">
                       <ProjectCard
                         index={index}
                         isCenter={isCenter}
@@ -173,6 +209,9 @@ export default function ProjectsSection() {
               />
             ))}
           </div>
+          <p className="text-xs text-theme-secondary tracking-wide sm:hidden">
+            Swipe or use the arrows to browse
+          </p>
           <p className="text-xs text-theme-secondary tracking-wide">
             {String(current + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
           </p>
