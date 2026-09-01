@@ -1,22 +1,23 @@
 "use client";
 
-/**
- * ProjectSection.js
- * Renders projects as a 3D "coverflow" — one project centered and focused,
- * with exactly one dimmed preview card on either side. Navigate with
- * left/right arrow keys, the nav buttons, or by clicking a side card to
- * bring it to center. Arrows sit further out from the card than before,
- * but stay inside a capped-width wrapper so they don't stretch to the
- * section's full edges on large monitors.
- */
 
 import { useCallback, useEffect, useState } from "react";
 import ProjectCard from "./ProjectCard";
 import { ProjectData } from "../data/ProjectData";
 
+const COMPACT_BREAKPOINT = 800;
+
 export default function ProjectsSection() {
   const [current, setCurrent] = useState(0);
+  const [isCompact, setIsCompact] = useState(false);
   const total = ProjectData.length;
+
+  useEffect(() => {
+    const check = () => setIsCompact(window.innerWidth < COMPACT_BREAKPOINT);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const goTo = useCallback(
     (index) => {
@@ -64,12 +65,17 @@ export default function ProjectsSection() {
             </svg>
           </button>
 
-          {/* 3D stage */}
+          {/* Stage: 3D coverflow on wide screens, flat slide carousel on
+              narrow ones */}
           <div
-            className="relative w-full h-[440px] sm:h-[420px] flex items-center justify-center [perspective:1600px]"
+            className="relative w-full h-[440px] sm:h-[420px] flex items-center justify-center overflow-hidden"
+            style={{ perspective: isCompact ? "none" : "1600px" }}
             tabIndex={0}
           >
-            <div className="relative w-full h-full [transform-style:preserve-3d]">
+            <div
+              className="relative w-full h-full"
+              style={{ transformStyle: isCompact ? "flat" : "preserve-3d" }}
+            >
               {ProjectData.map((project, index) => {
                 let offset = index - current;
                 // shortest wrap-around distance (so it loops both ways)
@@ -78,31 +84,50 @@ export default function ProjectsSection() {
 
                 const abs = Math.abs(offset);
                 const isCenter = offset === 0;
-                // Only render the center card and its immediate neighbor on
-                // each side — one preview left, one preview right.
-                const hidden = abs > 1;
 
-                const translateX = offset * 46; // %
-                const translateZ = -abs * 220; // px
-                const rotateY = offset * -38; // deg
-                const scale = 1 - abs * 0.18;
-                const opacity = isCenter ? 1 : Math.max(0.15, 0.55 - abs * 0.2);
+                let transform;
+                let opacity;
+                let filter;
+                let hidden;
+                let zIndex;
+
+                if (isCompact) {
+                  // Flat slide: only the center card is visible/interactive.
+                  // Neighbors slide fully off-screen instead of overlapping.
+                  hidden = abs > 1;
+                  const slideX = offset === 0 ? 0 : offset > 0 ? 100 : -100;
+                  transform = `translateX(${slideX}%)`;
+                  opacity = isCenter ? 1 : 0;
+                  filter = "none";
+                  zIndex = isCenter ? total : 0;
+                } else {
+                  // 3D coverflow for wider screens.
+                  hidden = abs > 1;
+                  const translateX = offset * 46; // %
+                  const translateZ = -abs * 220; // px
+                  const rotateY = offset * -38; // deg
+                  const scale = 1 - abs * 0.18;
+                  transform = `translateX(${translateX}%) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+                  opacity = isCenter ? 1 : Math.max(0.15, 0.55 - abs * 0.2);
+                  filter = isCenter ? "none" : "grayscale(0.55) blur(0.5px)";
+                  zIndex = total - abs;
+                }
 
                 return (
                   <div
                     key={project.title}
-                    onClick={() => !isCenter && goTo(index)}
+                    onClick={() => !isCompact && !isCenter && goTo(index)}
                     className="absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out"
                     style={{
-                      transform: `translateX(${translateX}%) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
+                      transform,
                       opacity: hidden ? 0 : opacity,
-                      zIndex: total - abs,
-                      filter: isCenter ? "none" : "grayscale(0.55) blur(0.5px)",
-                      cursor: isCenter ? "default" : "pointer",
+                      zIndex,
+                      filter,
+                      cursor: !isCompact && !isCenter ? "pointer" : "default",
                       pointerEvents: hidden ? "none" : "auto",
                     }}
                   >
-                    <div className="w-[78%] sm:w-[62%] md:w-[48%] lg:w-[38%] max-w-[380px] h-[85%]">
+                    <div className="w-[86%] xs:w-[78%] sm:w-[62%] md:w-[48%] lg:w-[38%] max-w-[380px] h-[85%]">
                       <ProjectCard
                         index={index}
                         isCenter={isCenter}
