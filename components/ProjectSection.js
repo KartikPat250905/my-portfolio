@@ -1,5 +1,14 @@
 "use client";
 
+/**
+ * ProjectSection.js
+ * Renders projects as a 3D "coverflow" — one project centered and focused,
+ * with exactly one dimmed preview card on either side. Navigate with
+ * left/right arrow keys, the nav buttons, or by clicking a side card to
+ * bring it to center. Arrows sit further out from the card than before,
+ * but stay inside a capped-width wrapper so they don't stretch to the
+ * section's full edges on large monitors.
+ */
 
 import { useCallback, useEffect, useState } from "react";
 import ProjectCard from "./ProjectCard";
@@ -32,12 +41,13 @@ export default function ProjectsSection() {
     <section id="projects" className="w-full overflow-x-hidden">
       <div className="relative mx-auto w-full max-w-full px-2 sm:px-8 md:px-16 lg:px-24 xl:px-32 2xl:px-52">
         <div className="relative mx-auto w-full max-w-4xl">
-          {/* Nav arrows */}
+          {/* Nav arrows — pushed further out from the card, but capped so
+              they never reach the section's full width */}
           <button
             type="button"
             aria-label="Previous project"
             onClick={prev}
-            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 -left-4 md:-left-6 z-30 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
+            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 -left-10 md:-left-16 lg:-left-20 z-30 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" className="rotate-180" xmlns="http://www.w3.org/2000/svg">
               <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -47,7 +57,7 @@ export default function ProjectsSection() {
             type="button"
             aria-label="Next project"
             onClick={next}
-            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 -right-4 md:-right-6 z-30 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
+            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 -right-10 md:-right-16 lg:-right-20 z-30 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -68,7 +78,9 @@ export default function ProjectsSection() {
 
                 const abs = Math.abs(offset);
                 const isCenter = offset === 0;
-                const hidden = abs > 2; // only render a small window for perf
+                // Only render the center card and its immediate neighbor on
+                // each side — one preview left, one preview right.
+                const hidden = abs > 1;
 
                 const translateX = offset * 46; // %
                 const translateZ = -abs * 220; // px
