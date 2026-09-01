@@ -1,5 +1,15 @@
 "use client";
 
+/**
+ * ProjectSection.js
+ * Renders projects as a 3D "coverflow" on wider screens — one project
+ * centered and focused, with one dimmed preview card on either side.
+ * Below 800px, the coverflow math causes side previews to overlap the
+ * center card, so it switches to a clean slide carousel instead: only the
+ * center card is visible, neighbors slide fully off-screen rather than
+ * tucking behind it. Navigate with left/right arrow keys, the nav buttons,
+ * or (on wide screens) by clicking a side card to bring it to center.
+ */
 
 import { useCallback, useEffect, useState } from "react";
 import ProjectCard from "./ProjectCard";
@@ -66,10 +76,16 @@ export default function ProjectsSection() {
           </button>
 
           {/* Stage: 3D coverflow on wide screens, flat slide carousel on
-              narrow ones */}
+              narrow ones. overflow is only clipped in compact mode (to hide
+              the off-screen slide neighbors) — on wide screens it must stay
+              visible or the rotated/scaled coverflow cards get cut off at
+              their far edge. */}
           <div
-            className="relative w-full h-[440px] sm:h-[420px] flex items-center justify-center overflow-hidden"
-            style={{ perspective: isCompact ? "none" : "1600px" }}
+            className="relative w-full h-[440px] sm:h-[420px] flex items-center justify-center"
+            style={{
+              perspective: isCompact ? "none" : "1600px",
+              overflow: isCompact ? "hidden" : "visible",
+            }}
             tabIndex={0}
           >
             <div
