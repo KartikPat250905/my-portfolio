@@ -404,16 +404,10 @@ body::before {
   .hero-content .hero-cta { transform: none; opacity: 1; animation: none; }
 }
 
-/* Project cards: entrance + subtle hover */
 .project-card {
-  opacity: 0;
-  transform: translateY(18px) scale(0.995);
-  will-change: transform, opacity;
-  transition: opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms cubic-bezier(.2,.9,.2,1);
-}
-.project-card.in-view {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: none;
+  will-change: transform, opacity;
 }
 
 /* Slight alternate shadow on hover for depth */

@@ -2,76 +2,48 @@
 
 /**
  * ProjectSection.js
- * Renders all projects as a horizontal, scroll-snapped carousel instead of
- * a grid — keeps the section compact regardless of project count. Cards
- * scale/dim based on distance from center as you scroll, as the section's
- * single signature motion.
+ * Renders projects as a 3D "coverflow" — one project centered and focused,
+ * neighbors receding to either side (dimmed, scaled, rotated in 3D space).
+ * Navigate with left/right arrow keys, the nav buttons, or by clicking a
+ * side card to bring it to center.
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ProjectCard from "./ProjectCard";
 import { ProjectData } from "../data/ProjectData";
 
 export default function ProjectsSection() {
-  const trackRef = useRef(null);
-  const cardRefs = useRef([]);
-  const [bar, setBar] = useState({ left: 0, width: 100 });
+  const [current, setCurrent] = useState(0);
+  const total = ProjectData.length;
 
-  const update = useCallback(() => {
-    const track = trackRef.current;
-    if (!track) return;
+  const goTo = useCallback(
+    (index) => {
+      setCurrent(((index % total) + total) % total); // wrap around
+    },
+    [total]
+  );
 
-    const trackRect = track.getBoundingClientRect();
-    const center = trackRect.left + trackRect.width / 2;
-
-    cardRefs.current.forEach((card) => {
-      if (!card) return;
-      const rect = card.getBoundingClientRect();
-      const cardCenter = rect.left + rect.width / 2;
-      const dist = Math.abs(center - cardCenter);
-      const norm = Math.min(dist / (trackRect.width / 2), 1);
-      card.style.transform = `scale(${1 - norm * 0.08})`;
-      card.style.opacity = String(1 - norm * 0.45);
-    });
-
-    const max = track.scrollWidth - track.clientWidth;
-    const widthPct = (track.clientWidth / track.scrollWidth) * 100;
-    const leftPct = max > 0 ? (track.scrollLeft / max) * (100 - widthPct) : 0;
-    setBar({ left: leftPct, width: widthPct });
-  }, []);
+  const next = useCallback(() => goTo(current + 1), [current, goTo]);
+  const prev = useCallback(() => goTo(current - 1), [current, goTo]);
 
   useEffect(() => {
-    update();
-    const track = trackRef.current;
-    if (!track) return;
-    let raf;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
+    const onKeyDown = (e) => {
+      if (e.key === "ArrowRight") next();
+      if (e.key === "ArrowLeft") prev();
     };
-    track.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      track.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, [update]);
-
-  const scrollByAmount = (dir) => {
-    const track = trackRef.current;
-    if (!track) return;
-    track.scrollBy({ left: track.clientWidth * 0.8 * dir, behavior: "smooth" });
-  };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [next, prev]);
 
   return (
     <section id="projects" className="w-full overflow-x-hidden">
-      <div className="relative mx-auto w-full max-w-full overflow-hidden px-2 sm:px-8 md:px-16 lg:px-24 xl:px-32 2xl:px-52">
+      <div className="relative mx-auto w-full max-w-full px-2 sm:px-8 md:px-16 lg:px-24 xl:px-32 2xl:px-52">
+        {/* Nav arrows */}
         <button
           type="button"
-          aria-label="Scroll projects left"
-          onClick={() => scrollByAmount(-1)}
-          className="hidden sm:flex absolute top-1/2 -translate-y-1/2 left-2 z-10 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
+          aria-label="Previous project"
+          onClick={prev}
+          className="hidden sm:flex absolute top-1/2 -translate-y-1/2 left-2 z-30 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
         >
           <svg width="18" height="18" viewBox="0 0 16 16" fill="none" className="rotate-180" xmlns="http://www.w3.org/2000/svg">
             <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -79,35 +51,83 @@ export default function ProjectsSection() {
         </button>
         <button
           type="button"
-          aria-label="Scroll projects right"
-          onClick={() => scrollByAmount(1)}
-          className="hidden sm:flex absolute top-1/2 -translate-y-1/2 right-2 z-10 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
+          aria-label="Next project"
+          onClick={next}
+          className="hidden sm:flex absolute top-1/2 -translate-y-1/2 right-2 z-30 h-10 w-10 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--background)]/70 backdrop-blur-md transition hover:border-pink-500 hover:shadow-[0_0_0_4px_rgba(255,77,138,0.12)]"
         >
           <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
 
-        <div className="project-track-fade">
-          <div ref={trackRef} className="project-track" role="list">
-            {ProjectData.map((project, index) => (
-              <div
-                key={project.title}
-                role="listitem"
-                ref={(el) => (cardRefs.current[index] = el)}
-                className="project-track-item"
-              >
-                <ProjectCard index={index} {...project} />
-              </div>
-            ))}
+        {/* 3D stage */}
+        <div
+          className="relative w-full h-[440px] sm:h-[420px] flex items-center justify-center [perspective:1600px]"
+          tabIndex={0}
+        >
+          <div className="relative w-full h-full [transform-style:preserve-3d]">
+            {ProjectData.map((project, index) => {
+              let offset = index - current;
+              // shortest wrap-around distance (so it loops both ways)
+              if (offset > total / 2) offset -= total;
+              if (offset < -total / 2) offset += total;
+
+              const abs = Math.abs(offset);
+              const isCenter = offset === 0;
+              const hidden = abs > 2; // only render a small window for perf
+
+              const translateX = offset * 46; // %
+              const translateZ = -abs * 220; // px
+              const rotateY = offset * -38; // deg
+              const scale = 1 - abs * 0.18;
+              const opacity = isCenter ? 1 : Math.max(0.15, 0.55 - abs * 0.2);
+
+              return (
+                <div
+                  key={project.title}
+                  onClick={() => !isCenter && goTo(index)}
+                  className="absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out"
+                  style={{
+                    transform: `translateX(${translateX}%) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
+                    opacity: hidden ? 0 : opacity,
+                    zIndex: total - abs,
+                    filter: isCenter ? "none" : "grayscale(0.55) blur(0.5px)",
+                    cursor: isCenter ? "default" : "pointer",
+                    pointerEvents: hidden ? "none" : "auto",
+                  }}
+                >
+                  <div className="w-[78%] sm:w-[62%] md:w-[48%] lg:w-[38%] h-[85%]">
+                    <ProjectCard
+                      index={index}
+                      isCenter={isCenter}
+                      {...project}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="project-progress-track" aria-hidden="true">
-          <div
-            className="project-progress-thumb"
-            style={{ left: `${bar.left}%`, width: `${bar.width}%` }}
-          />
+        {/* Counter + dots */}
+        <div className="mt-4 flex flex-col items-center gap-3">
+          <div className="flex items-center gap-2">
+            {ProjectData.map((_, index) => (
+              <button
+                key={index}
+                aria-label={`Go to project ${index + 1}`}
+                onClick={() => goTo(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === current
+                    ? "w-6 bg-pink-500"
+                    : "w-2 bg-[var(--border-color)] hover:bg-pink-300"
+                }`}
+              />
+            ))}
+          </div>
+          <p className="text-xs text-theme-secondary tracking-wide">
+            {String(current + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+          </p>
         </div>
       </div>
     </section>
