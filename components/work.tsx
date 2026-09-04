@@ -1,10 +1,21 @@
 /**
  * work.tsx
- * Displays a list of work experiences using animated cards and summary stats.
- * Data is sourced from WorkData and rendered with Framer Motion animations.
+ * Displays work experience cards and summary stats.
  * Theme: pulls from the app's CSS variables (--background, --text-primary,
  * --text-secondary, --border-color, --shadow-color) so it follows the
  * light/dark toggle instead of a fixed palette.
+ *
+ * Note: the page already renders a <SectionHeader title="Work Experience" />
+ * above this component, so no title/subtitle is repeated here — just the
+ * icon, which keeps its own small signature animation (drawn on, like a
+ * sketch) rather than duplicating text.
+ *
+ * Animation concept: cards behave like notes pinned to a corkboard — they
+ * settle into place with a slight rotation on entrance (staggered, so it
+ * reads as pinning them up one at a time) and lift/straighten slightly on
+ * hover, like picking one up. This ties into the notebook/sketch aesthetic
+ * already used elsewhere (grid background, sketch-border) instead of a
+ * generic fade-and-slide.
  */
 
 "use client";
@@ -13,101 +24,100 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { WorkData } from "../data/WorkData.js";
 
-/**
- * WorkExperience component renders professional experience cards and summary stats.
- * Uses Framer Motion for animation and supports multiple periods, technologies, and responsibilities.
- */
-export default function WorkExperience() {
-    const containerVariants = {
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.12 } }
-    };
+const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
 
-    const headerVariants = {
-        hidden: { opacity: 0, y: 8 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-    };
-
-    const iconVariants = {
-        hidden: { opacity: 0, y: -6, scale: 0.9, rotate: -8 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotate: 0,
-            transition: { duration: 0.5, type: "spring", stiffness: 220, damping: 18 }
-        }
-    };
-
-    const cardVariants = {
-        hidden: { opacity: 0, y: 24, scale: 0.99 },
-        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: "easeOut" } }
-    };
-
-    const statContainerVariants = {
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.08 } }
-    };
-
-    const statItemVariants = {
-        hidden: { opacity: 0, y: 8 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.28 } }
-    };
-
-    // Small performant number counter (fast fade/slide feel)
-    function NumberCounter({ value, duration = 320 }: { value: number; duration?: number }) {
-        const [count, setCount] = useState(0);
-        const frameRef = useRef<number | null>(null);
-        const startRef = useRef<number | null>(null);
-
-        useEffect(() => {
-            startRef.current = null;
-            const animate = (time: number) => {
-                if (!startRef.current) startRef.current = time;
-                const elapsed = time - startRef.current;
-                const t = Math.min(elapsed / duration, 1);
-                const current = Math.round(t * value);
-                setCount(current);
-                if (t < 1) frameRef.current = requestAnimationFrame(animate);
-            };
-            frameRef.current = requestAnimationFrame(animate);
-            return () => {
-                if (frameRef.current) cancelAnimationFrame(frameRef.current);
-            };
-        }, [value, duration]);
-
-        return <>{count}</>;
+// Cards enter with a slight, alternating tilt — like being pinned up by
+// hand — then settle flat. Odd/even alternation avoids everything leaning
+// the same way, which would read as a mistake rather than a choice.
+const cardVariants = (tilt: number) => ({
+    hidden: { opacity: 0, y: 18, rotate: tilt, scale: 0.98 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        rotate: 0,
+        scale: 1,
+        transition: { duration: 0.5, ease: [0.2, 0.7, 0.3, 1] }
     }
+});
+
+const statContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
+};
+
+const statItemVariants = {
+    hidden: { opacity: 0, y: 8 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+};
+
+// Draw-on timing for each stroke of the briefcase, run once when the icon
+// enters view.
+const drawPath = (delay: number) => ({
+    hidden: { pathLength: 0, opacity: 0 },
+    visible: {
+        pathLength: 1,
+        opacity: 1,
+        transition: { pathLength: { duration: 0.5, ease: "easeInOut", delay }, opacity: { duration: 0.1, delay } }
+    }
+});
+
+// Small performant number counter.
+function NumberCounter({ value, duration = 500 }: { value: number; duration?: number }) {
+    const [count, setCount] = useState(0);
+    const frameRef = useRef<number | null>(null);
+    const startRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        startRef.current = null;
+        const animate = (time: number) => {
+            if (!startRef.current) startRef.current = time;
+            const elapsed = time - startRef.current;
+            const t = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - t, 3);
+            setCount(Math.round(eased * value));
+            if (t < 1) frameRef.current = requestAnimationFrame(animate);
+        };
+        frameRef.current = requestAnimationFrame(animate);
+        return () => {
+            if (frameRef.current) cancelAnimationFrame(frameRef.current);
+        };
+    }, [value, duration]);
+
+    return <>{count}</>;
+}
+
+export default function WorkExperience() {
+    const totalTech = WorkData.experience.reduce((acc, exp) => acc + exp.technologies.length, 0);
 
     return (
         <>
-            <div
-                className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl work-panel"
-            >
-                {/* Header Section */}
+            <div className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl work-panel">
+                {/* Icon — small signature moment, no repeated title/subtitle */}
                 <motion.div
-                    className="flex flex-col items-center text-center"
-                    variants={headerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.4 }}
+                    className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center work-icon-badge"
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, amount: 0.6 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
                 >
-                    <motion.div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-4 work-icon-badge" variants={iconVariants}>
-                        <motion.svg className="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="#ffffff" viewBox="0 0 24 24" aria-hidden="true">
-                            {/* Main briefcase body - larger dimensions */}
-                            <rect x="4" y="7" width="16" height="14" rx="1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            {/* Briefcase handle on top */}
-                            <path d="M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            {/* Briefcase clasp/lock in center */}
-                            <rect x="11.5" y="13" width="1" height="2" strokeWidth="1.5" strokeLinecap="round"/>
-                            {/* Horizontal dividing line */}
-                            <path d="M4 14h16" strokeWidth="1" strokeLinecap="round"/>
-                            {/* Corner reinforcements */}
-                            <path d="M4 7l1 1M20 7l-1 1M4 21l1-1M20 21l-1-1" strokeWidth="1" strokeLinecap="round"/>
-                        </motion.svg>
-                    </motion.div>
-                    <motion.h3 className="text-xl md:text-2xl font-semibold mb-2 work-heading" variants={headerVariants}>Work Experience</motion.h3>
-                    <motion.p className="text-sm md:text-base work-subtext" variants={headerVariants}>Professional journey and achievements</motion.p>
+                    <motion.svg
+                        className="w-7 h-7 md:w-8 md:h-8"
+                        fill="none"
+                        stroke="#ffffff"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.6 }}
+                    >
+                        <motion.rect x="4" y="7" width="16" height="14" rx="1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" variants={drawPath(0)} />
+                        <motion.path d="M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" variants={drawPath(0.35)} />
+                        <motion.rect x="11.5" y="13" width="1" height="2" strokeWidth="1.5" strokeLinecap="round" variants={drawPath(0.55)} />
+                        <motion.path d="M4 14h16" strokeWidth="1" strokeLinecap="round" variants={drawPath(0.6)} />
+                    </motion.svg>
                 </motion.div>
 
                 {/* Experience Cards */}
@@ -116,20 +126,17 @@ export default function WorkExperience() {
                     variants={containerVariants}
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: true, amount: 0.12 }}
+                    viewport={{ once: true, amount: 0.1 }}
                 >
                     {WorkData.experience.map((exp, index) => (
                         <motion.div
                             key={index}
                             className="rounded-xl p-4 sm:p-6 work-card"
-                            variants={cardVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, amount: 0.15 }}
+                            variants={cardVariants(index % 2 === 0 ? -1.4 : 1.4)}
                             whileHover={{
-                                scale: 1.015,
-                                y: -6,
-                                transition: { type: "spring", stiffness: 300, damping: 24 }
+                                rotate: 0,
+                                y: -5,
+                                transition: { type: "spring", stiffness: 260, damping: 20 }
                             }}
                         >
                             {/* Job Title and Company */}
@@ -167,10 +174,7 @@ export default function WorkExperience() {
                                 <h5 className="text-sm font-semibold mb-2 work-label">Technologies Used:</h5>
                                 <div className="flex flex-wrap gap-2">
                                     {exp.technologies.map((tech, techIndex) => (
-                                        <span
-                                            key={techIndex}
-                                            className="px-2 py-1 text-xs rounded-lg work-tech-pill"
-                                        >
+                                        <span key={techIndex} className="px-2 py-1 text-xs rounded-lg work-tech-pill">
                                             {tech}
                                         </span>
                                     ))}
@@ -199,26 +203,24 @@ export default function WorkExperience() {
                     variants={statContainerVariants}
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
+                    viewport={{ once: true, amount: 0.3 }}
                 >
                     <motion.div className="flex flex-col" variants={statItemVariants}>
                         <h4 className="text-xl font-semibold work-stat-number">
-                            <NumberCounter value={WorkData.experience.length} duration={260} />
+                            <NumberCounter value={WorkData.experience.length} />
                         </h4>
                         <p className="text-sm work-subtext">Positions</p>
                     </motion.div>
 
                     <motion.div className="flex flex-col" variants={statItemVariants}>
                         <h4 className="text-xl font-semibold work-stat-number">
-                            <NumberCounter value={WorkData.experience.reduce((acc, exp) => acc + exp.technologies.length, 0)} duration={320} />
+                            <NumberCounter value={totalTech} />
                         </h4>
                         <p className="text-sm work-subtext">Technologies</p>
                     </motion.div>
 
                     <motion.div className="flex flex-col" variants={statItemVariants}>
-                        <h4 className="text-xl font-semibold work-stat-number">
-                            <span>1+</span>
-                        </h4>
+                        <h4 className="text-xl font-semibold work-stat-number">1+</h4>
                         <p className="text-sm work-subtext">Years Experience</p>
                     </motion.div>
                 </motion.div>
@@ -230,7 +232,6 @@ export default function WorkExperience() {
                     color: var(--text-primary);
                     border: 1px solid var(--border-color);
                     box-shadow: 2px 2px 0px var(--shadow-color), -2px -2px 0px var(--border-color);
-                    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
                 }
 
                 .work-icon-badge {
@@ -259,23 +260,24 @@ export default function WorkExperience() {
                     background: var(--background);
                     border: 2px solid var(--border-color);
                     box-shadow: 1px 1px 0px var(--shadow-color), -1px -1px 0px var(--border-color);
-                    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+                    transition: box-shadow 0.2s ease;
                 }
 
                 .work-card:hover {
                     box-shadow: 2px 2px 0px var(--shadow-color), -2px -2px 0px var(--border-color),
-                        0 14px 32px var(--shadow-color);
+                        0 14px 28px var(--shadow-color);
                 }
 
                 .work-tech-pill {
                     background: color-mix(in srgb, var(--border-color) 25%, var(--background));
                     color: #f92ceb;
                     border: 1px solid var(--border-color);
-                    transition: background-color 0.2s ease;
+                    transition: background-color 0.2s ease, transform 0.2s ease;
                 }
 
                 .work-tech-pill:hover {
                     background: color-mix(in srgb, var(--border-color) 50%, var(--background));
+                    transform: translateY(-1px);
                 }
 
                 .work-bullet {
