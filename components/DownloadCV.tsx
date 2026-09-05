@@ -18,7 +18,7 @@ type Props = {
  * - Put your CV at: public/assets/cv.pdf (or pass fileName prop)
  * - Uses getAssetPath so it works on GH Pages and locally
  */
-const DownloadCV: React.FC<Props> = ({ fileName = 'cv.pdf', label = 'Download CV', className = '' }) => {
+const DownloadCV: React.FC<Props> = ({ fileName = 'Kartik_Resume.pdf', label = 'Download CV', className = '' }) => {
   const href = getAssetPath(`/assets/${fileName}`);
 
   return (

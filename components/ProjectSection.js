@@ -16,6 +16,15 @@
  *   they stay on-screen instead of overflowing past the viewport.
  * - Touch swipe (left/right) on the stage, for touch devices.
  * - Clicking a side preview card to bring it to center (wide screens only).
+ *
+ * Entrance animation: the whole section fades/slides up once via
+ * .animate-wrapper when it scrolls into view (triggered by its own
+ * IntersectionObserver below). This is intentionally applied at the
+ * section level rather than per-card — each card's opacity/transform is
+ * already fully driven by inline styles for the coverflow/carousel
+ * positioning, and inline styles always take precedence over stylesheet
+ * rules, so putting .animate-wrapper directly on the cards had no visible
+ * effect.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -31,12 +40,44 @@ export default function ProjectsSection() {
   const total = ProjectData.length;
   const touchStartX = useRef(null);
   const touchDeltaX = useRef(0);
+  const sectionRef = useRef(null); // for the section-level entrance fade only
 
   useEffect(() => {
     const check = () => setIsCompact(window.innerWidth < COMPACT_BREAKPOINT);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // One-time reveal of the whole projects section on scroll-into-view.
+  // Kept separate from the carousel's own per-card opacity/transform logic.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (prefersReducedMotion) {
+      el.classList.add("in-view");
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in-view");
+            observer.unobserve(entry.target); // one-time reveal only
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const goTo = useCallback(
@@ -82,7 +123,10 @@ export default function ProjectsSection() {
 
   return (
     <section id="projects" className="w-full overflow-x-hidden">
-      <div className="relative mx-auto w-full max-w-full px-2 sm:px-8 md:px-16 lg:px-24 xl:px-32 2xl:px-52">
+      <div
+        ref={sectionRef}
+        className="relative mx-auto w-full max-w-full px-2 sm:px-8 md:px-16 lg:px-24 xl:px-32 2xl:px-52 animate-wrapper"
+      >
         <div className="relative mx-auto w-full max-w-4xl">
           {/* Nav arrows — always visible. On small screens they sit close
               to the card edges (inside the section's safe area); on wider

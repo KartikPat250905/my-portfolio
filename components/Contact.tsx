@@ -38,12 +38,12 @@ export default function Contact() {
           <div className="flex items-center gap-3">
             <FaLinkedin className="text-blue-500" />
             <a
-              href="https://www.linkedin.com/in/kartik-patel-a042872b6/"
+              href="https://www.linkedin.com/in/kpatel250905/"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:underline text-theme-secondary"
             >
-              linkedin.com/in/kartik-patel-a042872b6
+              https://www.linkedin.com/in/kpatel250905/
             </a>
           </div>
           <div className="flex items-center gap-3">

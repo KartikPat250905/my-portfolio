@@ -5,7 +5,7 @@ export const WorkData = {
             "company": "Best Buy",
             "location": "Brampton, Canada",
             "periods": [
-                "Aug 2023 - Jan 2025"
+                "Aug 2026 - Present"
             ],
             "technologies": [
                 "Customer Support",
@@ -26,7 +26,7 @@ export const WorkData = {
             "company": "Cydora",
             "location": "Helsinki, Finland",
             "periods": [
-                "June 2025 - Feb 2025"
+                "June 2025 - Feb 2026"
             ],
             "technologies": [
                 "Python",

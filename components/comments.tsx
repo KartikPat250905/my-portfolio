@@ -2,6 +2,8 @@
  * Comments and Feedback component.
  * Provides a chat-style comment system and a feedback form with Firebase and EmailJS integration.
  * Handles authentication, anti-bot protection, and displays comments with replies.
+ *
+ * Theme: neon pink + white.
  */
 "use client";
 import React, { useEffect, useState } from "react";
@@ -623,10 +625,10 @@ export default function Comments() {
     const isAnon = username === "Anonymous";
     if (isAnon) {
       return (
-        <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-200">
+        <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-600/40 flex items-center justify-center">
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="#9CA3AF" />
-            <path d="M4 20c0-2.761 3.582-5 8-5s8 2.239 8 5v1H4v-1z" fill="#9CA3AF" />
+            <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="#94a3b8" />
+            <path d="M4 20c0-2.761 3.582-5 8-5s8 2.239 8 5v1H4v-1z" fill="#94a3b8" />
           </svg>
         </div>
       );
@@ -641,7 +643,7 @@ export default function Comments() {
       .toUpperCase();
 
     return (
-      <div className="w-12 h-12 rounded-full bg-blue-400 flex items-center justify-center text-white font-bold">
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center text-white font-bold shadow-[0_0_10px_rgba(99,102,241,0.35)]">
         {initials || "U"}
       </div>
     );
@@ -672,7 +674,7 @@ export default function Comments() {
   if (initError) {
     return (
       <div className="flex flex-col items-center justify-center p-8 m-10">
-        <div className="text-red-500 text-center">
+        <div className="text-pink-500 text-center">
           <h3 className="text-xl font-semibold mb-2">Initialization Error</h3>
           <p className="text-sm">{initError}</p>
           <p className="text-xs mt-4 text-theme-secondary">Check console for details</p>
@@ -696,21 +698,21 @@ export default function Comments() {
 
         {/* Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+          <div className="w-24 h-24 bg-gradient-to-br from-fuchsia-600 to-purple-800 rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_18px_rgba(192,38,211,0.35)]">
             {feedbackMode === 'chat' ? (
-              <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-16 h-16 text-pink-100" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
               </svg>
             ) : (
-              <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-16 h-16 text-pink-100" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
               </svg>
             )}
           </div>
-          <h2 className="text-2xl font-bold" style={{ color: '#0f0f0f' }}>
+          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
             {feedbackMode === 'chat' ? 'Comments' : 'Feedback Form'}
           </h2>
-          <p className="mt-1" style={{ color: '#0f0f0f' }}>
+          <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>
             {feedbackMode === 'chat'
               ? 'Share feedback or say hi — choose how you\'d like to appear.'
               : 'Send detailed feedback with your contact information.'}
@@ -719,7 +721,7 @@ export default function Comments() {
 
         {/* Mode Toggle */}
         <div className="w-full max-w-3xl">
-          <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+          <div className="flex gap-2 p-1 bg-pink-50 dark:bg-[#1a0713] border border-pink-200 dark:border-pink-500/30 rounded-lg">
             <button
               onClick={() => {
                 setFeedbackMode('chat');
@@ -727,8 +729,8 @@ export default function Comments() {
                 setSubmitError("");
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${feedbackMode === 'chat'
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#2a0a1e] text-pink-600 dark:text-pink-300 shadow-[0_0_10px_rgba(249,44,235,0.35)]'
+                : 'text-pink-400/70 dark:text-pink-200/40 hover:text-pink-600 dark:hover:text-pink-300'
                 }`}
             >
               💬 Chat Comments
@@ -740,8 +742,8 @@ export default function Comments() {
                 setSubmitError("");
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${feedbackMode === 'form'
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-[#2a0a1e] text-pink-600 dark:text-pink-300 shadow-[0_0_10px_rgba(249,44,235,0.35)]'
+                : 'text-pink-400/70 dark:text-pink-200/40 hover:text-pink-600 dark:hover:text-pink-300'
                 }`}
             >
               📝 Feedback Form
@@ -755,26 +757,26 @@ export default function Comments() {
             {!isAuthenticated ? (
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-4">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: '#ededed' }}>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: 'var(--text-primary)' }}>
                     <input
                       type="radio"
                       name="auth"
                       value="anonymous"
                       checked={authMethod === "anonymous"}
                       onChange={() => setAuthMethod("anonymous")}
-                      className="cursor-pointer"
+                      className="cursor-pointer accent-pink-600"
                     />
                     <span>Post as Anonymous</span>
                   </label>
 
-                  <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: '#ededed' }}>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: 'var(--text-primary)' }}>
                     <input
                       type="radio"
                       name="auth"
                       value="named"
                       checked={authMethod === "named"}
                       onChange={() => setAuthMethod("named")}
-                      className="cursor-pointer"
+                      className="cursor-pointer accent-pink-600"
                     />
                     <span>Use a name</span>
                   </label>
@@ -786,26 +788,27 @@ export default function Comments() {
                     placeholder="Enter your name (max 50 characters)"
                     value={nameInput}
                     onChange={(e) => setNameInput(e.target.value.slice(0, 50))}
-                    className="px-4 py-2 rounded-lg border text-sm w-full max-w-sm bg-white dark:bg-[#071025]"
+                    className="px-4 py-2 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm w-full max-w-sm bg-white dark:bg-[#150610] focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    style={{ color: 'var(--text-primary)' }}
                     maxLength={50}
                   />
                 )}
 
                 <button
                   onClick={handleAuthenticate}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                  className="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-500 text-white text-sm font-medium transition-colors shadow-[0_0_12px_rgba(249,44,235,0.4)]"
                 >
                   Continue
                 </button>
               </div>
             ) : (
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-white dark:bg-[#071025]">
-                <div className="text-sm" style={{ color: '#ededed' }}>
-                  Posting as <strong>{savedName}</strong>
+              <div className="flex items-center justify-between p-4 rounded-lg border border-pink-200 dark:border-pink-500/30 bg-white dark:bg-[#150610]">
+                <div className="text-sm" style={{ color: 'var(--text-primary)' }}>
+                  Posting as <strong className="text-pink-600 dark:text-pink-300">{savedName}</strong>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 rounded-lg border text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="px-4 py-2 rounded-lg border border-pink-300 dark:border-pink-500/40 text-sm text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 transition-colors"
                 >
                   Change
                 </button>
@@ -818,7 +821,7 @@ export default function Comments() {
         {feedbackMode === 'form' && !isAuthenticated && (
           <div className="w-full max-w-3xl">
             <div className="text-center space-y-4">
-              <p className="text-sm" style={{ color: '#ededed' }}>
+              <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
                 Please authenticate to submit feedback forms
               </p>
               <button
@@ -826,7 +829,7 @@ export default function Comments() {
                   setIsAuthenticated(true);
                   setSavedName("Form User");
                 }}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-500 text-white text-sm font-medium transition-colors shadow-[0_0_12px_rgba(249,44,235,0.4)]"
               >
                 Continue
               </button>
@@ -846,12 +849,12 @@ export default function Comments() {
                   onChange={(e) => setCommentText(e.target.value.slice(0, 500))}
                   onKeyDown={handleKeyPress}
                   rows={4}
-                  className={`w-full p-4 rounded-lg border text-sm bg-white dark:bg-[#071025] resize-none ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
-                  style={{ color: '#ededed' }}
+                  className={`w-full p-4 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] resize-none focus:outline-none focus:ring-2 focus:ring-pink-400 ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
+                  style={{ color: 'var(--text-primary)' }}
                   disabled={!isAuthenticated || submitting}
                   maxLength={500}
                 />
-                <div className="absolute bottom-3 right-3 text-xs" style={{ color: '#ededed' }}>
+                <div className="absolute bottom-3 right-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
                   {commentText.length}/500
                 </div>
               </div>
@@ -860,7 +863,7 @@ export default function Comments() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="form-name" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
+                    <label htmlFor="form-name" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                       Name *
                     </label>
                     <input
@@ -869,15 +872,15 @@ export default function Comments() {
                       placeholder="Your full name"
                       value={formName}
                       onChange={(e) => setFormName(e.target.value.slice(0, 50))}
-                      className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-[#071025]"
-                      style={{ color: '#ededed' }}
+                      className="w-full p-3 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] focus:outline-none focus:ring-2 focus:ring-pink-400"
+                      style={{ color: 'var(--text-primary)' }}
                       disabled={!isAuthenticated || submitting}
                       maxLength={50}
                       required
                     />
                   </div>
                   <div>
-                    <label htmlFor="form-email" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
+                    <label htmlFor="form-email" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                       Email *
                     </label>
                     <input
@@ -886,8 +889,8 @@ export default function Comments() {
                       placeholder="your.email@example.com"
                       value={formEmail}
                       onChange={(e) => setFormEmail(e.target.value.slice(0, 100))}
-                      className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-[#071025]"
-                      style={{ color: '#ededed' }}
+                      className="w-full p-3 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] focus:outline-none focus:ring-2 focus:ring-pink-400"
+                      style={{ color: 'var(--text-primary)' }}
                       disabled={!isAuthenticated || submitting}
                       maxLength={100}
                       required
@@ -895,7 +898,7 @@ export default function Comments() {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="form-subject" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
+                  <label htmlFor="form-subject" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                     Subject *
                   </label>
                   <input
@@ -904,15 +907,15 @@ export default function Comments() {
                     placeholder="Brief description of your feedback"
                     value={formSubject}
                     onChange={(e) => setFormSubject(e.target.value.slice(0, 100))}
-                    className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-[#071025]"
-                    style={{ color: '#ededed' }}
+                    className="w-full p-3 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    style={{ color: 'var(--text-primary)' }}
                     disabled={!isAuthenticated || submitting}
                     maxLength={100}
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="form-message" className="block text-sm font-medium mb-2" style={{ color: '#ededed' }}>
+                  <label htmlFor="form-message" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                     Message *
                   </label>
                   <div className="relative">
@@ -928,13 +931,13 @@ export default function Comments() {
                         }
                       }}
                       rows={6}
-                      className={`w-full p-4 rounded-lg border text-sm bg-white dark:bg-[#071025] resize-none ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
-                      style={{ color: '#ededed' }}
+                      className={`w-full p-4 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] resize-none focus:outline-none focus:ring-2 focus:ring-pink-400 ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
+                      style={{ color: 'var(--text-primary)' }}
                       disabled={!isAuthenticated || submitting}
                       maxLength={1000}
                       required
                     />
-                    <div className="absolute bottom-3 right-3 text-xs" style={{ color: '#ededed' }}>
+                    <div className="absolute bottom-3 right-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
                       {formMessage.length}/1000
                     </div>
                   </div>
@@ -957,11 +960,11 @@ export default function Comments() {
             )}
 
             {submitError && (
-              <div className="mt-2 text-sm text-red-500" style={{ color: '#ef4444' }}>{submitError}</div>
+              <div className="mt-2 text-sm text-red-500">{submitError}</div>
             )}
 
             {submitSuccess && (
-              <div className="mt-2 text-sm text-green-600" style={{ color: '#16a34a' }}>{submitSuccess}</div>
+              <div className="mt-2 text-sm text-pink-600 dark:text-pink-300">{submitSuccess}</div>
             )}
 
             <div className="flex justify-end gap-3 mt-3">
@@ -979,7 +982,7 @@ export default function Comments() {
                   setSubmitError("");
                 }}
                 disabled={feedbackMode === 'chat' ? !commentText.trim() : !formName.trim() && !formEmail.trim() && !formSubject.trim() && !formMessage.trim()}
-                className="px-4 py-2 rounded-lg border text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg border border-pink-300 dark:border-pink-500/40 text-sm text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Clear
               </button>
@@ -990,7 +993,7 @@ export default function Comments() {
                   submitting ||
                   (feedbackMode === 'chat' ? !commentText.trim() : !formName.trim() || !formEmail.trim() || !formSubject.trim() || !formMessage.trim())
                 }
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-500 text-white text-sm font-medium transition-colors shadow-[0_0_12px_rgba(249,44,235,0.4)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 {submitting ? (feedbackMode === 'chat' ? "Posting..." : "Submitting...") : (feedbackMode === 'chat' ? "Post Comment" : "Submit Feedback")}
               </button>
@@ -1000,12 +1003,12 @@ export default function Comments() {
 
         {/* Content Display */}
         <div className="w-full max-w-3xl">
-          <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-2 pb-2 border-b border-pink-200 dark:border-pink-500/30">
             <div>
-              <strong className="text-lg" style={{ color: '#0f0f0f' }}>
+              <strong className="text-lg" style={{ color: 'var(--text-primary)' }}>
                 {feedbackMode === 'chat' ? 'Comments' : 'Your Feedback Submissions'}
               </strong>
-              <div className="text-sm" style={{ color: '#0f0f0f' }}>
+              <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                 {feedbackMode === 'chat' ? `${comments.length} total` : `${formSubmissions.length} submitted`}
               </div>
             </div>
@@ -1029,27 +1032,27 @@ export default function Comments() {
                     const isReplyingToThis = replyingTo === c.id;
 
                     return (
-                      <AnimateIn key={c.id} className={isOwn ? 'border-blue-400' : ''}>
-                        <li className="p-4 rounded-lg border bg-white dark:bg-[#071025]">
+                      <AnimateIn key={c.id} className={isOwn ? 'border-pink-400' : ''}>
+                        <li className="p-4 rounded-lg border border-pink-200 dark:border-pink-500/30 bg-white dark:bg-[#150610]">
                           <div className="flex gap-3 items-start">
                             {renderAvatar(c.username)}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold text-sm" style={{ color: '#ededed' }}>{c.username}</span>
+                                <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{c.username}</span>
                                 {isOwn && (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300">
                                     You
                                   </span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-2 text-xs mb-2" style={{ color: '#ededed' }}>
+                              <div className="flex items-center gap-2 text-xs mb-2" style={{ color: 'var(--text-secondary)' }}>
                                 <span>{formatTimestamp(c.timestamp)}</span>
                                 {c.editedAt && (
                                   <span className="text-xs opacity-75">(edited)</span>
                                 )}
                               </div>
 
-                              <p className="text-sm break-words whitespace-pre-wrap mb-3" style={{ color: '#ededed' }}>
+                              <p className="text-sm break-words whitespace-pre-wrap mb-3" style={{ color: 'var(--text-primary)' }}>
                                 {c.comment}
                               </p>
 
@@ -1060,13 +1063,13 @@ export default function Comments() {
                                     setReplyingTo(replyingTo === c.id ? null : c.id);
                                     setReplyText("");
                                   }}
-                                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                                  className="text-pink-600 dark:text-pink-400 hover:underline"
                                 >
                                   Reply
                                 </button>
 
                                 {c.replies && c.replies.length > 0 && (
-                                  <span className="text-gray-500">
+                                  <span style={{ color: 'var(--text-secondary)' }}>
                                     {c.replies.length} {c.replies.length === 1 ? 'reply' : 'replies'}
                                   </span>
                                 )}
@@ -1079,8 +1082,8 @@ export default function Comments() {
                                     <textarea
                                       value={replyText}
                                       onChange={(e) => setReplyText(e.target.value.slice(0, 500))}
-                                      className="w-full p-3 rounded-lg border text-sm bg-white dark:bg-gray-700 resize-none"
-                                      style={{ color: '#ededed' }}
+                                      className="w-full p-3 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#1a0713] resize-none focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                      style={{ color: 'var(--text-primary)' }}
                                       rows={3}
                                       maxLength={500}
                                       placeholder={`Reply to ${c.username}...`}
@@ -1093,7 +1096,7 @@ export default function Comments() {
                                     <button
                                       onClick={() => handleReplySubmit(c.id)}
                                       disabled={replySubmitting || !replyText.trim()}
-                                      className="px-3 py-1 text-xs rounded-md bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                      className="px-3 py-1 text-xs rounded-md bg-pink-600 hover:bg-pink-500 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     >
                                       {replySubmitting ? "Posting..." : "Post Reply"}
                                     </button>
@@ -1102,7 +1105,7 @@ export default function Comments() {
                                         setReplyingTo(null);
                                         setReplyText("");
                                       }}
-                                      className="px-3 py-1 text-xs rounded-md border hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                      className="px-3 py-1 text-xs rounded-md border border-pink-300 dark:border-pink-500/40 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 transition-colors"
                                     >
                                       Cancel
                                     </button>
@@ -1112,27 +1115,27 @@ export default function Comments() {
 
                               {/* Replies */}
                               {c.replies && c.replies.length > 0 && (
-                                <div className="mt-4 space-y-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+                                <div className="mt-4 space-y-3 border-l-2 border-pink-200 dark:border-pink-500/30 pl-4">
                                   {c.replies.map((reply) => (
                                     <div key={reply.id} className="flex gap-3 items-start">
-                                      <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-medium text-white">
+                                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-violet-600 flex items-center justify-center text-xs font-medium text-white">
                                         {reply.username.charAt(0).toUpperCase()}
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1">
-                                          <span className="font-medium text-xs" style={{ color: '#ededed' }}>
+                                          <span className="font-medium text-xs" style={{ color: 'var(--text-primary)' }}>
                                             {reply.username}
                                           </span>
                                           {reply.uid === currentUid && (
-                                            <span className="text-xs px-1 py-0.5 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                            <span className="text-xs px-1 py-0.5 rounded-full bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300">
                                               You
                                             </span>
                                           )}
                                         </div>
-                                        <div className="text-xs mb-1 opacity-75">
+                                        <div className="text-xs mb-1 opacity-75" style={{ color: 'var(--text-secondary)' }}>
                                           {formatTimestamp(reply.timestamp)}
                                         </div>
-                                        <p className="text-xs break-words whitespace-pre-wrap" style={{ color: '#ededed' }}>
+                                        <p className="text-xs break-words whitespace-pre-wrap" style={{ color: 'var(--text-primary)' }}>
                                           {reply.comment}
                                         </p>
                                       </div>
@@ -1154,7 +1157,7 @@ export default function Comments() {
                     <button
                       onClick={() => setPage(Math.max(1, page - 1))}
                       disabled={page === 1}
-                      className="px-3 py-2 rounded-md text-sm border hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-3 py-2 rounded-md text-sm border border-pink-300 dark:border-pink-500/40 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       Previous
                     </button>
@@ -1166,8 +1169,8 @@ export default function Comments() {
                           key={pageNumber}
                           onClick={() => setPage(pageNumber)}
                           className={`px-3 py-2 rounded-md text-sm transition-colors ${page === pageNumber
-                            ? "bg-blue-600 text-white"
-                            : "border hover:bg-gray-100 dark:hover:bg-gray-800"
+                            ? "bg-pink-600 text-white shadow-[0_0_10px_rgba(249,44,235,0.4)]"
+                            : "border border-pink-300 dark:border-pink-500/40 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40"
                             }`}
                         >
                           {pageNumber}
@@ -1178,7 +1181,7 @@ export default function Comments() {
                     <button
                       onClick={() => setPage(Math.min(totalPages, page + 1))}
                       disabled={page === totalPages}
-                      className="px-3 py-2 rounded-md text-sm border hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-3 py-2 rounded-md text-sm border border-pink-300 dark:border-pink-500/40 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       Next
                     </button>
@@ -1197,18 +1200,18 @@ export default function Comments() {
 
       <style jsx>{`
         .stats-strong-shadow {
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+          box-shadow: 0 20px 50px rgba(249, 44, 235, 0.2);
         }
 
         @media (prefers-color-scheme: dark) {
           .stats-strong-shadow {
-            box-shadow: 0 25px 60px rgba(255, 77, 138, 0.16);
+            box-shadow: 0 25px 60px rgba(249, 44, 235, 0.3);
           }
         }
 
         :global(.dark) .stats-strong-shadow {
-          box-shadow: 0 25px 60px rgba(255, 77, 138, 0.16);
-          }
+          box-shadow: 0 25px 60px rgba(249, 44, 235, 0.3);
+        }
       `}</style>
     </>
   );

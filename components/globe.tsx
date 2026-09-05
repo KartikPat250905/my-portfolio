@@ -91,6 +91,55 @@ export default function Globe({ selectedLocation, setSelectedLocation }: GlobePr
     textures: [],
   });
 
+  // Trigger the scroll-reveal fade-in once when the globe's wrapper scrolls
+  // into view. Runs independently of the WebGL init below so the wrapper
+  // still reveals even while textures are loading.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (prefersReducedMotion) {
+      el.classList.add("in-view");
+      return;
+    }
+
+    const reveal = (target: Element) => {
+      // Double rAF guarantees the browser has painted the opacity:0 /
+      // translateY(12px) starting state at least once before we flip to
+      // in-view. IntersectionObserver reports intersection status the
+      // moment observe() is called, not only on future scroll — so if the
+      // globe is already in the viewport on mount (e.g. a direct #history
+      // anchor jump), the "hidden" and "visible" styles could otherwise
+      // land in the same paint and the transition never gets a chance to
+      // run — it just snaps in looking "preloaded" instead of fading.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          target.classList.add("in-view");
+        });
+      });
+    };
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            reveal(entry.target);
+            revealObserver.unobserve(entry.target); // one-time reveal only
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    revealObserver.observe(el);
+
+    return () => revealObserver.disconnect();
+  }, []);
+
   useEffect(() => {
     mountedRef.current = true;
     const container = containerRef.current;
@@ -512,7 +561,7 @@ export default function Globe({ selectedLocation, setSelectedLocation }: GlobePr
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] m-2 sm:m-4 lg:m-8"
+      className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] m-2 sm:m-4 lg:m-8 animate-wrapper globe-fade"
     />
   );
 }
