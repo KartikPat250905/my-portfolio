@@ -21,10 +21,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { WorkData } from "../data/WorkData.js";
 
-const containerVariants = {
+const containerVariants: Variants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
 };
@@ -32,7 +32,7 @@ const containerVariants = {
 // Cards enter with a slight, alternating tilt — like being pinned up by
 // hand — then settle flat. Odd/even alternation avoids everything leaning
 // the same way, which would read as a mistake rather than a choice.
-const cardVariants = (tilt: number) => ({
+const cardVariants = (tilt: number): Variants => ({
     hidden: { opacity: 0, y: 18, rotate: tilt, scale: 0.98 },
     visible: {
         opacity: 1,
@@ -43,19 +43,19 @@ const cardVariants = (tilt: number) => ({
     }
 });
 
-const statContainerVariants = {
+const statContainerVariants: Variants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
 };
 
-const statItemVariants = {
+const statItemVariants: Variants = {
     hidden: { opacity: 0, y: 8 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
 };
 
 // Draw-on timing for each stroke of the briefcase, run once when the icon
 // enters view.
-const drawPath = (delay: number) => ({
+const drawPath = (delay: number): Variants => ({
     hidden: { pathLength: 0, opacity: 0 },
     visible: {
         pathLength: 1,
