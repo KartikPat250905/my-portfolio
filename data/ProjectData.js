@@ -17,7 +17,7 @@ export const ProjectData = [
     {
         title: "RAGCode-Assistant (WIP)",
         desc: "Built a repository-aware assistant that indexes project files into a vector store and retrieves only the most relevant chunks before prompting GPT. The service emphasizes grounded answers, lower token usage, and source-linked retrieval through FastAPI, Chroma, and metadata-aware chunking.",
-        github: "https://github.com/KartikPat250905",
+        github: "https://github.com/KartikPat250905/RAGCode-Assistant",
     },
     {
         title: "Junction Hackathon — Predictive Model",
