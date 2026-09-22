@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import AnimateIn from "./AnimateIn";
 import AnimatedNumber from "./AnimatedNumber";
 
@@ -143,21 +142,21 @@ export default function LeetCodeStats() {
 
   if (!stats) return null;
 
-  const pieData = [
-    { name: "Easy", value: stats.easySolved, color: COLORS.easy },
-    { name: "Medium", value: stats.mediumSolved, color: COLORS.medium },
-    { name: "Hard", value: stats.hardSolved, color: COLORS.hard },
+  // Segment widths are proportional to each other (share of *solved*, not
+  // the total question bank), so the bar is always full and reads as an
+  // achievement rather than a small slice of a huge denominator.
+  const difficultyTotal =
+    stats.easySolved + stats.mediumSolved + stats.hardSolved || 1;
+  const segments = [
+    { label: "Easy", value: stats.easySolved, color: COLORS.easy },
+    { label: "Medium", value: stats.mediumSolved, color: COLORS.medium },
+    { label: "Hard", value: stats.hardSolved, color: COLORS.hard },
   ];
-
-  const progressPercentage =
-    stats.totalQuestions > 0
-      ? ((stats.totalSolved / stats.totalQuestions) * 100).toFixed(1)
-      : "0.0";
 
   return (
     <>
       <div
-        className="flex flex-col items-center gap-6 sm:gap-8 lg:gap-10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow"
+        className="flex flex-col items-center gap-8 sm:gap-10 lg:gap-12 p-6 sm:p-8 lg:p-10 rounded-2xl shadow-xl m-4 sm:m-6 lg:m-10 w-full max-w-6xl stats-strong-shadow"
         style={{
           backgroundColor: "var(--background)",
           color: "var(--text-primary)",
@@ -182,111 +181,55 @@ export default function LeetCodeStats() {
           </a>
         </div>
 
-        <AnimateIn className="w-full max-w-6xl">
-          <div className="flex justify-center w-full">
-            <div className="flex-1 w-full min-w-0 max-w-5xl">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-300">Problems Solved</span>
-                <span className="text-gray-300">
-                  <AnimatedNumber value={stats.totalSolved} duration={600} /> / <AnimatedNumber value={stats.totalQuestions} duration={600} />
+        {/* Hero number — the achievement itself, with nothing diluting it */}
+        <AnimateIn className="flex flex-col items-center text-center">
+          <span className="text-6xl sm:text-7xl font-bold leading-none tracking-tight">
+            <AnimatedNumber value={stats.totalSolved} duration={600} />
+          </span>
+          <span className="text-gray-400 text-sm sm:text-base mt-3 tracking-wide">
+            Problems Solved
+          </span>
+        </AnimateIn>
+
+        {/* Proportional difficulty breakdown — segments sum to the solved
+            total, so the bar is always full and legible at any solve count */}
+        <AnimateIn className="w-full max-w-2xl">
+          <div className="w-full h-3 rounded-full overflow-hidden flex" style={{ backgroundColor: "var(--border-color)" }}>
+            {segments.map((seg, i) => (
+              <motion.div
+                key={seg.label}
+                className="h-full"
+                style={{ backgroundColor: seg.color }}
+                initial={{ width: 0 }}
+                animate={{ width: `${(seg.value / difficultyTotal) * 100}%` }}
+                transition={{ duration: 0.8, delay: 0.15 * i, ease: "easeOut" }}
+              />
+            ))}
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 mt-6">
+            {segments.map((seg) => (
+              <div key={seg.label} className="flex items-center gap-2">
+                <span
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ backgroundColor: seg.color }}
+                />
+                <span className="text-sm text-gray-400">{seg.label}</span>
+                <span className="text-sm font-semibold" style={{ color: seg.color }}>
+                  <AnimatedNumber value={seg.value} duration={600} />
                 </span>
               </div>
-              <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden min-w-0">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-green-500 to-blue-500"
-                  style={{ minWidth: 0 }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progressPercentage}%` }}
-                  transition={{ duration: 1, delay: 0.2 }}
-                />
-              </div>
-            </div>
+            ))}
           </div>
         </AnimateIn>
 
-        <AnimateIn className="w-full">
-          <div
-            className="w-full flex flex-col md:flex-row items-center justify-center gap-8"
-          >
-            <div className="w-full md:w-1/2 h-72">
-              <ResponsiveContainer>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={100}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#2d2d2d",
-                      border: "none",
-                      borderRadius: "8px",
-                      color: "#fff",
-                    }}
-                  />
-                  <Legend
-                    wrapperStyle={{
-                      color: "#d1d5db",
-                      fontSize: "0.9rem",
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-     
-            <div className="flex flex-col gap-4 w-full md:w-1/2">
-              <div
-                className="rounded-lg p-4"
-                style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.3)" }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-green-600 font-semibold">Easy</span>
-                  <span className="text-2xl font-bold text-theme-primary"><AnimatedNumber value={stats.easySolved} duration={600} /></span>
-                </div>
-              </div>
-     
-              <div
-                className="rounded-lg p-4"
-                style={{ backgroundColor: "rgba(251, 191, 36, 0.1)", border: "1px solid rgba(251, 191, 36, 0.3)" }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-yellow-600 font-semibold">Medium</span>
-                  <span className="text-2xl font-bold text-theme-primary"><AnimatedNumber value={stats.mediumSolved} duration={600} /></span>
-                </div>
-              </div>
-     
-              <div
-                className="rounded-lg p-4"
-                style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)" }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-red-600 font-semibold">Hard</span>
-                  <span className="text-2xl font-bold text-theme-primary"><AnimatedNumber value={stats.hardSolved} duration={600} /></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </AnimateIn>
-
-        <AnimateIn className="flex flex-wrap justify-center gap-8 mt-6 border-t border-gray-700 pt-6 w-full text-center">
-          <div>
-            <h4 className="text-2xl font-semibold text-blue-400">
-              #<AnimatedNumber value={stats.ranking} duration={600} />
-            </h4>
-            <p className="text-gray-400 text-sm mt-1">Global Ranking</p>
-          </div>
-          <div>
-            <h4 className="text-2xl font-semibold text-green-400"><AnimatedNumber value={stats.acceptanceRate} duration={600} />%</h4>
-            <p className="text-gray-400 text-sm mt-1">Acceptance Rate</p>
-          </div>
+        {/* Single supporting metric — dropped global ranking since a rank in
+            the hundreds of thousands undersells the work rather than showing it off */}
+        <AnimateIn className="flex flex-col items-center text-center border-t w-full pt-8" style={{ borderColor: "var(--border-color)" }}>
+          <h4 className="text-3xl font-semibold text-green-400">
+            <AnimatedNumber value={stats.acceptanceRate} duration={600} />%
+          </h4>
+          <p className="text-gray-400 text-sm mt-1">Acceptance Rate</p>
         </AnimateIn>
       </div>
 
