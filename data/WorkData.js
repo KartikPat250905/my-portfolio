@@ -16,9 +16,9 @@ export const WorkData = {
                 "PC Diagnostics"
             ],
             "responsibilities": [
-                "Delivered high-quality technical support and personalized customer service for device setup, troubleshooting, and guided technology solutions across a fast-paced retail environment.",
-                "Diagnosed hardware and software issues for PCs, tablets, smart devices, and connected technology, helping customers resolve problems efficiently while improving satisfaction and trust.",
-                "Partnered with customers to install, configure, and optimize technology solutions, while maintaining strong operational standards and ensuring a premium in-store service experience."
+                "Facing a high volume of device and troubleshooting requests, delivered technical support and personalized service across a fast-paced retail environment.",
+                "Tasked with resolving hardware and software issues for PCs, tablets, and smart devices, diagnosed problems efficiently, improving customer satisfaction and trust.",
+                "Seeing opportunities to optimize customer setups, partnered with customers to install and configure technology solutions, maintaining premium in-store service standards."
             ]
         },
         {
@@ -37,9 +37,9 @@ export const WorkData = {
                 "Machine Learning frameworks"
             ],
             "responsibilities": [
-                "Built and maintained AI-driven backend systems that automated business workflows and supported scalable client solutions.",
-                "Developed machine-learning pipeline components and integrated backend logic for production environments in collaboration with the founder.",
-                "Improved system reliability and delivery quality through clean architecture, testing, and modern development practices."
+                "Facing manual workflows for 4 clients, built AI backend systems in Python using PyTorch and scikit-learn via REST APIs.",
+                "Tasked with scaling backend, built ML pipelines with pandas and NumPy via LangChain, handling 2,000+ requests.",
+                "Facing reliability gaps, added CI/CD and testing using Git, cutting manual processing time by an estimated ~25%."
             ]
         },
         {
@@ -55,9 +55,9 @@ export const WorkData = {
                 "AI/ML libraries"
             ],
             "responsibilities": [
-                "Supported the integration of AI features into client applications and contributed to full-stack development in a fast-paced startup environment.",
-                "Researched and prototyped AI tools, software agents, and engineering techniques to enhance efficiency and performance.",
-                "Assisted in building and testing components across both backend and frontend workflows."
+                "Asked to support 2 client apps, integrated AI features using Python and React.js across the stack.",
+                "Seeing a slow workflow, built 3 AI agents using LangChain and scikit-learn, cutting time by ~15%.",
+                "Assigned pre-delivery QA, tested and debugged the stack in Python, cutting reported bugs by ~20%."
             ]
         }
     ]
