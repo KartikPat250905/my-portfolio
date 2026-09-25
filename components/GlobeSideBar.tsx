@@ -36,16 +36,17 @@ export function GlobeSideBar({
   };
 
   return (
-    <div className="flex flex-col h-auto lg:h-full w-full lg:w-[300px] rounded-xl shadow-md p-4 mt-4 lg:mt-20 min-h-[200px] lg:min-h-[400px]" style={{ backgroundColor: 'var(--background)' }}>
+    <div
+      className="flex flex-col h-auto lg:h-full w-full lg:w-[300px] rounded-xl p-4 mt-4 lg:mt-20 min-h-[200px] lg:min-h-[400px] sidebar-panel"
+      style={{ backgroundColor: 'var(--background)', color: 'var(--text-primary)' }}
+    >
       {/* Top menu */}
       <div className="flex flex-wrap justify-center lg:justify-around gap-2 mb-4">
         {locations.map((city) => (
           <button
             key={city}
             onClick={() => setSelectedLocation(city)}
-            className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded transition-all ${selectedLocation === city
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+            className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-full transition-all location-btn ${selectedLocation === city ? "location-btn-active" : "location-btn-inactive"
               }`}
           >
             {city}
@@ -58,19 +59,53 @@ export function GlobeSideBar({
         <div className="sidebar-content opacity-0 translate-y-2 transition-opacity transition-transform duration-[900ms]">
           {selectedLocation ? (
             <div className={`${lato.className}`}>
-              <h2 className="text-base sm:text-lg font-semibold mb-2">
+              <h2 className="text-base sm:text-lg font-semibold mb-2 sidebar-heading">
                 {selectedLocation}
               </h2>
               <p className="text-xs sm:text-sm text-theme-secondary">{info[selectedLocation]}</p>
             </div>
           ) : (
-            <p className="text-xs sm:text-sm text-gray-900 dark:text-gray-300 text-center lg:text-left text-theme-secondary">
+            <p className="text-xs sm:text-sm text-center lg:text-left text-theme-secondary">
               Select a location from the menu or click a label on the globe to
               learn more.
             </p>
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        .sidebar-panel {
+          border: 1px solid var(--border-color);
+          box-shadow: 0 8px 24px -8px var(--shadow-color);
+        }
+
+        .location-btn {
+          border: 1px solid var(--border-color);
+          font-weight: 500;
+        }
+
+        .location-btn-inactive {
+          background: color-mix(in srgb, var(--foreground) 4%, var(--background));
+          color: var(--text-secondary);
+        }
+
+        .location-btn-inactive:hover {
+          color: #f92ceb;
+          background: color-mix(in srgb, #f92ceb 10%, transparent);
+        }
+
+        .location-btn-active {
+          background: #f92ceb;
+          color: #ffffff;
+          border-color: #f92ceb;
+          box-shadow: 0 0 10px rgba(249, 44, 235, 0.4);
+        }
+
+        .sidebar-heading {
+          color: var(--text-primary);
+          text-shadow: 0 0 10px #f92ceb33;
+        }
+      `}</style>
     </div>
   );
 }
