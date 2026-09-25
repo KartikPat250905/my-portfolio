@@ -8,6 +8,7 @@ import ScrollIndicator from "/components/ScrollIndicator";
 import Comments from "/components/comments";
 import WorkExperience from "/components/work";
 import Contact from "/components/Contact";
+import TechStack from "../components/TechStack";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
       <div className="min-h-screen flex flex-col">
         <NavBar />
         <Hero />
+        <TechStack />
         <SectionHeader title="Work Experience" id="work" />
         <div className="w-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
           <WorkExperience />
