@@ -1,5 +1,5 @@
 import Hero from "../components/Hero";
-import NavBar from "/components/NavBar";
+ import NavBar from "../components/NavBar";
 import ProjectsSection from "/components/ProjectSection";
 import SectionHeader from "/components/SectionHeader";
 import { History } from "/components/History";

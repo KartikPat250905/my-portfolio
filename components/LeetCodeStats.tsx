@@ -225,7 +225,7 @@ export default function LeetCodeStats() {
 
         {/* Single supporting metric — dropped global ranking since a rank in
             the hundreds of thousands undersells the work rather than showing it off */}
-        <AnimateIn className="flex flex-col items-center text-center border-t w-full pt-8" style={{ borderColor: "var(--border-color)" }}>
+ <AnimateIn className="flex flex-col items-center text-center border-t w-full pt-8">
           <h4 className="text-3xl font-semibold text-green-400">
             <AnimatedNumber value={stats.acceptanceRate} duration={600} />%
           </h4>
