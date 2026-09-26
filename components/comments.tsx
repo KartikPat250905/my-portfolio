@@ -3,7 +3,13 @@
  * Provides a chat-style comment system and a feedback form with Firebase and EmailJS integration.
  * Handles authentication, anti-bot protection, and displays comments with replies.
  *
- * Theme: neon pink + white.
+ * Theme: neon pink + white/dark surface, driven by the app's --background /
+ * --text-primary / --border-color CSS variables (set via [data-theme] on
+ * <html>). Colors here intentionally avoid Tailwind's `dark:` variant: this
+ * app toggles theme with a `data-theme` attribute rather than a `.dark`
+ * class, so `dark:` utilities never fired and the panel went unreadable in
+ * dark mode. The pink accent (#f92ceb) itself is constant across themes;
+ * only the neutral surface/border tones read from the CSS variables.
  */
 "use client";
 import React, { useEffect, useState } from "react";
@@ -625,7 +631,7 @@ export default function Comments() {
     const isAnon = username === "Anonymous";
     if (isAnon) {
       return (
-        <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-600/40 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full avatar-anon flex items-center justify-center">
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="#94a3b8" />
             <path d="M4 20c0-2.761 3.582-5 8-5s8 2.239 8 5v1H4v-1z" fill="#94a3b8" />
@@ -721,16 +727,14 @@ export default function Comments() {
 
         {/* Mode Toggle */}
         <div className="w-full max-w-3xl">
-          <div className="flex gap-2 p-1 bg-pink-50 dark:bg-[#1a0713] border border-pink-200 dark:border-pink-500/30 rounded-lg">
+          <div className="flex gap-2 p-1 rounded-lg mode-toggle-wrap">
             <button
               onClick={() => {
                 setFeedbackMode('chat');
                 setPage(1);
                 setSubmitError("");
               }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${feedbackMode === 'chat'
-                ? 'bg-white dark:bg-[#2a0a1e] text-pink-600 dark:text-pink-300 shadow-[0_0_10px_rgba(249,44,235,0.35)]'
-                : 'text-pink-400/70 dark:text-pink-200/40 hover:text-pink-600 dark:hover:text-pink-300'
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium tab-btn ${feedbackMode === 'chat' ? 'tab-active' : 'tab-inactive'
                 }`}
             >
               💬 Chat Comments
@@ -741,9 +745,7 @@ export default function Comments() {
                 setPage(1);
                 setSubmitError("");
               }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${feedbackMode === 'form'
-                ? 'bg-white dark:bg-[#2a0a1e] text-pink-600 dark:text-pink-300 shadow-[0_0_10px_rgba(249,44,235,0.35)]'
-                : 'text-pink-400/70 dark:text-pink-200/40 hover:text-pink-600 dark:hover:text-pink-300'
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium tab-btn ${feedbackMode === 'form' ? 'tab-active' : 'tab-inactive'
                 }`}
             >
               📝 Feedback Form
@@ -788,8 +790,7 @@ export default function Comments() {
                     placeholder="Enter your name (max 50 characters)"
                     value={nameInput}
                     onChange={(e) => setNameInput(e.target.value.slice(0, 50))}
-                    className="px-4 py-2 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm w-full max-w-sm bg-white dark:bg-[#150610] focus:outline-none focus:ring-2 focus:ring-pink-400"
-                    style={{ color: 'var(--text-primary)' }}
+                    className="px-4 py-2 rounded-lg text-sm w-full max-w-sm panel-input focus:outline-none focus:ring-2 focus:ring-pink-400"
                     maxLength={50}
                   />
                 )}
@@ -802,13 +803,13 @@ export default function Comments() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center justify-between p-4 rounded-lg border border-pink-200 dark:border-pink-500/30 bg-white dark:bg-[#150610]">
+              <div className="flex items-center justify-between p-4 rounded-lg panel-surface">
                 <div className="text-sm" style={{ color: 'var(--text-primary)' }}>
-                  Posting as <strong className="text-pink-600 dark:text-pink-300">{savedName}</strong>
+                  Posting as <strong className="accent-text">{savedName}</strong>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 rounded-lg border border-pink-300 dark:border-pink-500/40 text-sm text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 transition-colors"
+                  className="px-4 py-2 rounded-lg text-sm btn-outline-pink"
                 >
                   Change
                 </button>
@@ -849,8 +850,7 @@ export default function Comments() {
                   onChange={(e) => setCommentText(e.target.value.slice(0, 500))}
                   onKeyDown={handleKeyPress}
                   rows={4}
-                  className={`w-full p-4 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] resize-none focus:outline-none focus:ring-2 focus:ring-pink-400 ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
-                  style={{ color: 'var(--text-primary)' }}
+                  className={`w-full p-4 rounded-lg text-sm resize-none panel-input focus:outline-none focus:ring-2 focus:ring-pink-400 ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
                   disabled={!isAuthenticated || submitting}
                   maxLength={500}
                 />
@@ -872,8 +872,7 @@ export default function Comments() {
                       placeholder="Your full name"
                       value={formName}
                       onChange={(e) => setFormName(e.target.value.slice(0, 50))}
-                      className="w-full p-3 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] focus:outline-none focus:ring-2 focus:ring-pink-400"
-                      style={{ color: 'var(--text-primary)' }}
+                      className="w-full p-3 rounded-lg text-sm panel-input focus:outline-none focus:ring-2 focus:ring-pink-400"
                       disabled={!isAuthenticated || submitting}
                       maxLength={50}
                       required
@@ -889,8 +888,7 @@ export default function Comments() {
                       placeholder="your.email@example.com"
                       value={formEmail}
                       onChange={(e) => setFormEmail(e.target.value.slice(0, 100))}
-                      className="w-full p-3 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] focus:outline-none focus:ring-2 focus:ring-pink-400"
-                      style={{ color: 'var(--text-primary)' }}
+                      className="w-full p-3 rounded-lg text-sm panel-input focus:outline-none focus:ring-2 focus:ring-pink-400"
                       disabled={!isAuthenticated || submitting}
                       maxLength={100}
                       required
@@ -907,8 +905,7 @@ export default function Comments() {
                     placeholder="Brief description of your feedback"
                     value={formSubject}
                     onChange={(e) => setFormSubject(e.target.value.slice(0, 100))}
-                    className="w-full p-3 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] focus:outline-none focus:ring-2 focus:ring-pink-400"
-                    style={{ color: 'var(--text-primary)' }}
+                    className="w-full p-3 rounded-lg text-sm panel-input focus:outline-none focus:ring-2 focus:ring-pink-400"
                     disabled={!isAuthenticated || submitting}
                     maxLength={100}
                     required
@@ -931,8 +928,7 @@ export default function Comments() {
                         }
                       }}
                       rows={6}
-                      className={`w-full p-4 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#150610] resize-none focus:outline-none focus:ring-2 focus:ring-pink-400 ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
-                      style={{ color: 'var(--text-primary)' }}
+                      className={`w-full p-4 rounded-lg text-sm resize-none panel-input focus:outline-none focus:ring-2 focus:ring-pink-400 ${!isAuthenticated ? "opacity-60 cursor-not-allowed" : ""}`}
                       disabled={!isAuthenticated || submitting}
                       maxLength={1000}
                       required
@@ -964,7 +960,7 @@ export default function Comments() {
             )}
 
             {submitSuccess && (
-              <div className="mt-2 text-sm text-pink-600 dark:text-pink-300">{submitSuccess}</div>
+              <div className="mt-2 text-sm accent-text">{submitSuccess}</div>
             )}
 
             <div className="flex justify-end gap-3 mt-3">
@@ -982,7 +978,7 @@ export default function Comments() {
                   setSubmitError("");
                 }}
                 disabled={feedbackMode === 'chat' ? !commentText.trim() : !formName.trim() && !formEmail.trim() && !formSubject.trim() && !formMessage.trim()}
-                className="px-4 py-2 rounded-lg border border-pink-300 dark:border-pink-500/40 text-sm text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-lg text-sm btn-outline-pink disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Clear
               </button>
@@ -1003,7 +999,7 @@ export default function Comments() {
 
         {/* Content Display */}
         <div className="w-full max-w-3xl">
-          <div className="flex items-center justify-between mb-2 pb-2 border-b border-pink-200 dark:border-pink-500/30">
+          <div className="flex items-center justify-between mb-2 pb-2 border-b divider-pink">
             <div>
               <strong className="text-lg" style={{ color: 'var(--text-primary)' }}>
                 {feedbackMode === 'chat' ? 'Comments' : 'Your Feedback Submissions'}
@@ -1033,14 +1029,14 @@ export default function Comments() {
 
                     return (
                       <AnimateIn key={c.id} className={isOwn ? 'border-pink-400' : ''}>
-                        <li className="p-4 rounded-lg border border-pink-200 dark:border-pink-500/30 bg-white dark:bg-[#150610]">
+                        <li className="p-4 rounded-lg panel-surface">
                           <div className="flex gap-3 items-start">
                             {renderAvatar(c.username)}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{c.username}</span>
                                 {isOwn && (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300">
+                                  <span className="text-xs px-2 py-0.5 rounded-full badge-pink">
                                     You
                                   </span>
                                 )}
@@ -1063,7 +1059,7 @@ export default function Comments() {
                                     setReplyingTo(replyingTo === c.id ? null : c.id);
                                     setReplyText("");
                                   }}
-                                  className="text-pink-600 dark:text-pink-400 hover:underline"
+                                  className="accent-text hover:underline"
                                 >
                                   Reply
                                 </button>
@@ -1082,8 +1078,7 @@ export default function Comments() {
                                     <textarea
                                       value={replyText}
                                       onChange={(e) => setReplyText(e.target.value.slice(0, 500))}
-                                      className="w-full p-3 rounded-lg border border-pink-200 dark:border-pink-500/30 text-sm bg-white dark:bg-[#1a0713] resize-none focus:outline-none focus:ring-2 focus:ring-pink-400"
-                                      style={{ color: 'var(--text-primary)' }}
+                                      className="w-full p-3 rounded-lg text-sm panel-input resize-none focus:outline-none focus:ring-2 focus:ring-pink-400"
                                       rows={3}
                                       maxLength={500}
                                       placeholder={`Reply to ${c.username}...`}
@@ -1105,7 +1100,7 @@ export default function Comments() {
                                         setReplyingTo(null);
                                         setReplyText("");
                                       }}
-                                      className="px-3 py-1 text-xs rounded-md border border-pink-300 dark:border-pink-500/40 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 transition-colors"
+                                      className="px-3 py-1 text-xs rounded-md btn-outline-pink"
                                     >
                                       Cancel
                                     </button>
@@ -1115,7 +1110,7 @@ export default function Comments() {
 
                               {/* Replies */}
                               {c.replies && c.replies.length > 0 && (
-                                <div className="mt-4 space-y-3 border-l-2 border-pink-200 dark:border-pink-500/30 pl-4">
+                                <div className="mt-4 space-y-3 border-l-2 divider-pink pl-4">
                                   {c.replies.map((reply) => (
                                     <div key={reply.id} className="flex gap-3 items-start">
                                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-violet-600 flex items-center justify-center text-xs font-medium text-white">
@@ -1127,7 +1122,7 @@ export default function Comments() {
                                             {reply.username}
                                           </span>
                                           {reply.uid === currentUid && (
-                                            <span className="text-xs px-1 py-0.5 rounded-full bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300">
+                                            <span className="text-xs px-1 py-0.5 rounded-full badge-pink">
                                               You
                                             </span>
                                           )}
@@ -1157,7 +1152,7 @@ export default function Comments() {
                     <button
                       onClick={() => setPage(Math.max(1, page - 1))}
                       disabled={page === 1}
-                      className="px-3 py-2 rounded-md text-sm border border-pink-300 dark:border-pink-500/40 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-3 py-2 rounded-md text-sm btn-outline-pink disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
@@ -1170,7 +1165,7 @@ export default function Comments() {
                           onClick={() => setPage(pageNumber)}
                           className={`px-3 py-2 rounded-md text-sm transition-colors ${page === pageNumber
                             ? "bg-pink-600 text-white shadow-[0_0_10px_rgba(249,44,235,0.4)]"
-                            : "border border-pink-300 dark:border-pink-500/40 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40"
+                            : "btn-outline-pink"
                             }`}
                         >
                           {pageNumber}
@@ -1181,7 +1176,7 @@ export default function Comments() {
                     <button
                       onClick={() => setPage(Math.min(totalPages, page + 1))}
                       disabled={page === totalPages}
-                      className="px-3 py-2 rounded-md text-sm border border-pink-300 dark:border-pink-500/40 text-pink-600 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-3 py-2 rounded-md text-sm btn-outline-pink disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>
@@ -1203,14 +1198,75 @@ export default function Comments() {
           box-shadow: 0 20px 50px rgba(249, 44, 235, 0.2);
         }
 
-        @media (prefers-color-scheme: dark) {
-          .stats-strong-shadow {
-            box-shadow: 0 25px 60px rgba(249, 44, 235, 0.3);
-          }
+        :global([data-theme="dark"]) .stats-strong-shadow {
+          box-shadow: 0 25px 60px rgba(249, 44, 235, 0.3);
         }
 
-        :global(.dark) .stats-strong-shadow {
-          box-shadow: 0 25px 60px rgba(249, 44, 235, 0.3);
+        /* Surfaces and accents keyed off the app's CSS variables (set via
+           [data-theme] on <html>) rather than Tailwind's dark: variant, so
+           these track the site's actual theme toggle instead of OS
+           prefers-color-scheme. */
+        .panel-surface,
+        .panel-input {
+          background: color-mix(in srgb, var(--foreground) 4%, var(--background));
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
+        }
+
+        .panel-input::placeholder {
+          color: var(--text-secondary);
+        }
+
+        .accent-text {
+          color: #f92ceb;
+        }
+
+        .badge-pink {
+          background: color-mix(in srgb, #f92ceb 18%, transparent);
+          color: #f92ceb;
+        }
+
+        .btn-outline-pink {
+          border: 1px solid var(--border-color);
+          color: #f92ceb;
+          background: transparent;
+          transition: background-color 0.2s ease;
+        }
+
+        .btn-outline-pink:hover {
+          background: color-mix(in srgb, #f92ceb 10%, transparent);
+        }
+
+        .mode-toggle-wrap {
+          background: color-mix(in srgb, #f92ceb 6%, var(--background));
+          border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+          transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .tab-active {
+          background: color-mix(in srgb, var(--foreground) 6%, var(--background));
+          color: #f92ceb;
+          box-shadow: 0 0 10px rgba(249, 44, 235, 0.35);
+        }
+
+        .tab-inactive {
+          color: var(--text-secondary);
+        }
+
+        .tab-inactive:hover {
+          color: #f92ceb;
+        }
+
+        .avatar-anon {
+          background: color-mix(in srgb, var(--foreground) 6%, var(--background));
+          border: 1px solid var(--border-color);
+        }
+
+        .divider-pink {
+          border-color: var(--border-color);
         }
       `}</style>
     </>
