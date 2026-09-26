@@ -47,7 +47,7 @@ export default function NavBar() {
     return (
         <nav className={`nav-root ${scrolled ? "nav-scrolled" : ""}`}>
             <div className="nav-inner">
-                <a href="#hero" className="nav-logo">
+                <a href="#home" className="nav-logo">
                     Portfolio
                 </a>
 
