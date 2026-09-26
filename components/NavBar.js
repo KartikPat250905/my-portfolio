@@ -4,19 +4,21 @@
  * Sticky, glass-blur bar with theme-aware colors and a neon-pink accent
  * (matches the accent used in TechStack/WorkExperience). Collapses into a
  * hamburger menu below the sm breakpoint instead of wrapping the link row.
+ *
+ * Logo font: Geist Sans (matches .loading-label in LoadingScreen.tsx) —
+ * replaced the handwritten `patrick` font for a consistent look site-wide.
  */
 
 "use client";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { patrick } from "../app/font";
 import ThemeToggle from "./ThemeToggle";
 
 // Single source of truth for links so desktop and mobile menus can't drift
 // out of sync, and so adding a new section is a one-line change.
 const NAV_LINKS = [
-    { label: "Home", href: "#hero" },
+    { label: "Home", href: "#home" },
     { label: "Work", href: "#work" },
     { label: "Projects", href: "#projects" },
     { label: "History", href: "#history" },
@@ -45,7 +47,7 @@ export default function NavBar() {
     return (
         <nav className={`nav-root ${scrolled ? "nav-scrolled" : ""}`}>
             <div className="nav-inner">
-                <a href="#hero" className={`${patrick.className} nav-logo`}>
+                <a href="#hero" className="nav-logo">
                     Portfolio
                 </a>
 
@@ -142,8 +144,11 @@ export default function NavBar() {
                 }
 
                 .nav-logo {
+                    font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+                    font-weight: 600;
+                    letter-spacing: -0.01em;
                     color: var(--text-primary);
-                    font-size: 1.5rem;
+                    font-size: 1.4rem;
                     text-decoration: none;
                     text-shadow: 0 0 12px #f92ceb55;
                     transition: text-shadow 0.25s ease, transform 0.25s ease;
@@ -151,18 +156,18 @@ export default function NavBar() {
 
                 .nav-logo:hover {
                     text-shadow: 0 0 18px #f92ceb99, 0 0 32px #f92ceb44;
-                    transform: rotate(-1.5deg);
+                    transform: translateY(-1px);
                 }
 
                 @media (min-width: 640px) {
                     .nav-logo {
-                        font-size: 1.75rem;
+                        font-size: 1.6rem;
                     }
                 }
 
                 @media (min-width: 1024px) {
                     .nav-logo {
-                        font-size: 2rem;
+                        font-size: 1.8rem;
                     }
                 }
 
